@@ -28,13 +28,13 @@ const (
 // SkinMutation represents an operation that mutates the Skin nodes in the graph.
 type SkinMutation struct {
 	config
-	op            Op
-	typ           string
+	op         Op
+	typ        string
 	id            *int
 	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*Skin, error)
-	predicates    []predicate.Skin
+	done       bool
+	oldValue   func(context.Context) (*Skin, error)
+	predicates []predicate.Skin
 }
 
 var _ ent.Mutation = (*SkinMutation)(nil)
