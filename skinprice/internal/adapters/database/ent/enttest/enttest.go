@@ -3,12 +3,13 @@
 package enttest
 
 import (
-	"SkinPrice/skinprice/internal/adapters/database/ent"
-	"SkinPrice/skinprice/internal/adapters/database/ent/migrate"
 	"context"
 
+	"SkinPrice/skinprice/internal/adapters/database/ent"
 	// required by schema hooks.
 	_ "SkinPrice/skinprice/internal/adapters/database/ent/runtime"
+
+	"SkinPrice/skinprice/internal/adapters/database/ent/migrate"
 
 	"entgo.io/ent/dialect/sql/schema"
 )

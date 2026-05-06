@@ -14,8 +14,14 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// PriceSnapshot is the client for interacting with the PriceSnapshot builders.
+	PriceSnapshot *PriceSnapshotClient
 	// Skin is the client for interacting with the Skin builders.
 	Skin *SkinClient
+	// SourceState is the client for interacting with the SourceState builders.
+	SourceState *SourceStateClient
+	// WatchlistItem is the client for interacting with the WatchlistItem builders.
+	WatchlistItem *WatchlistItemClient
 
 	// lazily loaded.
 	client     *Client
@@ -147,7 +153,10 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.PriceSnapshot = NewPriceSnapshotClient(tx.config)
 	tx.Skin = NewSkinClient(tx.config)
+	tx.SourceState = NewSourceStateClient(tx.config)
+	tx.WatchlistItem = NewWatchlistItemClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.
@@ -157,7 +166,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: Skin.QueryXXX(), the query will be executed
+// applies a query, for example: PriceSnapshot.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.
