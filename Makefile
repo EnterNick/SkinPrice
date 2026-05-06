@@ -58,7 +58,11 @@ deps: ## Download Go deps
 
 tools: ## Install dev tools (goose, goimports, golangci-lint)
 	$(GO) install golang.org/x/tools/cmd/goimports@latest
-	$(GO) install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	$(GO) install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
+	$(GO) install golang.org/x/vuln/cmd/govulncheck@latest
+	$(GO) install github.com/evilmartians/lefthook/v2@latest
+	lefthook install
+
 
 clean: ## Cleanup build artifacts
 	rm -rf bin
