@@ -1,0 +1,40 @@
+package skins
+
+import (
+	app "SkinPrice/skinprice/internal/application"
+	appskins "SkinPrice/skinprice/internal/application/skins"
+)
+
+type SearchNewSkinsUseCase interface {
+	Execute(criteria appskins.SearchCriteria, params app.Pagination) (appskins.NewSkinsList, error)
+}
+
+type Endpoints struct {
+	searchNewSkinsUC SearchNewSkinsUseCase
+}
+
+func NewEndpoints(searchNewSkinsUC SearchNewSkinsUseCase) *Endpoints {
+	return &Endpoints{searchNewSkinsUC: searchNewSkinsUC}
+}
+
+func (e *Endpoints) SearchNewSkins(filter SearchNewSkinsFilter) (NewSkinsResponse, error) {
+	result, err := e.searchNewSkinsUC.Execute(appskins.SearchCriteria{MarketHashName: filter.MarketHashName}, app.Pagination{Limit: filter.Limit, Offset: filter.Offset})
+	if err != nil {
+		return NewSkinsResponse{}, err
+	}
+
+	items := make([]NewSkinItem, 0, len(result.Items))
+	for _, item := range result.Items {
+		items = append(items, NewSkinItem{
+			MarketHashName: item.MarketHashName,
+			DisplayName:    item.DisplayName,
+			SellListings:   item.SellListings,
+			PriceCents:     item.PriceCents,
+			PriceText:      item.PriceText,
+			IconURL:        item.IconURL,
+			PageURL:        item.PageURL,
+		})
+	}
+
+	return NewSkinsResponse{Items: items, TotalCount: result.TotalCount, Limit: result.Limit, Offset: result.Offset}, nil
+}
