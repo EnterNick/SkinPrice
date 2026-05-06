@@ -1,0 +1,70 @@
+# .lefthook.yml
+
+min_version: 2.0.15
+
+assert_lefthook_installed: true
+glob_matcher: doublestar
+rc: ./.lefthookrc
+
+output:
+  - summary
+  - failure
+  - success
+
+
+pre-commit:
+  parallel: false
+  commands:
+    goimports:
+      priority: 10
+      glob: "*.go"
+      exclude:
+        - "vendor/**"
+        - "third_party/**"
+      run: bash -lc 'goimports -w {staged_files}'
+      stage_fixed: true
+
+    gofumpt:
+      priority: 20
+      glob: "*.go"
+      exclude:
+        - "vendor/**"
+        - "third_party/**"
+      run: bash -lc 'gofumpt -w {staged_files}'
+      stage_fixed: true
+
+    go-mod-tidy:
+      priority: 30
+      glob:
+        - "go.mod"
+        - "go.sum"
+      run: bash -lc 'go mod tidy'
+      stage_fixed: true
+
+commit-msg:
+  scripts:
+    "conventional.sh":
+      runner: bash
+
+pre-push:
+  parallel: true
+  commands:
+    golangci-lint:
+      priority: 10
+      run: bash -lc 'golangci-lint run --timeout=5m'
+
+    go-test:
+      priority: 20
+      run: bash -lc 'go test -count=1 ./...'
+
+    go-test-race:
+      priority: 30
+      tags: [slow]
+      env:
+        CGO_ENABLED: "1"
+      run: bash -lc 'set -a && . .env && set +a && go test -race -count=1 ./...'
+
+    govulncheck:
+      priority: 40
+      tags: [security, slow]
+      run: bash -lc 'govulncheck ./...'

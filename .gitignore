@@ -1,0 +1,36 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# Builds
+/build/
+bin/
+dist/
+
+# Go modules
+vendor/
+
+# IDE & OS artifacts
+.vscode/
+.idea/
+*.swp
+*.swo
+*.DS_Store
+Thumbs.db
+
+# Logs & temp files
+*.log
+*.out
+tmp/
+temp/
+
+# Coverage
+coverage.*
+*.cov
+
+# Local environment files
+.env
