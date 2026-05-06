@@ -11,6 +11,7 @@ type Config struct {
 	LisSkinsBaseURL string
 	HTTPTimeout     time.Duration
 	CacheTTL        time.Duration
+	MaxIdleConns    int
 }
 
 func Load() Config {
@@ -20,5 +21,6 @@ func Load() Config {
 		LisSkinsBaseURL: utils.GetStrWDefault("LISSKINS_BASE_URL", "https://lis-skins.ru"),
 		HTTPTimeout:     time.Duration(utils.GetIntWDefault("HTTP_TIMEOUT_SECONDS", 10)) * time.Second,
 		CacheTTL:        time.Duration(utils.GetIntWDefault("CACHE_TTL_SECONDS", 300)) * time.Second,
+		MaxIdleConns:    utils.GetIntWDefault("MAX_IDLE_CONNS", 10),
 	}
 }

@@ -10,7 +10,6 @@ type Skin struct {
 	ID                uuid.UUID
 	MarketHashName    string
 	Name              string
-	ItemName          string
 	SkinName          string
 	Exterior          string
 	Rarity            string
@@ -25,7 +24,6 @@ type Skin struct {
 func NewSkin(
 	MarketHashName string,
 	Name string,
-	ItemName string,
 	SkinName string,
 	Exterior string,
 	Rarity string,
@@ -39,7 +37,6 @@ func NewSkin(
 		ID:                uuid.New(),
 		MarketHashName:    MarketHashName,
 		Name:              Name,
-		ItemName:          ItemName,
 		SkinName:          SkinName,
 		Exterior:          Exterior,
 		Rarity:            Rarity,
