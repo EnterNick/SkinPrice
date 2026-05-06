@@ -8,6 +8,16 @@ import (
 )
 
 var (
+	// PriceSnapshotsColumns holds the columns for the "price_snapshots" table.
+	PriceSnapshotsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+	}
+	// PriceSnapshotsTable holds the schema information for the "price_snapshots" table.
+	PriceSnapshotsTable = &schema.Table{
+		Name:       "price_snapshots",
+		Columns:    PriceSnapshotsColumns,
+		PrimaryKey: []*schema.Column{PriceSnapshotsColumns[0]},
+	}
 	// SkinsColumns holds the columns for the "skins" table.
 	SkinsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -18,9 +28,32 @@ var (
 		Columns:    SkinsColumns,
 		PrimaryKey: []*schema.Column{SkinsColumns[0]},
 	}
+	// SourceStatesColumns holds the columns for the "source_states" table.
+	SourceStatesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+	}
+	// SourceStatesTable holds the schema information for the "source_states" table.
+	SourceStatesTable = &schema.Table{
+		Name:       "source_states",
+		Columns:    SourceStatesColumns,
+		PrimaryKey: []*schema.Column{SourceStatesColumns[0]},
+	}
+	// WatchlistItemsColumns holds the columns for the "watchlist_items" table.
+	WatchlistItemsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+	}
+	// WatchlistItemsTable holds the schema information for the "watchlist_items" table.
+	WatchlistItemsTable = &schema.Table{
+		Name:       "watchlist_items",
+		Columns:    WatchlistItemsColumns,
+		PrimaryKey: []*schema.Column{WatchlistItemsColumns[0]},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		PriceSnapshotsTable,
 		SkinsTable,
+		SourceStatesTable,
+		WatchlistItemsTable,
 	}
 )
 

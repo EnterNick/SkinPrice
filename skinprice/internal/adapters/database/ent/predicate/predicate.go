@@ -6,5 +6,14 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// PriceSnapshot is the predicate function for pricesnapshot builders.
+type PriceSnapshot func(*sql.Selector)
+
 // Skin is the predicate function for skin builders.
 type Skin func(*sql.Selector)
+
+// SourceState is the predicate function for sourcestate builders.
+type SourceState func(*sql.Selector)
+
+// WatchlistItem is the predicate function for watchlistitem builders.
+type WatchlistItem func(*sql.Selector)

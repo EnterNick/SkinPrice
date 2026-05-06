@@ -3,7 +3,10 @@
 package ent
 
 import (
+	"SkinPrice/skinprice/internal/adapters/database/ent/pricesnapshot"
 	"SkinPrice/skinprice/internal/adapters/database/ent/skin"
+	"SkinPrice/skinprice/internal/adapters/database/ent/sourcestate"
+	"SkinPrice/skinprice/internal/adapters/database/ent/watchlistitem"
 	"context"
 	"errors"
 	"fmt"
@@ -73,7 +76,10 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			skin.Table: skin.ValidColumn,
+			pricesnapshot.Table: pricesnapshot.ValidColumn,
+			skin.Table:          skin.ValidColumn,
+			sourcestate.Table:   sourcestate.ValidColumn,
+			watchlistitem.Table: watchlistitem.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

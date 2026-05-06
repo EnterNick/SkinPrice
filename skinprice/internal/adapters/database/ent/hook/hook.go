@@ -8,6 +8,18 @@ import (
 	"fmt"
 )
 
+// The PriceSnapshotFunc type is an adapter to allow the use of ordinary
+// function as PriceSnapshot mutator.
+type PriceSnapshotFunc func(context.Context, *ent.PriceSnapshotMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f PriceSnapshotFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.PriceSnapshotMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PriceSnapshotMutation", m)
+}
+
 // The SkinFunc type is an adapter to allow the use of ordinary
 // function as Skin mutator.
 type SkinFunc func(context.Context, *ent.SkinMutation) (ent.Value, error)
@@ -18,6 +30,30 @@ func (f SkinFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SkinMutation", m)
+}
+
+// The SourceStateFunc type is an adapter to allow the use of ordinary
+// function as SourceState mutator.
+type SourceStateFunc func(context.Context, *ent.SourceStateMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f SourceStateFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.SourceStateMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SourceStateMutation", m)
+}
+
+// The WatchlistItemFunc type is an adapter to allow the use of ordinary
+// function as WatchlistItem mutator.
+type WatchlistItemFunc func(context.Context, *ent.WatchlistItemMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f WatchlistItemFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.WatchlistItemMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.WatchlistItemMutation", m)
 }
 
 // Condition is a hook condition function.
