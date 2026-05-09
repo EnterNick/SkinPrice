@@ -139,6 +139,238 @@ const cards: CardData[] = [
       },
     ],
   },
+
+  {
+    image:
+      "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=900&q=80",
+    title: "AK-47 | FIRE",
+    stats: [
+      {
+        icon: stores[0],
+        price: "2100 ₽",
+        pricePercent: "+6%",
+        quantity: "1200 шт.",
+        quantityPercent: "-2%",
+      },
+      {
+        icon: stores[1],
+        price: "1900 ₽",
+        pricePercent: "+2%",
+        quantity: "980 шт.",
+        quantityPercent: "-4%",
+      },
+      {
+        icon: stores[2],
+        price: "2500 ₽",
+        pricePercent: "+12%",
+        quantity: "540 шт.",
+        quantityPercent: "-8%",
+      },
+    ],
+  },
+
+  {
+    image:
+      "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=900&q=80",
+    title: "AK-47 | FIRE",
+    stats: [
+      {
+        icon: stores[0],
+        price: "2100 ₽",
+        pricePercent: "+6%",
+        quantity: "1200 шт.",
+        quantityPercent: "-2%",
+      },
+      {
+        icon: stores[1],
+        price: "1900 ₽",
+        pricePercent: "+2%",
+        quantity: "980 шт.",
+        quantityPercent: "-4%",
+      },
+      {
+        icon: stores[2],
+        price: "2500 ₽",
+        pricePercent: "+12%",
+        quantity: "540 шт.",
+        quantityPercent: "-8%",
+      },
+    ],
+  },
+
+  {
+    image:
+      "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=900&q=80",
+    title: "AK-47 | FIRE",
+    stats: [
+      {
+        icon: stores[0],
+        price: "2100 ₽",
+        pricePercent: "+6%",
+        quantity: "1200 шт.",
+        quantityPercent: "-2%",
+      },
+      {
+        icon: stores[1],
+        price: "1900 ₽",
+        pricePercent: "+2%",
+        quantity: "980 шт.",
+        quantityPercent: "-4%",
+      },
+      {
+        icon: stores[2],
+        price: "2500 ₽",
+        pricePercent: "+12%",
+        quantity: "540 шт.",
+        quantityPercent: "-8%",
+      },
+    ],
+  },
+
+  {
+    image:
+      "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=900&q=80",
+    title: "AK-47 | FIRE",
+    stats: [
+      {
+        icon: stores[0],
+        price: "2100 ₽",
+        pricePercent: "+6%",
+        quantity: "1200 шт.",
+        quantityPercent: "-2%",
+      },
+      {
+        icon: stores[1],
+        price: "1900 ₽",
+        pricePercent: "+2%",
+        quantity: "980 шт.",
+        quantityPercent: "-4%",
+      },
+      {
+        icon: stores[2],
+        price: "2500 ₽",
+        pricePercent: "+12%",
+        quantity: "540 шт.",
+        quantityPercent: "-8%",
+      },
+    ],
+  },
+
+  {
+    image:
+      "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=900&q=80",
+    title: "AK-47 | FIRE",
+    stats: [
+      {
+        icon: stores[0],
+        price: "2100 ₽",
+        pricePercent: "+6%",
+        quantity: "1200 шт.",
+        quantityPercent: "-2%",
+      },
+      {
+        icon: stores[1],
+        price: "1900 ₽",
+        pricePercent: "+2%",
+        quantity: "980 шт.",
+        quantityPercent: "-4%",
+      },
+      {
+        icon: stores[2],
+        price: "2500 ₽",
+        pricePercent: "+12%",
+        quantity: "540 шт.",
+        quantityPercent: "-8%",
+      },
+    ],
+  },
+
+  {
+    image:
+      "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=900&q=80",
+    title: "AK-47 | FIRE",
+    stats: [
+      {
+        icon: stores[0],
+        price: "2100 ₽",
+        pricePercent: "+6%",
+        quantity: "1200 шт.",
+        quantityPercent: "-2%",
+      },
+      {
+        icon: stores[1],
+        price: "1900 ₽",
+        pricePercent: "+2%",
+        quantity: "980 шт.",
+        quantityPercent: "-4%",
+      },
+      {
+        icon: stores[2],
+        price: "2500 ₽",
+        pricePercent: "+12%",
+        quantity: "540 шт.",
+        quantityPercent: "-8%",
+      },
+    ],
+  },
+
+  {
+    image:
+      "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=900&q=80",
+    title: "AK-47 | FIRE",
+    stats: [
+      {
+        icon: stores[0],
+        price: "2100 ₽",
+        pricePercent: "+6%",
+        quantity: "1200 шт.",
+        quantityPercent: "-2%",
+      },
+      {
+        icon: stores[1],
+        price: "1900 ₽",
+        pricePercent: "+2%",
+        quantity: "980 шт.",
+        quantityPercent: "-4%",
+      },
+      {
+        icon: stores[2],
+        price: "2500 ₽",
+        pricePercent: "+12%",
+        quantity: "540 шт.",
+        quantityPercent: "-8%",
+      },
+    ],
+  },
+
+  {
+    image:
+      "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=900&q=80",
+    title: "AK-47 | FIRE",
+    stats: [
+      {
+        icon: stores[0],
+        price: "2100 ₽",
+        pricePercent: "+6%",
+        quantity: "1200 шт.",
+        quantityPercent: "-2%",
+      },
+      {
+        icon: stores[1],
+        price: "1900 ₽",
+        pricePercent: "+2%",
+        quantity: "980 шт.",
+        quantityPercent: "-4%",
+      },
+      {
+        icon: stores[2],
+        price: "2500 ₽",
+        pricePercent: "+12%",
+        quantity: "540 шт.",
+        quantityPercent: "-8%",
+      },
+    ],
+  },
 ];
 
 const App: React.FC = () => {
