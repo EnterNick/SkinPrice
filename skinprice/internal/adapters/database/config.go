@@ -8,6 +8,8 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"entgo.io/ent/dialect"
 )
 
 type Config struct {
@@ -45,6 +47,13 @@ func LoadConfig() *Config {
 }
 
 func (c Config) DSN() string {
+	if c.Driver == "sqlite3" || c.Driver == "sqlite" {
+		if c.DBName == "" {
+			return ":memory:"
+		}
+		return c.DBName
+	}
+
 	var scheme string
 	switch c.Driver {
 	case "pgx", "postgres", "postgresql", "":
@@ -67,4 +76,13 @@ func (c Config) DSN() string {
 	u.RawQuery = q.Encode()
 
 	return u.String()
+}
+
+func (c Config) EntDialect() string {
+	switch c.Driver {
+	case "sqlite3", "sqlite":
+		return dialect.SQLite
+	default:
+		return dialect.Postgres
+	}
 }
