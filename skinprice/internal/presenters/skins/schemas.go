@@ -47,4 +47,15 @@ type SavedSkinItem struct {
 	DisplayName    string `json:"display_name"`
 	IconURL        string `json:"icon_url"`
 	PageURL        string `json:"page_url"`
+	PriceText      string `json:"price_text"`
+	Currency       string `json:"currency"`
+}
+
+type UpdateSavedSkinPriceRequest struct {
+	MarketHashName string `json:"market_hash_name"`
+	Currency       string `json:"currency"`
+}
+
+type UpdateAllSavedSkinsPricesRequest struct {
+	Currency string `json:"currency"`
 }

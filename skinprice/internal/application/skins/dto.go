@@ -43,4 +43,15 @@ type SavedSkin struct {
 	DisplayName    string
 	IconURL        string
 	PageURL        string
+	PriceText      string
+	Currency       string
+}
+
+type UpdateSavedSkinPriceParams struct {
+	MarketHashName string
+	Currency       string
+}
+
+type UpdateAllSavedSkinsPricesParams struct {
+	Currency string
 }

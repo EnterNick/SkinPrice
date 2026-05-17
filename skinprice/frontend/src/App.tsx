@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { GetSavedSkins, type SavedSkinItem } from "./wailsjs/go/main/App";
+import { GetSavedSkins, UpdateAllSavedSkinsPrices, UpdateSavedSkinPrice, type SavedSkinItem } from "./wailsjs/go/main/App";
 import "./styles.css";
 
 type SavedSkinsState = {
@@ -14,12 +14,13 @@ const App: React.FC = () => {
     loading: true,
     error: null,
   });
+  const [currency, setCurrency] = useState("1");
+
+  const loadSkins = () => GetSavedSkins({ limit: 50, offset: 0 })
+    .then((response) => setState({ items: response.items, loading: false, error: null }));
 
   useEffect(() => {
-    void GetSavedSkins({ limit: 50, offset: 0 })
-      .then((response) => {
-        setState({ items: response.items, loading: false, error: null });
-      })
+    void loadSkins()
       .catch((err: unknown) => {
         setState({
           items: [],
@@ -28,6 +29,9 @@ const App: React.FC = () => {
         });
       });
   }, []);
+
+  const refreshOne = (marketHashName: string) => UpdateSavedSkinPrice({ market_hash_name: marketHashName, currency }).then(loadSkins);
+  const refreshAll = () => UpdateAllSavedSkinsPrices({ currency }).then(loadSkins);
 
   if (state.loading) {
     return <div className="app"><div className="container">Загрузка...</div></div>;
@@ -40,16 +44,28 @@ const App: React.FC = () => {
   return (
     <div className="app">
       <div className="container">
+        <div style={{ marginBottom: 16, display: "flex", gap: 8 }}>
+          <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
+            <option value="1">USD</option>
+            <option value="5">RUB</option>
+            <option value="3">EUR</option>
+          </select>
+          <button onClick={() => void refreshAll()}>Обновить цены всех</button>
+        </div>
         {state.items.map((skin) => (
-          <a key={skin.market_hash_name} href={skin.page_url} className="card" target="_blank" rel="noreferrer">
+          <div key={skin.market_hash_name} className="card">
             <div className="image-wrapper">
               <img src={skin.icon_url} alt={skin.display_name} className="card-image" />
             </div>
             <div className="card-body">
+              <a href={skin.page_url} target="_blank" rel="noreferrer">
               <h2 className="title">{skin.display_name}</h2>
+              </a>
               <p className="text">{skin.market_hash_name}</p>
+              <p className="text">Цена: {skin.price_text || "-"}</p>
+              <button onClick={() => void refreshOne(skin.market_hash_name)}>Обновить цену</button>
             </div>
-          </a>
+          </div>
         ))}
       </div>
     </div>
