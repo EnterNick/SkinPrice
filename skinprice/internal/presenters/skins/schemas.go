@@ -22,3 +22,10 @@ type NewSkinItem struct {
 	IconURL        string `json:"icon_url"`
 	PageURL        string `json:"page_url"`
 }
+
+type SaveSkinRequest struct {
+	MarketHashName string `json:"market_hash_name"`
+	DisplayName    string `json:"display_name"`
+	IconURL        string `json:"icon_url"`
+	PageURL        string `json:"page_url"`
+}

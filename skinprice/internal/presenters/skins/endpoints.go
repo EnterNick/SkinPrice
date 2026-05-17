@@ -9,12 +9,17 @@ type SearchNewSkinsUseCase interface {
 	Execute(criteria appskins.SearchCriteria, params app.Pagination) (appskins.NewSkinsList, error)
 }
 
-type Endpoints struct {
-	searchNewSkinsUC SearchNewSkinsUseCase
+type SaveSkinUseCase interface {
+	Execute(params appskins.SaveSkinParams) error
 }
 
-func NewEndpoints(searchNewSkinsUC SearchNewSkinsUseCase) *Endpoints {
-	return &Endpoints{searchNewSkinsUC: searchNewSkinsUC}
+type Endpoints struct {
+	searchNewSkinsUC SearchNewSkinsUseCase
+	saveSkinUC       SaveSkinUseCase
+}
+
+func NewEndpoints(searchNewSkinsUC SearchNewSkinsUseCase, saveSkinUC SaveSkinUseCase) *Endpoints {
+	return &Endpoints{searchNewSkinsUC: searchNewSkinsUC, saveSkinUC: saveSkinUC}
 }
 
 func (e *Endpoints) SearchNewSkins(filter SearchNewSkinsFilter) (NewSkinsResponse, error) {
@@ -37,4 +42,13 @@ func (e *Endpoints) SearchNewSkins(filter SearchNewSkinsFilter) (NewSkinsRespons
 	}
 
 	return NewSkinsResponse{Items: items, TotalCount: result.TotalCount, Limit: result.Limit, Offset: result.Offset}, nil
+}
+
+func (e *Endpoints) SaveSkin(payload SaveSkinRequest) error {
+	return e.saveSkinUC.Execute(appskins.SaveSkinParams{
+		MarketHashName: payload.MarketHashName,
+		DisplayName:    payload.DisplayName,
+		IconURL:        payload.IconURL,
+		PageURL:        payload.PageURL,
+	})
 }
