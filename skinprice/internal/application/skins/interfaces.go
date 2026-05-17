@@ -9,3 +9,7 @@ type NewSkinsStorage interface {
 type SkinSaver interface {
 	Save(params SaveSkinParams) error
 }
+
+type SavedSkinsReader interface {
+	GetSavedList(params *application.Pagination) (SavedSkinsList, error)
+}

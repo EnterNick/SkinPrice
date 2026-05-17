@@ -29,3 +29,22 @@ type SaveSkinRequest struct {
 	IconURL        string `json:"icon_url"`
 	PageURL        string `json:"page_url"`
 }
+
+type GetSavedSkinsFilter struct {
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
+}
+
+type SavedSkinsResponse struct {
+	Items      []SavedSkinItem `json:"items"`
+	TotalCount int             `json:"total_count"`
+	Limit      int             `json:"limit"`
+	Offset     int             `json:"offset"`
+}
+
+type SavedSkinItem struct {
+	MarketHashName string `json:"market_hash_name"`
+	DisplayName    string `json:"display_name"`
+	IconURL        string `json:"icon_url"`
+	PageURL        string `json:"page_url"`
+}

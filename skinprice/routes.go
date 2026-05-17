@@ -14,7 +14,8 @@ func (a *App) registerRoutes() {
 	searchNewSkinsUC := skins.SearchNewSkins{NewSkinsStorage: storage}
 	saveSkinStorage := &adapterdbskins.Storage{Conn: a.backend.Factory.DBConnection()}
 	saveSkinUC := skins.SaveSkin{SkinSaver: saveSkinStorage}
-	a.skinsEndpoints = presenterskins.NewEndpoints(searchNewSkinsUC, saveSkinUC)
+	getSavedSkinsUC := skins.GetSavedSkins{SavedSkinsReader: saveSkinStorage}
+	a.skinsEndpoints = presenterskins.NewEndpoints(searchNewSkinsUC, saveSkinUC, getSavedSkinsUC)
 }
 
 func (a *App) SearchNewSkins(filter presenterskins.SearchNewSkinsFilter) (presenterskins.NewSkinsResponse, error) {
@@ -23,4 +24,8 @@ func (a *App) SearchNewSkins(filter presenterskins.SearchNewSkinsFilter) (presen
 
 func (a *App) SaveSkin(payload presenterskins.SaveSkinRequest) error {
 	return a.skinsEndpoints.SaveSkin(payload)
+}
+
+func (a *App) GetSavedSkins(filter presenterskins.GetSavedSkinsFilter) (presenterskins.SavedSkinsResponse, error) {
+	return a.skinsEndpoints.GetSavedSkins(filter)
 }
