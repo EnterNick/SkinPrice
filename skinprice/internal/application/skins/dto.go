@@ -30,3 +30,17 @@ type SaveSkinParams struct {
 	IconURL        string
 	PageURL        string
 }
+
+type SavedSkinsList struct {
+	Items      []SavedSkin
+	TotalCount int
+	Offset     int
+	Limit      int
+}
+
+type SavedSkin struct {
+	MarketHashName string
+	DisplayName    string
+	IconURL        string
+	PageURL        string
+}
