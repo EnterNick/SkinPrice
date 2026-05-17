@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	_ "github.com/jackc/pgx/v5/stdlib" // need to load db driver
+	_ "github.com/mattn/go-sqlite3"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
@@ -46,7 +47,7 @@ func New(cfg *Config) (*Connection, error) {
 		db.SetConnMaxLifetime(cfg.ConnMaxLifetime)
 	}
 
-	drv := entsql.OpenDB(dialect.Postgres, db)
+	drv := entsql.OpenDB(cfg.EntDialect(), db)
 
 	client := ent.NewClient(ent.Driver(drv))
 	if cfg.Debug {
