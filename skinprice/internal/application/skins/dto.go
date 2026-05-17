@@ -23,3 +23,10 @@ type NewSkin struct {
 	IconURL string
 	PageURL string
 }
+
+type SaveSkinParams struct {
+	MarketHashName string
+	DisplayName    string
+	IconURL        string
+	PageURL        string
+}
