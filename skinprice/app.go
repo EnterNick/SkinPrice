@@ -2,12 +2,14 @@ package main
 
 import (
 	"SkinPrice/skinprice/internal/composion"
+	presenterskins "SkinPrice/skinprice/internal/presenters/skins"
 	"context"
 )
 
 type App struct {
-	ctx     context.Context
-	backend *composion.BackendApp
+	ctx            context.Context
+	backend        *composion.BackendApp
+	skinsEndpoints *presenterskins.Endpoints
 }
 
 func NewApp() *App {
@@ -15,9 +17,11 @@ func NewApp() *App {
 	if err != nil {
 		panic(err)
 	}
-	return &App{
+	instance := &App{
 		backend: app,
 	}
+	instance.registerRoutes()
+	return instance
 }
 
 func (a *App) startup(ctx context.Context) {
