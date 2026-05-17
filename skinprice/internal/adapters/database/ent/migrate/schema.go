@@ -21,6 +21,10 @@ var (
 	// SkinsColumns holds the columns for the "skins" table.
 	SkinsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "market_hash_name", Type: field.TypeString, Unique: true},
+		{Name: "display_name", Type: field.TypeString},
+		{Name: "icon_url", Type: field.TypeString, Nullable: true},
+		{Name: "page_url", Type: field.TypeString, Nullable: true},
 	}
 	// SkinsTable holds the schema information for the "skins" table.
 	SkinsTable = &schema.Table{
