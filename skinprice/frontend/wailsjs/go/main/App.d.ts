@@ -4,6 +4,8 @@
 export function GetSavedSkins(arg1: GetSavedSkinsFilter): Promise<SavedSkinsResponse>;
 export function SearchNewSkins(arg1: SearchNewSkinsFilter): Promise<NewSkinsResponse>;
 export function Shutdown(): Promise<void>;
+export function UpdateAllSavedSkinsPrices(arg1: UpdateAllSavedSkinsPricesRequest): Promise<void>;
+export function UpdateSavedSkinPrice(arg1: UpdateSavedSkinPriceRequest): Promise<void>;
 
 export interface GetSavedSkinsFilter {
   limit: number;
@@ -16,11 +18,22 @@ export interface SearchNewSkinsFilter {
   offset: number;
 }
 
+export interface UpdateAllSavedSkinsPricesRequest {
+  currency: string;
+}
+
+export interface UpdateSavedSkinPriceRequest {
+  market_hash_name: string;
+  currency: string;
+}
+
 export interface SavedSkinItem {
   market_hash_name: string;
   display_name: string;
   icon_url: string;
   page_url: string;
+  price_text: string;
+  currency: string;
 }
 
 export interface SavedSkinsResponse {

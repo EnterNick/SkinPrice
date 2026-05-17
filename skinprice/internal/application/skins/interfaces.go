@@ -13,3 +13,8 @@ type SkinSaver interface {
 type SavedSkinsReader interface {
 	GetSavedList(params *application.Pagination) (SavedSkinsList, error)
 }
+
+type SavedSkinPriceUpdater interface {
+	UpdateSavedSkinPrice(params UpdateSavedSkinPriceParams) error
+	UpdateAllSavedSkinsPrices(params UpdateAllSavedSkinsPricesParams) error
+}

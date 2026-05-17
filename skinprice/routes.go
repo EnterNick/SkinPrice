@@ -12,10 +12,20 @@ func (a *App) registerRoutes() {
 	cfg := config.Load()
 	storage := &adaptersteam.Storage{Client: adaptersteam.NewSteamClient(cfg), BaseURL: cfg.SteamBaseURL}
 	searchNewSkinsUC := skins.SearchNewSkins{NewSkinsStorage: storage}
-	saveSkinStorage := &adapterdbskins.Storage{Conn: a.backend.Factory.DBConnection()}
+	saveSkinStorage := &adapterdbskins.Storage{Conn: a.backend.Factory.DBConnection(), SteamStorage: storage}
 	saveSkinUC := skins.SaveSkin{SkinSaver: saveSkinStorage}
 	getSavedSkinsUC := skins.GetSavedSkins{SavedSkinsReader: saveSkinStorage}
-	a.skinsEndpoints = presenterskins.NewEndpoints(searchNewSkinsUC, saveSkinUC, getSavedSkinsUC)
+	updateSavedSkinPriceUC := skins.UpdateSavedSkinPrice{Updater: saveSkinStorage}
+	updateAllSavedSkinsPricesUC := skins.UpdateAllSavedSkinsPrices{Updater: saveSkinStorage}
+	a.skinsEndpoints = presenterskins.NewEndpoints(searchNewSkinsUC, saveSkinUC, getSavedSkinsUC, updateSavedSkinPriceUC, updateAllSavedSkinsPricesUC)
+}
+
+func (a *App) UpdateSavedSkinPrice(payload presenterskins.UpdateSavedSkinPriceRequest) error {
+	return a.skinsEndpoints.UpdateSavedSkinPrice(payload)
+}
+
+func (a *App) UpdateAllSavedSkinsPrices(payload presenterskins.UpdateAllSavedSkinsPricesRequest) error {
+	return a.skinsEndpoints.UpdateAllSavedSkinsPrices(payload)
 }
 
 func (a *App) SearchNewSkins(filter presenterskins.SearchNewSkinsFilter) (presenterskins.NewSkinsResponse, error) {

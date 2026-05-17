@@ -92,3 +92,46 @@ func buildSteamMarketSearchParams(params *application.Pagination) url.Values {
 
 	return q
 }
+
+func (s *Storage) GetByMarketHashName(marketHashName, currency string) (*skins.NewSkin, error) {
+	q := buildSteamMarketSearchParams(&application.Pagination{Limit: 1, Offset: 0})
+	q.Set("query", marketHashName)
+	if currency != "" {
+		q.Set("currency", currency)
+	}
+
+	endpoint := fmt.Sprintf("%s/search/render/?%s", s.BaseURL, q.Encode())
+	resp, err := s.Client.Get(endpoint)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", skins.ErrNewSkinsRequestFailed, err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("%w: %d", skins.ErrNewSkinsRequestBadStatus, resp.StatusCode)
+	}
+
+	var payload steamMarketSearchResponse
+	if err = json.NewDecoder(resp.Body).Decode(&payload); err != nil {
+		return nil, fmt.Errorf("%w: %w", skins.ErrNewSkinsResponseDecodeFail, err)
+	}
+	if !payload.Success || len(payload.Results) == 0 {
+		return nil, fmt.Errorf("%w: %s", skins.ErrNewSkinsResponseUnsuccess, payload.ErrorMessage)
+	}
+
+	for _, item := range payload.Results {
+		if item.HashName == marketHashName {
+			return &skins.NewSkin{
+				MarketHashName: item.HashName,
+				DisplayName:    item.Name,
+				SellListings:   item.SellListings,
+				PriceCents:     item.SellPrice,
+				PriceText:      item.SellPriceText,
+				IconURL:        item.AssetDesc.IconURL,
+				PageURL:        fmt.Sprintf("%s/listings/730/%s", s.BaseURL, url.PathEscape(item.HashName)),
+			}, nil
+		}
+	}
+
+	return nil, fmt.Errorf("%w: skin not found", skins.ErrNewSkinsResponseUnsuccess)
+}

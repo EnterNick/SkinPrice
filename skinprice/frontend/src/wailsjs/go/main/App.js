@@ -13,3 +13,11 @@ export function SearchNewSkins(arg1) {
 export function Shutdown() {
   return window['go']['main']['App']['Shutdown']();
 }
+
+export function UpdateAllSavedSkinsPrices(arg1) {
+  return window['go']['main']['App']['UpdateAllSavedSkinsPrices'](arg1);
+}
+
+export function UpdateSavedSkinPrice(arg1) {
+  return window['go']['main']['App']['UpdateSavedSkinPrice'](arg1);
+}

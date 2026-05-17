@@ -16,15 +16,23 @@ type SaveSkinUseCase interface {
 type GetSavedSkinsUseCase interface {
 	Execute(params app.Pagination) (appskins.SavedSkinsList, error)
 }
-
-type Endpoints struct {
-	searchNewSkinsUC SearchNewSkinsUseCase
-	saveSkinUC       SaveSkinUseCase
-	getSavedSkinsUC  GetSavedSkinsUseCase
+type UpdateSavedSkinPriceUseCase interface {
+	Execute(params appskins.UpdateSavedSkinPriceParams) error
+}
+type UpdateAllSavedSkinsPricesUseCase interface {
+	Execute(params appskins.UpdateAllSavedSkinsPricesParams) error
 }
 
-func NewEndpoints(searchNewSkinsUC SearchNewSkinsUseCase, saveSkinUC SaveSkinUseCase, getSavedSkinsUC GetSavedSkinsUseCase) *Endpoints {
-	return &Endpoints{searchNewSkinsUC: searchNewSkinsUC, saveSkinUC: saveSkinUC, getSavedSkinsUC: getSavedSkinsUC}
+type Endpoints struct {
+	searchNewSkinsUC            SearchNewSkinsUseCase
+	saveSkinUC                  SaveSkinUseCase
+	getSavedSkinsUC             GetSavedSkinsUseCase
+	updateSavedSkinPriceUC      UpdateSavedSkinPriceUseCase
+	updateAllSavedSkinsPricesUC UpdateAllSavedSkinsPricesUseCase
+}
+
+func NewEndpoints(searchNewSkinsUC SearchNewSkinsUseCase, saveSkinUC SaveSkinUseCase, getSavedSkinsUC GetSavedSkinsUseCase, updateSavedSkinPriceUC UpdateSavedSkinPriceUseCase, updateAllSavedSkinsPricesUC UpdateAllSavedSkinsPricesUseCase) *Endpoints {
+	return &Endpoints{searchNewSkinsUC: searchNewSkinsUC, saveSkinUC: saveSkinUC, getSavedSkinsUC: getSavedSkinsUC, updateSavedSkinPriceUC: updateSavedSkinPriceUC, updateAllSavedSkinsPricesUC: updateAllSavedSkinsPricesUC}
 }
 
 func (e *Endpoints) SearchNewSkins(filter SearchNewSkinsFilter) (NewSkinsResponse, error) {
@@ -71,8 +79,18 @@ func (e *Endpoints) GetSavedSkins(filter GetSavedSkinsFilter) (SavedSkinsRespons
 			DisplayName:    item.DisplayName,
 			IconURL:        item.IconURL,
 			PageURL:        item.PageURL,
+			PriceText:      item.PriceText,
+			Currency:       item.Currency,
 		})
 	}
 
 	return SavedSkinsResponse{Items: items, TotalCount: result.TotalCount, Limit: result.Limit, Offset: result.Offset}, nil
+}
+
+func (e *Endpoints) UpdateSavedSkinPrice(payload UpdateSavedSkinPriceRequest) error {
+	return e.updateSavedSkinPriceUC.Execute(appskins.UpdateSavedSkinPriceParams{MarketHashName: payload.MarketHashName, Currency: payload.Currency})
+}
+
+func (e *Endpoints) UpdateAllSavedSkinsPrices(payload UpdateAllSavedSkinsPricesRequest) error {
+	return e.updateAllSavedSkinsPricesUC.Execute(appskins.UpdateAllSavedSkinsPricesParams{Currency: payload.Currency})
 }
