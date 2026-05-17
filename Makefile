@@ -61,6 +61,7 @@ tools: ## Install dev tools (goose, goimports, golangci-lint)
 	$(GO) install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
 	$(GO) install golang.org/x/vuln/cmd/govulncheck@latest
 	$(GO) install github.com/evilmartians/lefthook/v2@latest
+	$(GO) install github.com/wailsapp/wails/v2/cmd/wails@latest
 	lefthook install
 
 
@@ -139,6 +140,8 @@ dev: ## Run with file-watcher (requires air)
 	}
 	air
 
+wails:
+	cd $(PROJECT_NAME) && wails dev
 # ===================================================================
 #  Docker build/push
 # ===================================================================
