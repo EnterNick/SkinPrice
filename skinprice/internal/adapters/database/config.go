@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"entgo.io/ent/dialect"
@@ -31,10 +32,14 @@ func LoadConfig() *Config {
 	maxOpenConns, _ := strconv.Atoi(os.Getenv("APP_DB_MAX_OPEN_CONNS"))
 	maxIdleConns, _ := strconv.Atoi(os.Getenv("APP_DB_MAX_IDLE_CONNS"))
 	connMaxLifeTimeSeconds, _ := strconv.Atoi(os.Getenv("APP_DB_CONN_MAX_LIFE_TIME"))
+	dbName := os.Getenv("APP_DB_NAME")
+	if dbName == "" {
+		dbName = os.Getenv("APP_DB_PATH")
+	}
 	return &Config{
 		Host:            os.Getenv("APP_DB_HOST"),
 		Port:            port,
-		DBName:          os.Getenv("APP_DB_NAME"),
+		DBName:          dbName,
 		Password:        os.Getenv("APP_DB_PASSWORD"),
 		User:            os.Getenv("APP_DB_USER"),
 		SSLMode:         utils.GetStrWDefault("APP_DB_SSLMODE", "disable"),
@@ -48,10 +53,18 @@ func LoadConfig() *Config {
 
 func (c Config) DSN() string {
 	if c.Driver == "sqlite3" || c.Driver == "sqlite" {
-		if c.DBName == "" {
-			return ":memory:"
+		dbName := c.DBName
+		if dbName == "" {
+			dbName = ":memory:"
 		}
-		return c.DBName
+		separator := "?"
+		if strings.Contains(dbName, "?") {
+			separator = "&"
+		}
+		if strings.Contains(dbName, "_fk=") {
+			return dbName
+		}
+		return dbName + separator + "_fk=1"
 	}
 
 	var scheme string

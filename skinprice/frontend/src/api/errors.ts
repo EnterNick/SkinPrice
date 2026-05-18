@@ -33,7 +33,7 @@ export const toApiError = (err: unknown): ApiError => {
 
   return {
     code,
-    message: MESSAGES[code],
+    message: code === "UNKNOWN_ERROR" && message ? message : MESSAGES[code],
     details: err,
   };
 };
