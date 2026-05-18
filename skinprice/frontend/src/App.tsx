@@ -163,8 +163,9 @@ const NewSkinsPage: React.FC = () => {
     const [items, setItems] = useState<NewSkin[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [savingId, setSavingId] = useState<string | null>(null);
-    const [notice, setNotice] = useState<string | null>(null);
+    const [savingIds, setSavingIds] = useState<Record<string, boolean>>({});
+    const [savedIds, setSavedIds] = useState<Record<string, boolean>>({});
+    const [notice, setNotice] = useState<{ type: "success" | "error"; text: string } | null>(null);
     const requestIdRef = useRef(0);
 
     useEffect(() => {
@@ -175,49 +176,56 @@ const NewSkinsPage: React.FC = () => {
       return () => window.clearTimeout(timeout);
     }, [query]);
 
-    useEffect(() => {
+    const loadNewSkins = async (searchValue: string) => {
       const requestId = requestIdRef.current + 1;
       requestIdRef.current = requestId;
       setLoading(true);
       setError(null);
 
-      void getNewSkins(debouncedQuery)
-        .then((response) => {
-          if (requestId !== requestIdRef.current) {
-            return;
-          }
+      try {
+        const response = await getNewSkins(searchValue);
+        if (requestId !== requestIdRef.current) {
+          return;
+        }
 
-          const normalizedQuery = debouncedQuery.toLowerCase();
-          const filteredItems = normalizedQuery
-            ? response.items.filter((item) => item.title.toLowerCase().includes(normalizedQuery) || item.name.toLowerCase().includes(normalizedQuery))
-            : response.items;
+        const normalizedQuery = searchValue.toLowerCase();
+        const filteredItems = normalizedQuery
+          ? response.items.filter((item) => item.title.toLowerCase().includes(normalizedQuery) || item.name.toLowerCase().includes(normalizedQuery))
+          : response.items;
 
-          setItems(filteredItems);
-          setLoading(false);
-        })
-        .catch((err: unknown) => {
-          if (requestId !== requestIdRef.current) {
-            return;
-          }
+        setItems(filteredItems);
+        setLoading(false);
+      } catch (err: unknown) {
+        if (requestId !== requestIdRef.current) {
+          return;
+        }
 
-          const apiError = toApiError(err);
-          setError(apiError.message || "Не удалось загрузить новые скины");
-          setItems([]);
-          setLoading(false);
-        });
+        const apiError = toApiError(err);
+        setError(apiError.message || "Не удалось загрузить новые скины");
+        setItems([]);
+        setLoading(false);
+      }
+    };
+
+    useEffect(() => {
+      void loadNewSkins(debouncedQuery);
     }, [debouncedQuery]);
 
     const onSave = async (id: string) => {
-      setSavingId(id);
+      setSavingIds((prev) => ({ ...prev, [id]: true }));
       setNotice(null);
+
       try {
         await saveSkin(id);
-        setNotice("Скин сохранён.");
+        setSavedIds((prev) => ({ ...prev, [id]: true }));
+        setNotice({ type: "success", text: "Скин сохранён." });
+        await loadNewSkins(debouncedQuery);
       } catch (err: unknown) {
         const apiError = toApiError(err);
-        setNotice(`Ошибка сохранения: ${apiError.message}`);
+        setNotice({ type: "error", text: `Ошибка сохранения: ${apiError.message}` });
+        window.alert(`Не удалось сохранить скин: ${apiError.message}`);
       } finally {
-        setSavingId(null);
+        setSavingIds((prev) => ({ ...prev, [id]: false }));
       }
     };
 
@@ -232,7 +240,7 @@ const NewSkinsPage: React.FC = () => {
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
-        {notice && <div className="status-box">{notice}</div>}
+        {notice && <div className="status-box">{notice.text}</div>}
         {loading && <div className="status-box">Загрузка новых скинов...</div>}
         {error && !loading && <div className="status-box">Ошибка: {error}</div>}
         {!loading && !error && items.length === 0 && <div className="status-box">По запросу ничего не найдено.</div>}
@@ -250,8 +258,12 @@ const NewSkinsPage: React.FC = () => {
                   <p className="text">{skin.name}</p>
                   <p className="text">Цена: {skin.priceText || "-"}</p>
                   <p className="text">Лотов: {skin.sellListings ?? "-"}</p>
-                  <button type="button" disabled={savingId === skin.id} onClick={() => void onSave(skin.id)}>
-                    {savingId === skin.id ? "Сохраняем..." : "Сохранить"}
+                  <button
+                    type="button"
+                    disabled={Boolean(savingIds[skin.id]) || Boolean(savedIds[skin.id])}
+                    onClick={() => void onSave(skin.id)}
+                  >
+                    {savingIds[skin.id] ? "Сохраняем..." : savedIds[skin.id] ? "Сохранено" : "Сохранить"}
                   </button>
                 </div>
               </div>
