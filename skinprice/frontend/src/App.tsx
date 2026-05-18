@@ -51,11 +51,11 @@ const SavedSkinsPage: React.FC = () => {
     error: null,
   });
   const [currency, setCurrency] = useState("1");
+  const [isUpdatingAll, setIsUpdatingAll] = useState(false);
+  const [notice, setNotice] = useState<{ type: "success" | "warning" | "error"; text: string } | null>(null);
 
   const loadSkins = () =>
-    GetSavedSkins({ limit: 50, offset: 0 }).then((response) =>
-      setState({ items: response.items, loading: false, error: null }),
-    );
+    getSavedSkins().then((response) => setState({ items: response.items, loading: false, error: null }));
 
   useEffect(() => {
     void loadSkins().catch((err: unknown) => {
@@ -67,9 +67,38 @@ const SavedSkinsPage: React.FC = () => {
     });
   }, []);
 
-  const refreshOne = (marketHashName: string) =>
-    UpdateSavedSkinPrice({ market_hash_name: marketHashName, currency }).then(loadSkins);
-  const refreshAll = () => UpdateAllSavedSkinsPrices({ currency }).then(loadSkins);
+  const refreshOne = (skinId: string) => updateSkinPrice(skinId, currency).then(loadSkins);
+
+  const refreshAll = async () => {
+    setIsUpdatingAll(true);
+    setNotice(null);
+
+    try {
+      const result = await updateAllSkinPrices(currency);
+
+      try {
+        await loadSkins();
+        setNotice({
+          type: "success",
+          text: `Готово: цены обновлены для ${result.updated} скинов.`,
+        });
+      } catch (reloadError) {
+        const apiError = toApiError(reloadError);
+        setNotice({
+          type: "warning",
+          text: `Частичный успех: цены обновлены, но не удалось синхронизировать список (${apiError.message}).`,
+        });
+      }
+    } catch (updateError) {
+      const apiError = toApiError(updateError);
+      setNotice({
+        type: "error",
+        text: `Ошибка обновления цен: ${apiError.message}`,
+      });
+    } finally {
+      setIsUpdatingAll(false);
+    }
+  };
 
   if (state.loading) {
     return <div className="container">Загрузка...</div>;
@@ -87,20 +116,25 @@ const SavedSkinsPage: React.FC = () => {
           <option value="5">RUB</option>
           <option value="3">EUR</option>
         </select>
-        <button onClick={() => void refreshAll()}>Обновить цены всех</button>
+        <button type="button" disabled={isUpdatingAll} onClick={() => void refreshAll()}>
+          {isUpdatingAll ? "Обновление..." : "Обновить все цены"}
+        </button>
       </div>
+      {notice && <p className={`text notice-${notice.type}`}>{notice.text}</p>}
       {state.items.map((skin) => (
-        <div key={skin.market_hash_name} className="card">
+        <div key={skin.id} className="card">
           <div className="image-wrapper">
-            <img src={skin.icon_url} alt={skin.display_name} className="card-image" />
+            <img src={skin.imageUrl} alt={skin.title} className="card-image" />
           </div>
           <div className="card-body">
-            <a href={skin.page_url} target="_blank" rel="noreferrer">
-              <h2 className="title">{skin.display_name}</h2>
+            <a href={skin.pageUrl} target="_blank" rel="noreferrer">
+              <h2 className="title">{skin.title}</h2>
             </a>
-            <p className="text">{skin.market_hash_name}</p>
-            <p className="text">Цена: {skin.price_text || "-"}</p>
-            <button onClick={() => void refreshOne(skin.market_hash_name)}>Обновить цену</button>
+            <p className="text">{skin.name}</p>
+            <p className="text">Цена: {skin.priceText || "-"}</p>
+            <button type="button" onClick={() => void refreshOne(skin.id)}>
+              Обновить цену
+            </button>
           </div>
         </div>
       ))}

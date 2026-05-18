@@ -248,3 +248,15 @@ body {
   max-width: 1600px;
   margin: 0 auto;
 }
+
+.notice-success {
+  color: #41d392;
+}
+
+.notice-warning {
+  color: #fbbf24;
+}
+
+.notice-error {
+  color: #ff5c5c;
+}
