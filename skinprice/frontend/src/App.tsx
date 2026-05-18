@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { getSavedSkins, updateAllSkinPrices, updateSkinPrice } from "./api/client";
 import type { SavedSkin } from "./api/models";
 import { toApiError } from "./api/errors";
@@ -45,11 +45,7 @@ const useRoute = (): RoutePath => {
 };
 
 const SavedSkinsPage: React.FC = () => {
-  const [state, setState] = useState<SavedSkinsState>({
-    items: [],
-    loading: true,
-    error: null,
-  });
+  const [state, setState] = useState<SavedSkinsState>({ items: [], loading: true, error: null });
   const [currency, setCurrency] = useState("1");
   const [isUpdatingAll, setIsUpdatingAll] = useState(false);
   const [notice, setNotice] = useState<{ type: "success" | "warning" | "error"; text: string } | null>(null);
@@ -103,17 +99,23 @@ const SavedSkinsPage: React.FC = () => {
     }
   };
 
-  if (state.loading) {
-    return <div className="container">Загрузка...</div>;
-  }
+  const refreshAll = async () => {
+    setReloading(true);
+    try {
+      await updateAllSkinPrices(currency);
+      await loadSkins();
+    } finally {
+      setReloading(false);
+    }
+  };
 
-  if (state.error) {
-    return <div className="container">Ошибка: {state.error}</div>;
-  }
+  if (state.loading) return <div className="status-box">Загрузка сохранённых скинов...</div>;
+  if (state.error) return <div className="status-box">Ошибка: {state.error}</div>;
+  if (state.items.length === 0) return <div className="status-box">Нет сохранённых скинов.</div>;
 
   return (
-    <div className="container">
-      <div style={{ marginBottom: 16, display: "flex", gap: 8 }}>
+    <div className="saved-skins-page">
+      <div className="saved-skins-toolbar">
         <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
           <option value="1">USD</option>
           <option value="5">RUB</option>
