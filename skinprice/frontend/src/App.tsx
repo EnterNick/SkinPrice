@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { GetSavedSkins, UpdateAllSavedSkinsPrices, UpdateSavedSkinPrice, type SavedSkinsResponse } from "./wailsjs/go/main/App";
+import { GetSavedSkins, UpdateAllSavedSkinsPrices, UpdateSavedSkinPrice } from "./wailsjs/go/main/App";
+import { skins } from "./wailsjs/go/models";
 import "./styles.css";
 
 type SavedSkinsState = {
-  items: SavedSkinsResponse["items"];
+  items: skins.SavedSkinsResponse["items"];
   loading: boolean;
   error: string | null;
 };
