@@ -3,7 +3,7 @@ import type { skins } from "../wailsjs/go/models";
 import { toApiError } from "./errors";
 import type { NewSkin, PaginatedResult, PriceUpdateResult, SavedSkin } from "./models";
 
-const DEFAULT_LIMIT = 50;
+const DEFAULT_LIMIT = 20;
 const DEFAULT_OFFSET = 0;
 
 const mapSavedSkin = (item: skins.SavedSkinItem): SavedSkin => ({
