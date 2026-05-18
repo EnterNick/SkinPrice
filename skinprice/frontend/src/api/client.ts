@@ -5,7 +5,6 @@ import type { NewSkin, PaginatedResult, PriceUpdateResult, SavedSkin } from "./m
 
 const DEFAULT_LIMIT = 50;
 const DEFAULT_OFFSET = 0;
-const DEFAULT_CURRENCY = "1";
 
 const mapSavedSkin = (item: skins.SavedSkinItem): SavedSkin => ({
   id: item.market_hash_name,
@@ -56,18 +55,18 @@ export const getNewSkins = async (query?: string): Promise<PaginatedResult<NewSk
   }
 };
 
-export const updateSkinPrice = async (skinId: string): Promise<PriceUpdateResult> => {
+export const updateSkinPrice = async (skinId: string, currency: string): Promise<PriceUpdateResult> => {
   try {
-    await UpdateSavedSkinPrice({ market_hash_name: skinId, currency: DEFAULT_CURRENCY });
+    await UpdateSavedSkinPrice({ market_hash_name: skinId, currency });
     return { updated: 1 };
   } catch (err) {
     throw toApiError(err);
   }
 };
 
-export const updateAllSkinPrices = async (): Promise<PriceUpdateResult> => {
+export const updateAllSkinPrices = async (currency: string): Promise<PriceUpdateResult> => {
   try {
-    await UpdateAllSavedSkinsPrices({ currency: DEFAULT_CURRENCY });
+    await UpdateAllSavedSkinsPrices({ currency });
     const refreshed = await getSavedSkins();
     return { updated: refreshed.items.length };
   } catch (err) {

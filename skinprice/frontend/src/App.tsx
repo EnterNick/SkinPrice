@@ -16,6 +16,8 @@ const App: React.FC = () => {
     loading: true,
     error: null,
   });
+  const [currency, setCurrency] = useState("1");
+
   const loadSkins = () => getSavedSkins()
     .then((response) => setState({ items: response.items, loading: false, error: null }));
 
@@ -30,8 +32,8 @@ const App: React.FC = () => {
       });
   }, []);
 
-  const refreshOne = (skinId: string) => updateSkinPrice(skinId).then(loadSkins);
-  const refreshAll = () => updateAllSkinPrices().then(loadSkins);
+  const refreshOne = (skinId: string) => updateSkinPrice(skinId, currency).then(loadSkins);
+  const refreshAll = () => updateAllSkinPrices(currency).then(loadSkins);
 
   if (state.loading) {
     return <div className="app"><div className="container">Загрузка...</div></div>;
@@ -45,6 +47,11 @@ const App: React.FC = () => {
     <div className="app">
       <div className="container">
         <div style={{ marginBottom: 16, display: "flex", gap: 8 }}>
+          <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
+            <option value="1">USD</option>
+            <option value="5">RUB</option>
+            <option value="3">EUR</option>
+          </select>
           <button onClick={() => void refreshAll()}>Обновить цены всех</button>
         </div>
         {state.items.map((skin) => (
