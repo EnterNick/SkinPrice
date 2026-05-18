@@ -6,6 +6,10 @@ export function GetSavedSkins(arg1) {
   return window['go']['main']['App']['GetSavedSkins'](arg1);
 }
 
+export function SaveSkin(arg1) {
+  return window['go']['main']['App']['SaveSkin'](arg1);
+}
+
 export function SearchNewSkins(arg1) {
   return window['go']['main']['App']['SearchNewSkins'](arg1);
 }

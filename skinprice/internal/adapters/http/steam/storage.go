@@ -3,7 +3,9 @@ package steam
 import (
 	"SkinPrice/skinprice/internal/application"
 	"SkinPrice/skinprice/internal/application/skins"
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -35,18 +37,27 @@ type steamMarketSearchItem struct {
 	} `json:"asset_description"`
 }
 
-func (s *Storage) GetList(criteria skins.SearchCriteria, params *application.Pagination) (skins.NewSkinsList, error) {
+func (s *Storage) GetList(criteria skins.SearchCriteria, params *application.Pagination) (_ skins.NewSkinsList, err error) {
 	q := buildSteamMarketSearchParams(params)
 	if criteria.MarketHashName != nil {
 		q.Set("query", *criteria.MarketHashName)
 	}
 
 	endpoint := fmt.Sprintf("%s/search/render/?%s", s.BaseURL, q.Encode())
-	resp, err := s.Client.Get(endpoint)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, endpoint, nil)
 	if err != nil {
 		return skins.NewSkinsList{}, fmt.Errorf("%w: %w", skins.ErrNewSkinsRequestFailed, err)
 	}
-	defer resp.Body.Close()
+
+	resp, err := s.Client.Do(req)
+	if err != nil {
+		return skins.NewSkinsList{}, fmt.Errorf("%w: %w", skins.ErrNewSkinsRequestFailed, err)
+	}
+	defer func() {
+		if closeErr := resp.Body.Close(); closeErr != nil {
+			err = errors.Join(err, fmt.Errorf("close steam list response body: %w", closeErr))
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		return skins.NewSkinsList{}, fmt.Errorf("%w: %d", skins.ErrNewSkinsRequestBadStatus, resp.StatusCode)
@@ -93,7 +104,7 @@ func buildSteamMarketSearchParams(params *application.Pagination) url.Values {
 	return q
 }
 
-func (s *Storage) GetByMarketHashName(marketHashName, currency string) (*skins.NewSkin, error) {
+func (s *Storage) GetByMarketHashName(marketHashName, currency string) (_ *skins.NewSkin, err error) {
 	q := buildSteamMarketSearchParams(&application.Pagination{Limit: 1, Offset: 0})
 	q.Set("query", marketHashName)
 	if currency != "" {
@@ -101,11 +112,20 @@ func (s *Storage) GetByMarketHashName(marketHashName, currency string) (*skins.N
 	}
 
 	endpoint := fmt.Sprintf("%s/search/render/?%s", s.BaseURL, q.Encode())
-	resp, err := s.Client.Get(endpoint)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, endpoint, nil)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", skins.ErrNewSkinsRequestFailed, err)
 	}
-	defer resp.Body.Close()
+
+	resp, err := s.Client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", skins.ErrNewSkinsRequestFailed, err)
+	}
+	defer func() {
+		if closeErr := resp.Body.Close(); closeErr != nil {
+			err = errors.Join(err, fmt.Errorf("close steam item response body: %w", closeErr))
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("%w: %d", skins.ErrNewSkinsRequestBadStatus, resp.StatusCode)
