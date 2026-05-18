@@ -54,8 +54,11 @@ const SavedSkinsPage: React.FC = () => {
   const [isUpdatingAll, setIsUpdatingAll] = useState(false);
   const [notice, setNotice] = useState<{ type: "success" | "warning" | "error"; text: string } | null>(null);
 
-  const loadSkins = () =>
-    getSavedSkins().then((response) => setState({ items: response.items, loading: false, error: null }));
+  const loadSkins = async () => {
+    const response = await getSavedSkins();
+    setState({ items: response.items, loading: false, error: null });
+    return response;
+  };
 
   useEffect(() => {
     void loadSkins().catch((err: unknown) => {
@@ -77,10 +80,10 @@ const SavedSkinsPage: React.FC = () => {
       await updateAllSkinPrices(currency);
 
       try {
-        await loadSkins();
+        const refreshed = await loadSkins();
         setNotice({
           type: "success",
-          text: "Готово: цены успешно обновлены.",
+          text: `Готово: цены обновлены для ${refreshed.items.length} скинов.`,
         });
       } catch (reloadError) {
         const apiError = toApiError(reloadError);
