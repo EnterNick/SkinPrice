@@ -3,7 +3,9 @@ package lisskins
 import (
 	"SkinPrice/skinprice/internal/application"
 	"SkinPrice/skinprice/internal/application/skins"
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -91,12 +93,21 @@ func (s *Storage) GetByMarketHashName(marketHashName, currency string) (*skins.N
 	return nil, fmt.Errorf("%w: skin not found", skins.ErrNewSkinsResponseUnsuccess)
 }
 
-func (s *Storage) fetch(endpoint string) (marketSearchResponse, error) {
-	resp, err := s.Client.Get(endpoint)
+func (s *Storage) fetch(endpoint string) (_ marketSearchResponse, err error) {
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, endpoint, nil)
 	if err != nil {
 		return marketSearchResponse{}, fmt.Errorf("%w: %w", skins.ErrNewSkinsRequestFailed, err)
 	}
-	defer resp.Body.Close()
+
+	resp, err := s.Client.Do(req)
+	if err != nil {
+		return marketSearchResponse{}, fmt.Errorf("%w: %w", skins.ErrNewSkinsRequestFailed, err)
+	}
+	defer func() {
+		if closeErr := resp.Body.Close(); closeErr != nil {
+			err = errors.Join(err, fmt.Errorf("close lisskins response body: %w", closeErr))
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		return marketSearchResponse{}, fmt.Errorf("%w: %d", skins.ErrNewSkinsRequestBadStatus, resp.StatusCode)

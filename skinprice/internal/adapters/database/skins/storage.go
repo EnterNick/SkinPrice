@@ -5,6 +5,7 @@ import (
 	adaptersteam "SkinPrice/skinprice/internal/adapters/http/steam"
 	"SkinPrice/skinprice/internal/application"
 	appskins "SkinPrice/skinprice/internal/application/skins"
+	"errors"
 	"fmt"
 )
 
@@ -39,7 +40,7 @@ func (s *Storage) Save(params appskins.SaveSkinParams) error {
 	return nil
 }
 
-func (s *Storage) GetSavedList(params *application.Pagination) (appskins.SavedSkinsList, error) {
+func (s *Storage) GetSavedList(params *application.Pagination) (_ appskins.SavedSkinsList, err error) {
 	db := s.Conn.DB()
 	_, _ = db.Exec(`ALTER TABLE skins ADD COLUMN price_text TEXT NOT NULL DEFAULT ''`)
 	_, _ = db.Exec(`ALTER TABLE skins ADD COLUMN currency TEXT NOT NULL DEFAULT 'USD'`)
@@ -64,7 +65,11 @@ func (s *Storage) GetSavedList(params *application.Pagination) (appskins.SavedSk
 			return appskins.SavedSkinsList{}, fmt.Errorf("get saved skins: %w", err)
 		}
 	}
-	defer rows.Close()
+	defer func() {
+		if closeErr := rows.Close(); closeErr != nil {
+			err = errors.Join(err, fmt.Errorf("close saved skins rows: %w", closeErr))
+		}
+	}()
 
 	items := make([]appskins.SavedSkin, 0, params.Limit)
 	for rows.Next() {
@@ -98,12 +103,16 @@ func (s *Storage) UpdateSavedSkinPrice(params appskins.UpdateSavedSkinPriceParam
 	return nil
 }
 
-func (s *Storage) UpdateAllSavedSkinsPrices(params appskins.UpdateAllSavedSkinsPricesParams) error {
+func (s *Storage) UpdateAllSavedSkinsPrices(params appskins.UpdateAllSavedSkinsPricesParams) (err error) {
 	rows, err := s.Conn.DB().Query(`SELECT market_hash_name FROM skins`)
 	if err != nil {
 		return fmt.Errorf("get saved skins names: %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		if closeErr := rows.Close(); closeErr != nil {
+			err = errors.Join(err, fmt.Errorf("close saved skin names rows: %w", closeErr))
+		}
+	}()
 
 	for rows.Next() {
 		var marketHashName string
@@ -115,5 +124,9 @@ func (s *Storage) UpdateAllSavedSkinsPrices(params appskins.UpdateAllSavedSkinsP
 		}
 	}
 
-	return rows.Err()
+	if rowsErr := rows.Err(); rowsErr != nil {
+		return rowsErr
+	}
+
+	return nil
 }
