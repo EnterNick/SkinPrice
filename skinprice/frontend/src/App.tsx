@@ -74,13 +74,13 @@ const SavedSkinsPage: React.FC = () => {
     setNotice(null);
 
     try {
-      const result = await updateAllSkinPrices(currency);
+      await updateAllSkinPrices(currency);
 
       try {
         await loadSkins();
         setNotice({
           type: "success",
-          text: `Готово: цены обновлены для ${result.updated} скинов.`,
+          text: "Готово: цены успешно обновлены.",
         });
       } catch (reloadError) {
         const apiError = toApiError(reloadError);
