@@ -45,18 +45,17 @@ const useRoute = (): RoutePath => {
 };
 
 const SavedSkinsPage: React.FC = () => {
-  const [state, setState] = useState<SavedSkinsState>({
-    items: [],
-    loading: true,
-    error: null,
-  });
+  const [state, setState] = useState<SavedSkinsState>({ items: [], loading: true, error: null });
   const [currency, setCurrency] = useState("1");
   const [updatingSkinIds, setUpdatingSkinIds] = useState<Record<string, boolean>>({});
   const [updatedAtMap, setUpdatedAtMap] = useState<Record<string, string>>({});
+  const [isUpdatingAll, setIsUpdatingAll] = useState(false);
+  const [notice, setNotice] = useState<{ type: "success" | "warning" | "error"; text: string } | null>(null);
 
   const loadSkins = async () => {
     const response = await getSavedSkins();
     setState({ items: response.items, loading: false, error: null });
+    return response;
   };
 
   useEffect(() => {
@@ -82,26 +81,55 @@ const SavedSkinsPage: React.FC = () => {
   };
 
   const refreshAll = async () => {
-    await updateAllSkinPrices(currency);
+    setIsUpdatingAll(true);
+    setNotice(null);
+
+    try {
+      await updateAllSkinPrices(currency);
+
+      try {
+        const refreshed = await loadSkins();
+        const refreshedAt = new Date().toLocaleString("ru-RU");
+        setUpdatedAtMap(
+          Object.fromEntries(refreshed.items.map((skin) => [skin.id, refreshedAt])),
+        );
+        setNotice({
+          type: "success",
+          text: `Готово: цены обновлены для ${refreshed.items.length} скинов.`,
+        });
+      } catch (reloadError) {
+        const apiError = toApiError(reloadError);
+        setNotice({
+          type: "warning",
+          text: `Частичный успех: цены обновлены, но не удалось синхронизировать список (${apiError.message}).`,
+        });
+      }
+    } catch (updateError) {
+      const apiError = toApiError(updateError);
+      setNotice({
+        type: "error",
+        text: `Ошибка обновления цен: ${apiError.message}`,
+      });
+    } finally {
+      setIsUpdatingAll(false);
+    }
   };
 
-  if (state.loading) {
-    return <div className="container">Загрузка...</div>;
-  }
-
-  if (state.error) {
-    return <div className="container">Ошибка: {state.error}</div>;
-  }
+  if (state.loading) return <div className="status-box">Загрузка сохранённых скинов...</div>;
+  if (state.error) return <div className="status-box">Ошибка: {state.error}</div>;
+  if (state.items.length === 0) return <div className="status-box">Нет сохранённых скинов.</div>;
 
   return (
-    <div className="container">
-      <div style={{ marginBottom: 16, display: "flex", gap: 8 }}>
+    <div className="saved-skins-page">
+      <div className="saved-skins-toolbar">
         <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
           <option value="1">USD</option>
           <option value="5">RUB</option>
           <option value="3">EUR</option>
         </select>
-        <button onClick={() => void refreshAll()}>Обновить цены всех</button>
+        <button type="button" disabled={isUpdatingAll} onClick={() => void refreshAll()}>
+          {isUpdatingAll ? "Обновление..." : "Обновить все цены"}
+        </button>
       </div>
       {state.items.map((skin) => {
         const isUpdating = Boolean(updatingSkinIds[skin.id]);
@@ -118,7 +146,7 @@ const SavedSkinsPage: React.FC = () => {
               <p className="text">{skin.name}</p>
               <p className="text">Цена: {skin.priceText || "-"}</p>
               <p className="text">Обновлено: {updatedAtMap[skin.id] || "-"}</p>
-              <button disabled={isUpdating} onClick={() => void refreshOne(skin.id)}>
+              <button type="button" disabled={isUpdating || isUpdatingAll} onClick={() => void refreshOne(skin.id)}>
                 {isUpdating ? "Обновляем..." : "Обновить"}
               </button>
             </div>

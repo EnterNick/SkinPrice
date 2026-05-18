@@ -67,8 +67,7 @@ export const updateSkinPrice = async (skinId: string, currency: string): Promise
 export const updateAllSkinPrices = async (currency: string): Promise<PriceUpdateResult> => {
   try {
     await UpdateAllSavedSkinsPrices({ currency });
-    const refreshed = await getSavedSkins();
-    return { updated: refreshed.items.length };
+    return { updated: 0 };
   } catch (err) {
     throw toApiError(err);
   }
