@@ -303,3 +303,23 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
 }
+
+.new-skins-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.new-skins-toolbar {
+  display: flex;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 420px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(24, 28, 39, 0.8);
+  color: #f3f4f6;
+}

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { getSavedSkins, updateAllSkinPrices, updateSkinPrice } from "./api/client";
-import type { SavedSkin } from "./api/models";
+import React, { useEffect, useRef, useState } from "react";
+import { getNewSkins, getSavedSkins, saveSkin, updateAllSkinPrices, updateSkinPrice } from "./api/client";
+import type { NewSkin, SavedSkin } from "./api/models";
 import { toApiError } from "./api/errors";
 import "./styles.css";
 
@@ -157,16 +157,110 @@ const SavedSkinsPage: React.FC = () => {
   );
 };
 
-const NewSkinsPage: React.FC = () => (
-  <div className="container">
-    <div className="card">
-      <div className="card-body">
-        <h2 className="title">NewSkinsPage</h2>
-        <p className="text">Заглушка страницы новых скинов.</p>
+const NewSkinsPage: React.FC = () => {
+    const [query, setQuery] = useState("");
+    const [debouncedQuery, setDebouncedQuery] = useState("");
+    const [items, setItems] = useState<NewSkin[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [savingId, setSavingId] = useState<string | null>(null);
+    const [notice, setNotice] = useState<string | null>(null);
+    const requestIdRef = useRef(0);
+
+    useEffect(() => {
+      const timeout = window.setTimeout(() => {
+        setDebouncedQuery(query.trim());
+      }, 400);
+
+      return () => window.clearTimeout(timeout);
+    }, [query]);
+
+    useEffect(() => {
+      const requestId = requestIdRef.current + 1;
+      requestIdRef.current = requestId;
+      setLoading(true);
+      setError(null);
+
+      void getNewSkins(debouncedQuery)
+        .then((response) => {
+          if (requestId !== requestIdRef.current) {
+            return;
+          }
+
+          const normalizedQuery = debouncedQuery.toLowerCase();
+          const filteredItems = normalizedQuery
+            ? response.items.filter((item) => item.title.toLowerCase().includes(normalizedQuery) || item.name.toLowerCase().includes(normalizedQuery))
+            : response.items;
+
+          setItems(filteredItems);
+          setLoading(false);
+        })
+        .catch((err: unknown) => {
+          if (requestId !== requestIdRef.current) {
+            return;
+          }
+
+          const apiError = toApiError(err);
+          setError(apiError.message || "Не удалось загрузить новые скины");
+          setItems([]);
+          setLoading(false);
+        });
+    }, [debouncedQuery]);
+
+    const onSave = async (id: string) => {
+      setSavingId(id);
+      setNotice(null);
+      try {
+        await saveSkin(id);
+        setNotice("Скин сохранён.");
+      } catch (err: unknown) {
+        const apiError = toApiError(err);
+        setNotice(`Ошибка сохранения: ${apiError.message}`);
+      } finally {
+        setSavingId(null);
+      }
+    };
+
+    return (
+      <div className="new-skins-page">
+        <div className="new-skins-toolbar">
+          <input
+            className="search-input"
+            type="search"
+            placeholder="Поиск по названию"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
+        {notice && <div className="status-box">{notice}</div>}
+        {loading && <div className="status-box">Загрузка новых скинов...</div>}
+        {error && !loading && <div className="status-box">Ошибка: {error}</div>}
+        {!loading && !error && items.length === 0 && <div className="status-box">По запросу ничего не найдено.</div>}
+        {!loading && !error && items.length > 0 && (
+          <div className="container">
+            {items.map((skin) => (
+              <div key={skin.id} className="card">
+                <div className="image-wrapper">
+                  <img src={skin.imageUrl} alt={skin.title} className="card-image" />
+                </div>
+                <div className="card-body">
+                  <a href={skin.pageUrl} target="_blank" rel="noreferrer">
+                    <h2 className="title">{skin.title}</h2>
+                  </a>
+                  <p className="text">{skin.name}</p>
+                  <p className="text">Цена: {skin.priceText || "-"}</p>
+                  <p className="text">Лотов: {skin.sellListings ?? "-"}</p>
+                  <button type="button" disabled={savingId === skin.id} onClick={() => void onSave(skin.id)}>
+                    {savingId === skin.id ? "Сохраняем..." : "Сохранить"}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-    </div>
-  </div>
-);
+    );
+};
 
 const NotFoundPage: React.FC = () => (
   <div className="container">
