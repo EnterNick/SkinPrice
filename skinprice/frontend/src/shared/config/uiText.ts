@@ -34,4 +34,7 @@ export const UI_TEXT = {
   searchEyebrow: "Поиск",
   savedSkinsTitle: "Сохранённые скины",
   newSkinsTitle: "Добавление скинов",
+  sourceTabsAriaLabel: "Источник поиска",
+  sourceSteam: "Steam",
+  sourceLisSkins: "LisSkins",
 } as const;

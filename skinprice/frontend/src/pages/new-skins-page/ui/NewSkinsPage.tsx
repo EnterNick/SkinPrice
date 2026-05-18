@@ -19,6 +19,7 @@ export const NewSkinsPage: React.FC = () => {
   const [savedIds, setSavedIds] = useState<Record<string, boolean>>({});
   const [notice, setNotice] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [searchLabel, setSearchLabel] = useState("");
+  const [activeSource, setActiveSource] = useState<"steam" | "lisskins">("steam");
 
   const minSearchMessage = `Введите минимум ${MIN_SEARCH_LENGTH} символа для поиска.`;
 
@@ -35,6 +36,11 @@ export const NewSkinsPage: React.FC = () => {
     setNotice(null);
     setSearchLabel(value);
     await loadNewSkins(value);
+  };
+
+  const onChangeSource = (source: "steam" | "lisskins") => {
+    setActiveSource(source);
+    setNotice(null);
   };
 
   const onSave = async (skin: NewSkin) => {
@@ -68,6 +74,8 @@ export const NewSkinsPage: React.FC = () => {
       <NewSkinsSearchPanel
         searchLabel={searchLabel}
         fallbackLabel={`Минимум ${MIN_SEARCH_LENGTH} символа`}
+        activeSource={activeSource}
+        onChangeSource={onChangeSource}
         onSearch={onSearch}
       />
       {notice && <ToastAlert type={notice.type} text={notice.text} />}
