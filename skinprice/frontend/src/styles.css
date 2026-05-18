@@ -259,6 +259,8 @@ body {
 
 .notice-error {
   color: #ff5c5c;
+}
+
 .saved-skins-page {
   display: flex;
   flex-direction: column;

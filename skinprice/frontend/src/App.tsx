@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { getSavedSkins, updateAllSkinPrices, updateSkinPrice } from "./api/client";
 import type { SavedSkin } from "./api/models";
 import { toApiError } from "./api/errors";
@@ -47,6 +47,8 @@ const useRoute = (): RoutePath => {
 const SavedSkinsPage: React.FC = () => {
   const [state, setState] = useState<SavedSkinsState>({ items: [], loading: true, error: null });
   const [currency, setCurrency] = useState("1");
+  const [updatingSkinIds, setUpdatingSkinIds] = useState<Record<string, boolean>>({});
+  const [updatedAtMap, setUpdatedAtMap] = useState<Record<string, string>>({});
   const [isUpdatingAll, setIsUpdatingAll] = useState(false);
   const [notice, setNotice] = useState<{ type: "success" | "warning" | "error"; text: string } | null>(null);
 
@@ -58,15 +60,25 @@ const SavedSkinsPage: React.FC = () => {
 
   useEffect(() => {
     void loadSkins().catch((err: unknown) => {
-      setState({
-        items: [],
-        loading: false,
-        error: err instanceof Error ? err.message : "Не удалось загрузить сохранённые скины",
-      });
+      const apiError = toApiError(err);
+      setState({ items: [], loading: false, error: apiError.message || "Не удалось загрузить сохранённые скины" });
     });
   }, []);
 
-  const refreshOne = (skinId: string) => updateSkinPrice(skinId, currency).then(loadSkins);
+  const refreshOne = async (skinId: string) => {
+    setUpdatingSkinIds((prev) => ({ ...prev, [skinId]: true }));
+
+    try {
+      await updateSkinPrice(skinId, currency);
+      await loadSkins();
+      setUpdatedAtMap((prev) => ({ ...prev, [skinId]: new Date().toLocaleString("ru-RU") }));
+    } catch (err: unknown) {
+      const apiError = toApiError(err);
+      window.alert(`Не удалось обновить цену: ${apiError.message}`);
+    } finally {
+      setUpdatingSkinIds((prev) => ({ ...prev, [skinId]: false }));
+    }
+  };
 
   const refreshAll = async () => {
     setIsUpdatingAll(true);
@@ -77,6 +89,10 @@ const SavedSkinsPage: React.FC = () => {
 
       try {
         const refreshed = await loadSkins();
+        const refreshedAt = new Date().toLocaleString("ru-RU");
+        setUpdatedAtMap(
+          Object.fromEntries(refreshed.items.map((skin) => [skin.id, refreshedAt])),
+        );
         setNotice({
           type: "success",
           text: `Готово: цены обновлены для ${refreshed.items.length} скинов.`,
@@ -99,16 +115,6 @@ const SavedSkinsPage: React.FC = () => {
     }
   };
 
-  const refreshAll = async () => {
-    setReloading(true);
-    try {
-      await updateAllSkinPrices(currency);
-      await loadSkins();
-    } finally {
-      setReloading(false);
-    }
-  };
-
   if (state.loading) return <div className="status-box">Загрузка сохранённых скинов...</div>;
   if (state.error) return <div className="status-box">Ошибка: {state.error}</div>;
   if (state.items.length === 0) return <div className="status-box">Нет сохранённых скинов.</div>;
@@ -125,24 +131,28 @@ const SavedSkinsPage: React.FC = () => {
           {isUpdatingAll ? "Обновление..." : "Обновить все цены"}
         </button>
       </div>
-      {notice && <p className={`text notice-${notice.type}`}>{notice.text}</p>}
-      {state.items.map((skin) => (
-        <div key={skin.id} className="card">
-          <div className="image-wrapper">
-            <img src={skin.imageUrl} alt={skin.title} className="card-image" />
+      {state.items.map((skin) => {
+        const isUpdating = Boolean(updatingSkinIds[skin.id]);
+
+        return (
+          <div key={skin.id} className="card">
+            <div className="image-wrapper">
+              <img src={skin.imageUrl} alt={skin.title} className="card-image" />
+            </div>
+            <div className="card-body">
+              <a href={skin.pageUrl} target="_blank" rel="noreferrer">
+                <h2 className="title">{skin.title}</h2>
+              </a>
+              <p className="text">{skin.name}</p>
+              <p className="text">Цена: {skin.priceText || "-"}</p>
+              <p className="text">Обновлено: {updatedAtMap[skin.id] || "-"}</p>
+              <button type="button" disabled={isUpdating || isUpdatingAll} onClick={() => void refreshOne(skin.id)}>
+                {isUpdating ? "Обновляем..." : "Обновить"}
+              </button>
+            </div>
           </div>
-          <div className="card-body">
-            <a href={skin.pageUrl} target="_blank" rel="noreferrer">
-              <h2 className="title">{skin.title}</h2>
-            </a>
-            <p className="text">{skin.name}</p>
-            <p className="text">Цена: {skin.priceText || "-"}</p>
-            <button type="button" onClick={() => void refreshOne(skin.id)}>
-              Обновить цену
-            </button>
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
