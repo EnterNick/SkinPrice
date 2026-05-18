@@ -68,7 +68,8 @@ export const updateSkinPrice = async (skinId: string): Promise<PriceUpdateResult
 export const updateAllSkinPrices = async (): Promise<PriceUpdateResult> => {
   try {
     await UpdateAllSavedSkinsPrices({ currency: DEFAULT_CURRENCY });
-    return { updated: 0 };
+    const refreshed = await getSavedSkins();
+    return { updated: refreshed.items.length };
   } catch (err) {
     throw toApiError(err);
   }
@@ -76,7 +77,19 @@ export const updateAllSkinPrices = async (): Promise<PriceUpdateResult> => {
 
 export const saveSkin = async (skinId: string): Promise<void> => {
   try {
-    await SaveSkin({ market_hash_name: skinId, display_name: skinId, icon_url: "", page_url: "" });
+    const candidates = await getNewSkins(skinId);
+    const skin = candidates.items.find((item) => item.id === skinId);
+
+    if (!skin) {
+      throw { code: "NOT_FOUND", message: `Скин ${skinId} не найден` };
+    }
+
+    await SaveSkin({
+      market_hash_name: skin.id,
+      display_name: skin.title,
+      icon_url: skin.imageUrl,
+      page_url: skin.pageUrl,
+    });
   } catch (err) {
     throw toApiError(err);
   }
