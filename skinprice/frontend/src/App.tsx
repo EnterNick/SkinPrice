@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { getSavedSkins, updateAllSkinPrices, updateSkinPrice } from "./api/client";
 import type { SavedSkin } from "./api/models";
 import { toApiError } from "./api/errors";
@@ -45,65 +45,90 @@ const useRoute = (): RoutePath => {
 };
 
 const SavedSkinsPage: React.FC = () => {
-  const [state, setState] = useState<SavedSkinsState>({
-    items: [],
-    loading: true,
-    error: null,
-  });
+  const [state, setState] = useState<SavedSkinsState>({ items: [], loading: true, error: null });
   const [currency, setCurrency] = useState("1");
+  const [reloading, setReloading] = useState(false);
 
-  const loadSkins = () =>
-    GetSavedSkins({ limit: 50, offset: 0 }).then((response) =>
-      setState({ items: response.items, loading: false, error: null }),
-    );
-
-  useEffect(() => {
-    void loadSkins().catch((err: unknown) => {
-      setState({
-        items: [],
-        loading: false,
-        error: err instanceof Error ? err.message : "Не удалось загрузить сохранённые скины",
-      });
-    });
+  const loadSkins = useCallback(async () => {
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+    try {
+      const response = await getSavedSkins();
+      setState({ items: response.items, loading: false, error: null });
+    } catch (err: unknown) {
+      const apiError = toApiError(err);
+      setState({ items: [], loading: false, error: apiError.message });
+    }
   }, []);
 
-  const refreshOne = (marketHashName: string) =>
-    UpdateSavedSkinPrice({ market_hash_name: marketHashName, currency }).then(loadSkins);
-  const refreshAll = () => UpdateAllSavedSkinsPrices({ currency }).then(loadSkins);
+  useEffect(() => {
+    void loadSkins();
+  }, [loadSkins]);
 
-  if (state.loading) {
-    return <div className="container">Загрузка...</div>;
-  }
+  const refreshOne = async (skinId: string) => {
+    setReloading(true);
+    try {
+      await updateSkinPrice(skinId, currency);
+      await loadSkins();
+    } finally {
+      setReloading(false);
+    }
+  };
 
-  if (state.error) {
-    return <div className="container">Ошибка: {state.error}</div>;
-  }
+  const refreshAll = async () => {
+    setReloading(true);
+    try {
+      await updateAllSkinPrices(currency);
+      await loadSkins();
+    } finally {
+      setReloading(false);
+    }
+  };
+
+  if (state.loading) return <div className="status-box">Загрузка сохранённых скинов...</div>;
+  if (state.error) return <div className="status-box">Ошибка: {state.error}</div>;
+  if (state.items.length === 0) return <div className="status-box">Нет сохранённых скинов.</div>;
 
   return (
-    <div className="container">
-      <div style={{ marginBottom: 16, display: "flex", gap: 8 }}>
+    <div className="saved-skins-page">
+      <div className="saved-skins-toolbar">
         <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
           <option value="1">USD</option>
           <option value="5">RUB</option>
           <option value="3">EUR</option>
         </select>
-        <button onClick={() => void refreshAll()}>Обновить цены всех</button>
+        <button onClick={() => void refreshAll()} disabled={reloading}>
+          {reloading ? "Обновление..." : "Обновить цены всех"}
+        </button>
       </div>
-      {state.items.map((skin) => (
-        <div key={skin.market_hash_name} className="card">
-          <div className="image-wrapper">
-            <img src={skin.icon_url} alt={skin.display_name} className="card-image" />
-          </div>
-          <div className="card-body">
-            <a href={skin.page_url} target="_blank" rel="noreferrer">
-              <h2 className="title">{skin.display_name}</h2>
-            </a>
-            <p className="text">{skin.market_hash_name}</p>
-            <p className="text">Цена: {skin.price_text || "-"}</p>
-            <button onClick={() => void refreshOne(skin.market_hash_name)}>Обновить цену</button>
-          </div>
-        </div>
-      ))}
+
+      <table className="skins-table">
+        <thead>
+          <tr>
+            <th>Название</th>
+            <th>Цена</th>
+            <th>Обновлено</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          {state.items.map((skin) => (
+            <tr key={skin.id}>
+              <td>
+                <a href={skin.pageUrl} target="_blank" rel="noreferrer">
+                  {skin.title}
+                </a>
+              </td>
+              <td>{skin.priceText || "-"}</td>
+              <td>-</td>
+              <td>
+                <button onClick={() => void refreshOne(skin.id)} disabled={reloading}>
+                  Обновить
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };

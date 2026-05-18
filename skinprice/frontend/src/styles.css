@@ -248,3 +248,46 @@ body {
   max-width: 1600px;
   margin: 0 auto;
 }
+
+.saved-skins-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.saved-skins-toolbar {
+  display: flex;
+  gap: 8px;
+}
+
+.skins-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(24, 28, 39, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.skins-table th,
+.skins-table td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.skins-table a {
+  color: #ff9966;
+  text-decoration: none;
+}
+
+.skins-table a:hover {
+  text-decoration: underline;
+}
+
+.status-box {
+  padding: 16px;
+  background: rgba(24, 28, 39, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+}
