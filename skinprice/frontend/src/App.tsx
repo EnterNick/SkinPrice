@@ -83,7 +83,6 @@ const SavedSkinsPage: React.FC = () => {
 
   const refreshAll = async () => {
     await updateAllSkinPrices(currency);
-    await loadSkins();
   };
 
   if (state.loading) {
