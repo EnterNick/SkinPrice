@@ -4,6 +4,7 @@ import (
 	"SkinPrice/skinprice/internal/adapters/database"
 	"SkinPrice/skinprice/internal/application"
 	appskins "SkinPrice/skinprice/internal/application/skins"
+	"context"
 	"testing"
 )
 
@@ -228,7 +229,7 @@ func TestGetSavedListNormalizesLegacyCurrencyValues(t *testing.T) {
 	storage := newTestStorage(t, fakeSteamStorage{})
 	saveFixtureSkin(t, storage, "AK-47 | Redline")
 
-	if _, err := storage.Conn.DB().Exec(`UPDATE skins SET currency = 'USD' WHERE market_hash_name = ?`, "AK-47 | Redline"); err != nil {
+	if _, err := storage.Conn.DB().ExecContext(context.Background(), `UPDATE skins SET currency = 'USD' WHERE market_hash_name = ?`, "AK-47 | Redline"); err != nil {
 		t.Fatalf("set legacy currency: %v", err)
 	}
 
