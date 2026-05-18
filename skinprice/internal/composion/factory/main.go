@@ -2,7 +2,9 @@ package factory
 
 import (
 	"SkinPrice/skinprice/internal/adapters/database"
+	"context"
 	"errors"
+	"fmt"
 )
 
 type Factory struct {
@@ -13,6 +15,10 @@ func NewFactory() (*Factory, error) {
 	connection, err := database.New(nil)
 	if err != nil {
 		return nil, err
+	}
+	if err := connection.Client().Schema.Create(context.Background()); err != nil {
+		_ = connection.Close()
+		return nil, fmt.Errorf("create database schema: %w", err)
 	}
 	return &Factory{
 		dbConnection: connection,
