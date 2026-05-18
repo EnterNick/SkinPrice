@@ -17,6 +17,23 @@ const routeTitle: Record<Exclude<RoutePath, "404">, string> = {
   "/new": "Новые скины",
 };
 
+const uiText = {
+  ctaAddSkins: "Добавить скины",
+  ctaToHome: "На главную",
+  updateOne: "Обновить цену",
+  updateOnePending: "Обновляем цену...",
+  updateAll: "Обновить цены",
+  updateAllPending: "Обновляем цены...",
+  saveSkin: "Сохранить скин",
+  saveSkinPending: "Сохраняем скин...",
+  saveSkinDone: "Скин сохранён",
+  errLoadSaved: "Не удалось загрузить сохранённые скины.",
+  errLoadNew: "Не удалось загрузить новые скины.",
+  errUpdateOne: "Не удалось обновить цену.",
+  errUpdateAll: "Не удалось обновить цены.",
+  errSave: "Не удалось сохранить скин.",
+};
+
 const navigate = (to: Exclude<RoutePath, "404">) => {
   if (window.location.pathname !== to) {
     window.history.pushState({}, "", to);
@@ -61,7 +78,7 @@ const SavedSkinsPage: React.FC = () => {
   useEffect(() => {
     void loadSkins().catch((err: unknown) => {
       const apiError = toApiError(err);
-      setState({ items: [], loading: false, error: apiError.message || "Не удалось загрузить сохранённые скины" });
+      setState({ items: [], loading: false, error: apiError.message || uiText.errLoadSaved });
     });
   }, []);
 
@@ -74,7 +91,7 @@ const SavedSkinsPage: React.FC = () => {
       setUpdatedAtMap((prev) => ({ ...prev, [skinId]: new Date().toLocaleString("ru-RU") }));
     } catch (err: unknown) {
       const apiError = toApiError(err);
-      window.alert(`Не удалось обновить цену: ${apiError.message}`);
+      window.alert(`${uiText.errUpdateOne} ${apiError.message}`);
     } finally {
       setUpdatingSkinIds((prev) => ({ ...prev, [skinId]: false }));
     }
@@ -108,7 +125,7 @@ const SavedSkinsPage: React.FC = () => {
       const apiError = toApiError(updateError);
       setNotice({
         type: "error",
-        text: `Ошибка обновления цен: ${apiError.message}`,
+        text: `${uiText.errUpdateAll} ${apiError.message}`,
       });
     } finally {
       setIsUpdatingAll(false);
@@ -117,7 +134,16 @@ const SavedSkinsPage: React.FC = () => {
 
   if (state.loading) return <div className="status-box">Загрузка сохранённых скинов...</div>;
   if (state.error) return <div className="status-box">Ошибка: {state.error}</div>;
-  if (state.items.length === 0) return <div className="status-box">Нет сохранённых скинов.</div>;
+  if (state.items.length === 0) {
+    return (
+      <div className="saved-skins-page">
+        <div className="saved-skins-toolbar">
+          <button type="button" onClick={() => navigate("/new")}>{uiText.ctaAddSkins}</button>
+        </div>
+        <div className="status-box">Нет сохранённых скинов.</div>
+      </div>
+    );
+  }
 
   return (
     <div className="saved-skins-page">
@@ -128,8 +154,9 @@ const SavedSkinsPage: React.FC = () => {
           <option value="3">EUR</option>
         </select>
         <button type="button" disabled={isUpdatingAll} onClick={() => void refreshAll()}>
-          {isUpdatingAll ? "Обновление..." : "Обновить все цены"}
+          {isUpdatingAll ? uiText.updateAllPending : uiText.updateAll}
         </button>
+        <button type="button" onClick={() => navigate("/new")}>{uiText.ctaAddSkins}</button>
       </div>
       {state.items.map((skin) => {
         const isUpdating = Boolean(updatingSkinIds[skin.id]);
@@ -147,7 +174,7 @@ const SavedSkinsPage: React.FC = () => {
               <p className="text">Цена: {skin.priceText || "-"}</p>
               <p className="text">Обновлено: {updatedAtMap[skin.id] || "-"}</p>
               <button type="button" disabled={isUpdating || isUpdatingAll} onClick={() => void refreshOne(skin.id)}>
-                {isUpdating ? "Обновляем..." : "Обновить"}
+                {isUpdating ? uiText.updateOnePending : uiText.updateOne}
               </button>
             </div>
           </div>
@@ -201,7 +228,7 @@ const NewSkinsPage: React.FC = () => {
         }
 
         const apiError = toApiError(err);
-        setError(apiError.message || "Не удалось загрузить новые скины");
+        setError(apiError.message || uiText.errLoadNew);
         setItems([]);
         setLoading(false);
       }
@@ -222,8 +249,8 @@ const NewSkinsPage: React.FC = () => {
         await loadNewSkins(debouncedQuery);
       } catch (err: unknown) {
         const apiError = toApiError(err);
-        setNotice({ type: "error", text: `Ошибка сохранения: ${apiError.message}` });
-        window.alert(`Не удалось сохранить скин: ${apiError.message}`);
+        setNotice({ type: "error", text: `${uiText.errSave} ${apiError.message}` });
+        window.alert(`${uiText.errSave} ${apiError.message}`);
       } finally {
         setSavingIds((prev) => ({ ...prev, [id]: false }));
       }
@@ -231,6 +258,9 @@ const NewSkinsPage: React.FC = () => {
 
     return (
       <div className="new-skins-page">
+        <div className="new-skins-toolbar">
+          <button type="button" onClick={() => navigate("/")}>{uiText.ctaToHome}</button>
+        </div>
         <div className="new-skins-toolbar">
           <input
             className="search-input"
@@ -263,7 +293,7 @@ const NewSkinsPage: React.FC = () => {
                     disabled={Boolean(savingIds[skin.id]) || Boolean(savedIds[skin.id])}
                     onClick={() => void onSave(skin.id)}
                   >
-                    {savingIds[skin.id] ? "Сохраняем..." : savedIds[skin.id] ? "Сохранено" : "Сохранить"}
+                    {savingIds[skin.id] ? uiText.saveSkinPending : savedIds[skin.id] ? uiText.saveSkinDone : uiText.saveSkin}
                   </button>
                 </div>
               </div>
