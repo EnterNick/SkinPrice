@@ -1,4 +1,4 @@
-import type { ApiError, ApiErrorCode } from "./models";
+import type { ApiError, ApiErrorCode } from "../../entities/skin/model/types";
 
 const MESSAGES: Record<ApiErrorCode, string> = {
   NETWORK_ERROR: "Проблема с подключением. Проверьте интернет и попробуйте снова.",

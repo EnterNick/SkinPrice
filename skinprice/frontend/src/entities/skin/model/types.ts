@@ -8,6 +8,7 @@ export type Skin = {
   priceCents?: number;
   currency?: string;
   sellListings?: number;
+  updatedAt?: string;
 };
 
 export type SavedSkin = Skin;

@@ -1,8 +1,3 @@
-export const ROUTE_TITLE = {
-  "/": "Сохранённые скины",
-  "/new": "Новые скины",
-} as const;
-
 export const UI_TEXT = {
   ctaAddSkins: "Добавить скины",
   ctaToHome: "На главную",
@@ -23,11 +18,20 @@ export const UI_TEXT = {
   notFoundSaved: "Нет сохранённых скинов.",
   notFoundSearch: "По запросу ничего не найдено.",
   pageNotFound: "Страница не найдена.",
-  searchPlaceholder: "Поиск по названию",
   priceLabel: "Цена",
   listingsLabel: "Лотов",
   updatedLabel: "Обновлено",
   successUpdatedAll: "Готово: цены обновлены для {count} скинов.",
   warningPartialUpdated: "Частичный успех: цены обновлены, но не удалось синхронизировать список ({message}).",
   saveDoneShort: "Скин сохранён.",
+  searchPrompt: "Введите название скина",
+  searchAction: "Найти скин",
+  loadMore: "Загрузить ещё",
+  listFullyLoaded: "Список загружен полностью.",
+  loadingMore: "Загружаем ещё...",
+  openLink: "Открыть",
+  collectionEyebrow: "Коллекция",
+  searchEyebrow: "Поиск",
+  savedSkinsTitle: "Сохранённые скины",
+  newSkinsTitle: "Добавление скинов",
 } as const;

@@ -1,26 +1,35 @@
-import { GetSavedSkins, SaveSkin, SearchNewSkins, UpdateAllSavedSkinsPrices, UpdateSavedSkinPrice } from "../wailsjs/go/main/App";
-import type { skins } from "../wailsjs/go/models";
-import { toApiError } from "./errors";
-import type { NewSkin, PaginatedResult, PriceUpdateResult, SavedSkin } from "./models";
+import { GetSavedSkins, SaveSkin, SearchNewSkins, UpdateAllSavedSkinsPrices, UpdateSavedSkinPrice } from "../../../wailsjs/go/main/App";
+import type { skins } from "../../../wailsjs/go/models";
+import { toApiError } from "../../../shared/api/errors";
+import type { NewSkin, PaginatedResult, PriceUpdateResult, SavedSkin } from "../model/types";
 
 const DEFAULT_LIMIT = 20;
 const DEFAULT_OFFSET = 0;
+
+const normalizeImageUrl = (imageUrl?: string): string => {
+  if (!imageUrl) return "";
+  if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://") || imageUrl.startsWith("data:")) return imageUrl;
+  if (imageUrl.startsWith("//")) return `https:${imageUrl}`;
+  if (imageUrl.startsWith("/")) return `https://community.akamai.steamstatic.com${imageUrl}`;
+  return `https://community.akamai.steamstatic.com/economy/image/${imageUrl}`;
+};
 
 const mapSavedSkin = (item: skins.SavedSkinItem): SavedSkin => ({
   id: item.market_hash_name,
   name: item.market_hash_name,
   title: item.display_name,
-  imageUrl: item.icon_url,
+  imageUrl: normalizeImageUrl(item.icon_url),
   pageUrl: item.page_url,
   priceText: item.price_text,
   currency: item.currency,
+  updatedAt: item.updated_at,
 });
 
 const mapNewSkin = (item: skins.NewSkinItem): NewSkin => ({
   id: item.market_hash_name,
   name: item.market_hash_name,
   title: item.display_name,
-  imageUrl: item.icon_url,
+  imageUrl: normalizeImageUrl(item.icon_url),
   pageUrl: item.page_url,
   priceText: item.price_text,
   priceCents: item.price_cents,
@@ -41,9 +50,9 @@ export const getSavedSkins = async (): Promise<PaginatedResult<SavedSkin>> => {
   }
 };
 
-export const getNewSkins = async (query?: string): Promise<PaginatedResult<NewSkin>> => {
+export const getNewSkins = async (query?: string, limit = DEFAULT_LIMIT, offset = DEFAULT_OFFSET): Promise<PaginatedResult<NewSkin>> => {
   try {
-    const response = await SearchNewSkins({ market_hash_name: query, limit: DEFAULT_LIMIT, offset: DEFAULT_OFFSET });
+    const response = await SearchNewSkins({ market_hash_name: query, limit, offset });
     return {
       items: response.items.map(mapNewSkin),
       total: response.total_count,
@@ -73,15 +82,8 @@ export const updateAllSkinPrices = async (currency: string): Promise<PriceUpdate
   }
 };
 
-export const saveSkin = async (skinId: string): Promise<void> => {
+export const saveSkin = async (skin: Pick<NewSkin, "id" | "title" | "imageUrl" | "pageUrl">): Promise<void> => {
   try {
-    const candidates = await getNewSkins(skinId);
-    const skin = candidates.items.find((item) => item.id === skinId);
-
-    if (!skin) {
-      throw { code: "NOT_FOUND", message: `Скин ${skinId} не найден` };
-    }
-
     await SaveSkin({
       market_hash_name: skin.id,
       display_name: skin.title,

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import type { SavedSkin } from "../api/models";
-import { getSavedSkins } from "../api/client";
-import { toApiError } from "../api/errors";
-import { UI_TEXT } from "../constants/uiText";
+import { UI_TEXT } from "../../../shared/config/uiText";
+import { toApiError } from "../../../shared/api/errors";
+import { getSavedSkins } from "../api/skinApi";
+import type { SavedSkin } from "./types";
 
 export const useSavedSkins = () => {
   const [items, setItems] = useState<SavedSkin[]>([]);
