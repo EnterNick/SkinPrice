@@ -1,5 +1,7 @@
 package skins
 
+import "time"
+
 type SearchNewSkinsFilter struct {
 	MarketHashName *string `json:"market_hash_name"`
 	Limit          int     `json:"limit"`
@@ -43,12 +45,13 @@ type SavedSkinsResponse struct {
 }
 
 type SavedSkinItem struct {
-	MarketHashName string `json:"market_hash_name"`
-	DisplayName    string `json:"display_name"`
-	IconURL        string `json:"icon_url"`
-	PageURL        string `json:"page_url"`
-	PriceText      string `json:"price_text"`
-	Currency       string `json:"currency"`
+	MarketHashName string    `json:"market_hash_name"`
+	DisplayName    string    `json:"display_name"`
+	IconURL        string    `json:"icon_url"`
+	PageURL        string    `json:"page_url"`
+	PriceText      string    `json:"price_text"`
+	Currency       string    `json:"currency"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 type UpdateSavedSkinPriceRequest struct {

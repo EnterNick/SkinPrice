@@ -81,6 +81,7 @@ func (e *Endpoints) GetSavedSkins(filter GetSavedSkinsFilter) (SavedSkinsRespons
 			PageURL:        item.PageURL,
 			PriceText:      item.PriceText,
 			Currency:       item.Currency,
+			UpdatedAt:      item.UpdatedAt,
 		})
 	}
 

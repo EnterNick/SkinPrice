@@ -1,5 +1,7 @@
 package skins
 
+import "time"
+
 type SearchCriteria struct {
 	MarketHashName *string
 }
@@ -45,6 +47,7 @@ type SavedSkin struct {
 	PageURL        string
 	PriceText      string
 	Currency       string
+	UpdatedAt      time.Time
 }
 
 type UpdateSavedSkinPriceParams struct {
