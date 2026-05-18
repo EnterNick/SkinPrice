@@ -4,6 +4,7 @@ import "time"
 
 type SearchCriteria struct {
 	MarketHashName *string
+	Source         string
 }
 
 type NewSkinsList struct {
@@ -33,6 +34,10 @@ type SaveSkinParams struct {
 	PageURL        string
 }
 
+type SaveSkinResult struct {
+	Created bool
+}
+
 type SavedSkinsList struct {
 	Items      []SavedSkin
 	TotalCount int
@@ -55,6 +60,28 @@ type UpdateSavedSkinPriceParams struct {
 	Currency       string
 }
 
+type UpdateSavedSkinPriceResult struct {
+	MarketHashName string
+	PriceText      string
+	Currency       string
+	UpdatedAt      time.Time
+}
+
 type UpdateAllSavedSkinsPricesParams struct {
 	Currency string
+}
+
+type UpdateSavedSkinPriceFailure struct {
+	MarketHashName string
+	Message        string
+}
+
+type UpdateAllSavedSkinsPricesResult struct {
+	UpdatedCount int
+	FailedCount  int
+	Failures     []UpdateSavedSkinPriceFailure
+}
+
+type DeleteSavedSkinParams struct {
+	MarketHashName string
 }

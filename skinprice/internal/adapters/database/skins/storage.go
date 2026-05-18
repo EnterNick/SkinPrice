@@ -2,111 +2,75 @@ package skins
 
 import (
 	"SkinPrice/skinprice/internal/adapters/database"
-	adaptersteam "SkinPrice/skinprice/internal/adapters/http/steam"
 	"SkinPrice/skinprice/internal/application"
 	appskins "SkinPrice/skinprice/internal/application/skins"
+	"SkinPrice/skinprice/internal/shared/errx"
+	"SkinPrice/skinprice/internal/shared/logx"
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 )
 
 type Storage struct {
 	Conn         *database.Connection
-	SteamStorage *adaptersteam.Storage
+	SteamStorage steamPriceReader
+	Logger       *slog.Logger
 }
 
-func ensureSkinsColumns(db *sql.DB) {
-	ctx := context.Background()
-	_, _ = db.ExecContext(ctx, `ALTER TABLE skins ADD COLUMN price_text TEXT NOT NULL DEFAULT ''`)
-	_, _ = db.ExecContext(ctx, `ALTER TABLE skins ADD COLUMN currency TEXT NOT NULL DEFAULT 'USD'`)
-	_, err := db.ExecContext(ctx, `ALTER TABLE skins ADD COLUMN updated_at TIMESTAMP`)
-	if err != nil && !strings.Contains(strings.ToLower(err.Error()), "duplicate column") {
-		_, _ = db.ExecContext(ctx, `ALTER TABLE skins ADD COLUMN updated_at TEXT`)
-	}
-	_, _ = db.ExecContext(ctx, `UPDATE skins SET updated_at = CURRENT_TIMESTAMP WHERE updated_at IS NULL OR CAST(updated_at AS TEXT) = ''`)
+type steamPriceReader interface {
+	GetByMarketHashName(marketHashName, currency string) (*appskins.NewSkin, error)
 }
 
-func parseUpdatedAt(value string) time.Time {
-	layouts := []string{
-		time.RFC3339Nano,
-		time.RFC3339,
-		"2006-01-02 15:04:05.999999999-07:00",
-		"2006-01-02 15:04:05.999999999Z07:00",
-		"2006-01-02 15:04:05-07:00",
-		"2006-01-02 15:04:05Z07:00",
-		"2006-01-02 15:04:05.999999999",
-		"2006-01-02 15:04:05",
-	}
-
-	for _, layout := range layouts {
-		if parsed, err := time.Parse(layout, value); err == nil {
-			return parsed
-		}
-	}
-
-	return time.Time{}
-}
-
-func (s *Storage) Save(params appskins.SaveSkinParams) error {
+func (s *Storage) Save(params appskins.SaveSkinParams) (appskins.SaveSkinResult, error) {
+	logger := logx.WithComponent(s.Logger, "skins_storage")
 	db := s.Conn.DB()
 	ctx := context.Background()
-	ensureSkinsColumns(db)
 
-	_, err := db.ExecContext(
-		ctx,
-		`INSERT INTO skins (market_hash_name, display_name, icon_url, page_url) VALUES ($1, $2, $3, $4) ON CONFLICT (market_hash_name) DO NOTHING`,
-		params.MarketHashName,
-		params.DisplayName,
-		params.IconURL,
-		params.PageURL,
-	)
-	if err != nil {
-		_, sqliteErr := db.ExecContext(
-			ctx,
-			`INSERT OR IGNORE INTO skins (market_hash_name, display_name, icon_url, page_url) VALUES (?, ?, ?, ?)`,
-			params.MarketHashName,
-			params.DisplayName,
-			params.IconURL,
-			params.PageURL,
-		)
-		if sqliteErr != nil {
-			return fmt.Errorf("save skin: %w", err)
-		}
+	insertQuery := `INSERT INTO skins (market_hash_name, display_name, icon_url, page_url, price_text, currency) VALUES (?, ?, ?, ?, '', '1')`
+	if s.Conn.Dialect() == "postgres" {
+		insertQuery = `INSERT INTO skins (market_hash_name, display_name, icon_url, page_url, price_text, currency) VALUES ($1, $2, $3, $4, '', '1')`
 	}
 
-	return nil
+	_, err := db.ExecContext(ctx, insertQuery, params.MarketHashName, params.DisplayName, params.IconURL, params.PageURL)
+	if err != nil {
+		if isUniqueViolation(err) {
+			logger.Info("skin already exists", slog.String("market_hash_name", params.MarketHashName))
+			return appskins.SaveSkinResult{Created: false}, nil
+		}
+		logger.Error("failed to save skin",
+			append([]any{slog.String("market_hash_name", params.MarketHashName)}, logx.ErrAttrs(err)...)...,
+		)
+		return appskins.SaveSkinResult{}, errx.E("skins.storage.save", errx.CodeInternal, "failed to save skin", err)
+	}
+
+	logger.Info("skin saved", slog.String("market_hash_name", params.MarketHashName))
+	return appskins.SaveSkinResult{Created: true}, nil
 }
 
 func (s *Storage) GetSavedList(params *application.Pagination) (_ appskins.SavedSkinsList, err error) {
+	logger := logx.WithComponent(s.Logger, "skins_storage")
 	db := s.Conn.DB()
 	ctx := context.Background()
-	ensureSkinsColumns(db)
 
 	var totalCount int
 	if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM skins`).Scan(&totalCount); err != nil {
-		return appskins.SavedSkinsList{}, fmt.Errorf("count skins: %w", err)
+		logger.Error("failed to count saved skins", logx.ErrAttrs(err)...)
+		return appskins.SavedSkinsList{}, errx.E("skins.storage.list.count", errx.CodeInternal, "failed to count saved skins", err)
 	}
 
-	queryWithUpdatedAtPg := `SELECT market_hash_name, display_name, icon_url, page_url, price_text, currency, CAST(updated_at AS TEXT) FROM skins ORDER BY id DESC LIMIT $1 OFFSET $2`
-	queryWithUpdatedAtSqlite := `SELECT market_hash_name, display_name, icon_url, page_url, price_text, currency, CAST(updated_at AS TEXT) FROM skins ORDER BY id DESC LIMIT ? OFFSET ?`
-	queryFallbackPg := `SELECT market_hash_name, display_name, icon_url, page_url, price_text, currency, '' FROM skins ORDER BY id DESC LIMIT $1 OFFSET $2`
-	queryFallbackSqlite := `SELECT market_hash_name, display_name, icon_url, page_url, price_text, currency, '' FROM skins ORDER BY id DESC LIMIT ? OFFSET ?`
+	query := `SELECT market_hash_name, display_name, icon_url, page_url, price_text, currency, updated_at FROM skins ORDER BY id DESC LIMIT ? OFFSET ?`
+	if s.Conn.Dialect() == "postgres" {
+		query = `SELECT market_hash_name, display_name, icon_url, page_url, price_text, currency, updated_at FROM skins ORDER BY id DESC LIMIT $1 OFFSET $2`
+	}
 
-	rows, err := db.QueryContext(ctx, queryWithUpdatedAtPg, params.Limit, params.Offset)
+	rows, err := db.QueryContext(ctx, query, params.Limit, params.Offset)
 	if err != nil {
-		rows, err = db.QueryContext(ctx, queryWithUpdatedAtSqlite, params.Limit, params.Offset)
-		if err != nil {
-			rows, err = db.QueryContext(ctx, queryFallbackPg, params.Limit, params.Offset)
-			if err != nil {
-				rows, err = db.QueryContext(ctx, queryFallbackSqlite, params.Limit, params.Offset)
-				if err != nil {
-					return appskins.SavedSkinsList{}, fmt.Errorf("get saved skins: %w", err)
-				}
-			}
-		}
+		logger.Error("failed to query saved skins", logx.ErrAttrs(err)...)
+		return appskins.SavedSkinsList{}, errx.E("skins.storage.list.query", errx.CodeInternal, "failed to load saved skins", err)
 	}
 	defer func() {
 		if closeErr := rows.Close(); closeErr != nil {
@@ -117,45 +81,99 @@ func (s *Storage) GetSavedList(params *application.Pagination) (_ appskins.Saved
 	items := make([]appskins.SavedSkin, 0, params.Limit)
 	for rows.Next() {
 		var item appskins.SavedSkin
-		var updatedAt string
+		var updatedAt sql.NullTime
 		if err := rows.Scan(&item.MarketHashName, &item.DisplayName, &item.IconURL, &item.PageURL, &item.PriceText, &item.Currency, &updatedAt); err != nil {
-			return appskins.SavedSkinsList{}, fmt.Errorf("scan saved skin: %w", err)
+			logger.Error("failed to scan saved skin", logx.ErrAttrs(err)...)
+			return appskins.SavedSkinsList{}, errx.E("skins.storage.list.scan", errx.CodeInternal, "failed to scan saved skin", err)
 		}
-		item.UpdatedAt = parseUpdatedAt(updatedAt)
+		item.Currency = normalizeCurrencyCode(item.Currency)
+		if updatedAt.Valid {
+			item.UpdatedAt = updatedAt.Time
+		}
 		items = append(items, item)
 	}
 
 	if err := rows.Err(); err != nil {
-		return appskins.SavedSkinsList{}, fmt.Errorf("iterate saved skins: %w", err)
+		logger.Error("failed while iterating saved skins", logx.ErrAttrs(err)...)
+		return appskins.SavedSkinsList{}, errx.E("skins.storage.list.rows", errx.CodeInternal, "failed to iterate saved skins", err)
 	}
 
+	logger.Info("loaded saved skins",
+		slog.Int("count", len(items)),
+		slog.Int("total_count", totalCount),
+		slog.Int("limit", params.Limit),
+		slog.Int("offset", params.Offset),
+	)
 	return appskins.SavedSkinsList{Items: items, TotalCount: totalCount, Offset: params.Offset, Limit: params.Limit}, nil
 }
 
-func (s *Storage) UpdateSavedSkinPrice(params appskins.UpdateSavedSkinPriceParams) error {
+func (s *Storage) UpdateSavedSkinPrice(params appskins.UpdateSavedSkinPriceParams) (appskins.UpdateSavedSkinPriceResult, error) {
+	logger := logx.WithComponent(s.Logger, "skins_storage")
 	ctx := context.Background()
-	ensureSkinsColumns(s.Conn.DB())
-	price, err := s.SteamStorage.GetByMarketHashName(params.MarketHashName, params.Currency)
+	currency := normalizeCurrencyCode(params.Currency)
+	price, err := s.SteamStorage.GetByMarketHashName(params.MarketHashName, currency)
 	if err != nil {
-		return fmt.Errorf("fetch price: %w", err)
+		logger.Error("failed to fetch latest price",
+			append([]any{
+				slog.String("market_hash_name", params.MarketHashName),
+				slog.String("currency", currency),
+			}, logx.ErrAttrs(err)...)...,
+		)
+		return appskins.UpdateSavedSkinPriceResult{}, classifySteamError("skins.storage.update_one.fetch", err)
 	}
 
-	_, err = s.Conn.DB().ExecContext(ctx, `UPDATE skins SET price_text = $1, currency = $2, updated_at = CURRENT_TIMESTAMP WHERE market_hash_name = $3`, price.PriceText, params.Currency, params.MarketHashName)
-	if err != nil {
-		_, err = s.Conn.DB().ExecContext(ctx, `UPDATE skins SET price_text = ?, currency = ?, updated_at = CURRENT_TIMESTAMP WHERE market_hash_name = ?`, price.PriceText, params.Currency, params.MarketHashName)
+	query := `UPDATE skins SET price_text = ?, currency = ?, updated_at = ? WHERE market_hash_name = ?`
+	if s.Conn.Dialect() == "postgres" {
+		query = `UPDATE skins SET price_text = $1, currency = $2, updated_at = $3 WHERE market_hash_name = $4`
 	}
-	if err != nil {
-		return fmt.Errorf("update saved skin price: %w", err)
+
+	updatedAt := time.Now().UTC()
+	priceText := price.PriceText
+	if price.PriceCents != nil {
+		priceText = formatPriceText(*price.PriceCents, currency)
 	}
-	return nil
+
+	result, err := s.Conn.DB().ExecContext(ctx, query, priceText, currency, updatedAt, params.MarketHashName)
+	if err != nil {
+		logger.Error("failed to update saved skin price",
+			append([]any{slog.String("market_hash_name", params.MarketHashName)}, logx.ErrAttrs(err)...)...,
+		)
+		return appskins.UpdateSavedSkinPriceResult{}, errx.E("skins.storage.update_one.exec", errx.CodeInternal, "failed to update saved skin price", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		logger.Error("failed to inspect update result",
+			append([]any{slog.String("market_hash_name", params.MarketHashName)}, logx.ErrAttrs(err)...)...,
+		)
+		return appskins.UpdateSavedSkinPriceResult{}, errx.E("skins.storage.update_one.rows", errx.CodeInternal, "failed to inspect update result", err)
+	}
+	if rowsAffected == 0 {
+		logger.Warn("saved skin not found during price update", slog.String("market_hash_name", params.MarketHashName))
+		return appskins.UpdateSavedSkinPriceResult{}, errx.E("skins.storage.update_one.not_found", errx.CodeNotFound, "saved skin not found", nil)
+	}
+
+	logger.Info("saved skin price updated",
+		slog.String("market_hash_name", params.MarketHashName),
+		slog.String("currency", currency),
+		slog.String("price_text", priceText),
+	)
+	return appskins.UpdateSavedSkinPriceResult{
+		MarketHashName: params.MarketHashName,
+		PriceText:      priceText,
+		Currency:       currency,
+		UpdatedAt:      updatedAt,
+	}, nil
 }
 
-func (s *Storage) UpdateAllSavedSkinsPrices(params appskins.UpdateAllSavedSkinsPricesParams) (err error) {
+func (s *Storage) UpdateAllSavedSkinsPrices(params appskins.UpdateAllSavedSkinsPricesParams) (result appskins.UpdateAllSavedSkinsPricesResult, err error) {
+	logger := logx.WithComponent(s.Logger, "skins_storage")
 	ctx := context.Background()
-	ensureSkinsColumns(s.Conn.DB())
-	rows, err := s.Conn.DB().QueryContext(ctx, `SELECT market_hash_name FROM skins`)
+	query := `SELECT market_hash_name FROM skins ORDER BY id DESC`
+	rows, err := s.Conn.DB().QueryContext(ctx, query)
 	if err != nil {
-		return fmt.Errorf("get saved skins names: %w", err)
+		logger.Error("failed to query saved skin names", logx.ErrAttrs(err)...)
+		return appskins.UpdateAllSavedSkinsPricesResult{}, errx.E("skins.storage.update_all.query", errx.CodeInternal, "failed to load saved skin names", err)
 	}
 	defer func() {
 		if closeErr := rows.Close(); closeErr != nil {
@@ -163,28 +181,140 @@ func (s *Storage) UpdateAllSavedSkinsPrices(params appskins.UpdateAllSavedSkinsP
 		}
 	}()
 
-	marketHashNames := make([]string, 0)
+	names := make([]string, 0)
 	for rows.Next() {
 		var marketHashName string
 		if err := rows.Scan(&marketHashName); err != nil {
-			return fmt.Errorf("scan market hash name: %w", err)
+			logger.Error("failed to scan saved skin name", logx.ErrAttrs(err)...)
+			return appskins.UpdateAllSavedSkinsPricesResult{}, errx.E("skins.storage.update_all.scan", errx.CodeInternal, "failed to scan saved skin name", err)
 		}
-		marketHashNames = append(marketHashNames, marketHashName)
+		names = append(names, marketHashName)
+	}
+	if err := rows.Err(); err != nil {
+		logger.Error("failed while iterating saved skin names", logx.ErrAttrs(err)...)
+		return appskins.UpdateAllSavedSkinsPricesResult{}, errx.E("skins.storage.update_all.rows", errx.CodeInternal, "failed to iterate saved skin names", err)
 	}
 
-	if rowsErr := rows.Err(); rowsErr != nil {
-		return rowsErr
-	}
-
-	if closeErr := rows.Close(); closeErr != nil {
-		return fmt.Errorf("close saved skin names rows: %w", closeErr)
-	}
-
-	for _, marketHashName := range marketHashNames {
-		if err := s.UpdateSavedSkinPrice(appskins.UpdateSavedSkinPriceParams{MarketHashName: marketHashName, Currency: params.Currency}); err != nil {
-			return err
+	failures := make([]appskins.UpdateSavedSkinPriceFailure, 0)
+	updatedCount := 0
+	currency := normalizeCurrencyCode(params.Currency)
+	for _, marketHashName := range names {
+		if _, err := s.UpdateSavedSkinPrice(appskins.UpdateSavedSkinPriceParams{
+			MarketHashName: marketHashName,
+			Currency:       currency,
+		}); err != nil {
+			logger.Warn("failed to update one saved skin in batch",
+				append([]any{slog.String("market_hash_name", marketHashName)}, logx.ErrAttrs(err)...)...,
+			)
+			failures = append(failures, appskins.UpdateSavedSkinPriceFailure{
+				MarketHashName: marketHashName,
+				Message:        err.Error(),
+			})
+			continue
 		}
+		updatedCount++
 	}
 
+	logger.Info("bulk saved skin price update completed",
+		slog.Int("requested_count", len(names)),
+		slog.Int("updated_count", updatedCount),
+		slog.Int("failed_count", len(failures)),
+		slog.String("currency", currency),
+	)
+	return appskins.UpdateAllSavedSkinsPricesResult{
+		UpdatedCount: updatedCount,
+		FailedCount:  len(failures),
+		Failures:     failures,
+	}, nil
+}
+
+func (s *Storage) DeleteSavedSkin(params appskins.DeleteSavedSkinParams) error {
+	logger := logx.WithComponent(s.Logger, "skins_storage")
+	ctx := context.Background()
+	query := `DELETE FROM skins WHERE market_hash_name = ?`
+	if s.Conn.Dialect() == "postgres" {
+		query = `DELETE FROM skins WHERE market_hash_name = $1`
+	}
+
+	result, err := s.Conn.DB().ExecContext(ctx, query, params.MarketHashName)
+	if err != nil {
+		logger.Error("failed to delete saved skin",
+			append([]any{slog.String("market_hash_name", params.MarketHashName)}, logx.ErrAttrs(err)...)...,
+		)
+		return errx.E("skins.storage.delete", errx.CodeInternal, "failed to delete saved skin", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		logger.Error("failed to inspect delete result",
+			append([]any{slog.String("market_hash_name", params.MarketHashName)}, logx.ErrAttrs(err)...)...,
+		)
+		return errx.E("skins.storage.delete.rows", errx.CodeInternal, "failed to inspect delete result", err)
+	}
+	if rowsAffected == 0 {
+		logger.Warn("saved skin not found during delete", slog.String("market_hash_name", params.MarketHashName))
+		return errx.E("skins.storage.delete.not_found", errx.CodeNotFound, "saved skin not found", nil)
+	}
+	logger.Info("saved skin deleted", slog.String("market_hash_name", params.MarketHashName))
 	return nil
+}
+
+func isUniqueViolation(err error) bool {
+	if err == nil {
+		return false
+	}
+	message := strings.ToLower(err.Error())
+	return strings.Contains(message, "unique constraint") || strings.Contains(message, "duplicate key") || strings.Contains(message, "unique failed")
+}
+
+func normalizeCurrencyCode(currency string) string {
+	switch strings.ToUpper(strings.TrimSpace(currency)) {
+	case "1", "USD":
+		return "1"
+	case "3", "EUR":
+		return "3"
+	case "5", "RUB":
+		return "5"
+	default:
+		return "1"
+	}
+}
+
+func formatPriceText(priceCents int64, currency string) string {
+	sign := ""
+	if priceCents < 0 {
+		sign = "-"
+		priceCents = -priceCents
+	}
+
+	whole := priceCents / 100
+	fraction := priceCents % 100
+
+	switch currency {
+	case "3":
+		return fmt.Sprintf("%s€%d.%02d", sign, whole, fraction)
+	case "5":
+		if fraction == 0 {
+			return fmt.Sprintf("%s%d ₽", sign, whole)
+		}
+		return fmt.Sprintf("%s%d.%02d ₽", sign, whole, fraction)
+	default:
+		return fmt.Sprintf("%s$%d.%02d", sign, whole, fraction)
+	}
+}
+
+func classifySteamError(op string, err error) error {
+	message := strings.ToLower(err.Error())
+	switch {
+	case strings.Contains(message, "context deadline exceeded"):
+		return errx.E(op, errx.CodeTimeout, "steam request timed out", err)
+	case strings.Contains(message, "bad status"), strings.Contains(message, "unsuccessful"):
+		return errx.E(op, errx.CodeUnavailable, "steam is temporarily unavailable", err)
+	case strings.Contains(message, "not found"):
+		return errx.E(op, errx.CodeNotFound, "skin not found on steam", err)
+	case strings.Contains(message, "decode"):
+		return errx.E(op, errx.CodeExternal, "failed to decode steam response", err)
+	default:
+		return errx.E(op, errx.CodeExternal, "steam request failed", err)
+	}
 }

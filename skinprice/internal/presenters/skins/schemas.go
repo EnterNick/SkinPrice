@@ -4,6 +4,7 @@ import "time"
 
 type SearchNewSkinsFilter struct {
 	MarketHashName *string `json:"market_hash_name"`
+	Source         string  `json:"source"`
 	Limit          int     `json:"limit"`
 	Offset         int     `json:"offset"`
 }
@@ -30,6 +31,10 @@ type SaveSkinRequest struct {
 	DisplayName    string `json:"display_name"`
 	IconURL        string `json:"icon_url"`
 	PageURL        string `json:"page_url"`
+}
+
+type SaveSkinResponse struct {
+	Created bool `json:"created"`
 }
 
 type GetSavedSkinsFilter struct {
@@ -59,6 +64,28 @@ type UpdateSavedSkinPriceRequest struct {
 	Currency       string `json:"currency"`
 }
 
+type UpdateSavedSkinPriceResponse struct {
+	MarketHashName string    `json:"market_hash_name"`
+	PriceText      string    `json:"price_text"`
+	Currency       string    `json:"currency"`
+	UpdatedAt      time.Time `json:"updated_at"`
+}
+
 type UpdateAllSavedSkinsPricesRequest struct {
 	Currency string `json:"currency"`
+}
+
+type UpdateSavedSkinPriceFailure struct {
+	MarketHashName string `json:"market_hash_name"`
+	Message        string `json:"message"`
+}
+
+type UpdateAllSavedSkinsPricesResponse struct {
+	UpdatedCount int                           `json:"updated_count"`
+	FailedCount  int                           `json:"failed_count"`
+	Failures     []UpdateSavedSkinPriceFailure `json:"failures"`
+}
+
+type DeleteSavedSkinRequest struct {
+	MarketHashName string `json:"market_hash_name"`
 }

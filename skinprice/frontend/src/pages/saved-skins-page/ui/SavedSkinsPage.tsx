@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../app/router/routes";
-import { updateAllSkinPrices, updateSkinPrice } from "../../../entities/skin/api/skinApi";
+import { CURRENCY_OPTIONS, deleteSavedSkin, normalizeCurrency, updateAllSkinPrices, updateSkinPrice } from "../../../entities/skin/api/skinApi";
+import type { SavedSkinCurrency } from "../../../entities/skin/model/types";
 import { useSavedSkins } from "../../../entities/skin/model/useSavedSkins";
 import { UI_TEXT } from "../../../shared/config/uiText";
 import { STORAGE_KEYS } from "../../../shared/config/storage";
@@ -13,14 +14,16 @@ import { SavedSkinsTable } from "../../../widgets/saved-skins-table/SavedSkinsTa
 export const SavedSkinsPage: React.FC = () => {
   const navigate = useNavigate();
   const { items, loading, error, loadSkins } = useSavedSkins();
-  const [currency, setCurrency] = useState(() => window.localStorage.getItem(STORAGE_KEYS.currency) || "1");
+  const [currency, setCurrency] = useState<SavedSkinCurrency>(() => normalizeCurrency(window.localStorage.getItem(STORAGE_KEYS.currency)));
   const [updatingSkinIds, setUpdatingSkinIds] = useState<Record<string, boolean>>({});
+  const [deletingSkinIds, setDeletingSkinIds] = useState<Record<string, boolean>>({});
   const [isUpdatingAll, setIsUpdatingAll] = useState(false);
   const [notice, setNotice] = useState<{ type: "success" | "warning" | "error"; text: string } | null>(null);
   const autoSyncedCurrencyRef = useRef<string | null>(null);
 
   const refreshOne = async (skinId: string) => {
     setUpdatingSkinIds((prev) => ({ ...prev, [skinId]: true }));
+    setNotice(null);
     try {
       await updateSkinPrice(skinId, currency);
       await loadSkins();
@@ -31,14 +34,18 @@ export const SavedSkinsPage: React.FC = () => {
     }
   };
 
-  const refreshAll = async (nextCurrency = currency) => {
+  const refreshAll = async (nextCurrency: SavedSkinCurrency = currency) => {
     setIsUpdatingAll(true);
     setNotice(null);
     try {
-      await updateAllSkinPrices(nextCurrency);
+      const result = await updateAllSkinPrices(nextCurrency);
       try {
-        const refreshed = await loadSkins();
-        setNotice({ type: "success", text: UI_TEXT.successUpdatedAll.replace("{count}", String(refreshed.items.length)) });
+        await loadSkins();
+        const text =
+          result.failed > 0
+            ? UI_TEXT.partialUpdatedAll.replace("{updated}", String(result.updated)).replace("{failed}", String(result.failed))
+            : UI_TEXT.successUpdatedAll.replace("{count}", String(result.updated));
+        setNotice({ type: result.failed > 0 ? "warning" : "success", text });
       } catch (reloadError) {
         const message = formatErrorMessage("", reloadError).trim();
         setNotice({ type: "warning", text: UI_TEXT.warningPartialUpdated.replace("{message}", message) });
@@ -50,7 +57,21 @@ export const SavedSkinsPage: React.FC = () => {
     }
   };
 
-  const onCurrencyChange = (nextCurrency: string) => {
+  const removeSkin = async (skinId: string) => {
+    setDeletingSkinIds((prev) => ({ ...prev, [skinId]: true }));
+    setNotice(null);
+    try {
+      await deleteSavedSkin(skinId);
+      await loadSkins();
+    } catch (err: unknown) {
+      setNotice({ type: "error", text: formatErrorMessage(UI_TEXT.errDelete, err) });
+    } finally {
+      setDeletingSkinIds((prev) => ({ ...prev, [skinId]: false }));
+    }
+  };
+
+  const onCurrencyChange = (nextCurrencyValue: string) => {
+    const nextCurrency = normalizeCurrency(nextCurrencyValue);
     setCurrency(nextCurrency);
     window.localStorage.setItem(STORAGE_KEYS.currency, nextCurrency);
     autoSyncedCurrencyRef.current = nextCurrency;
@@ -76,7 +97,6 @@ export const SavedSkinsPage: React.FC = () => {
 
   if (loading) return <LoadingState text={UI_TEXT.loadingSaved} />;
   if (error) return <ErrorState text={error} />;
-  if (items.length === 0) return <EmptyState text={UI_TEXT.notFoundSaved} />;
 
   return (
     <div className="saved-skins-page">
@@ -86,9 +106,11 @@ export const SavedSkinsPage: React.FC = () => {
         actions={
           <div className="saved-skins-toolbar">
             <select className="toolbar-select" value={currency} onChange={(e) => onCurrencyChange(e.target.value)}>
-              <option value="1">USD</option>
-              <option value="5">RUB</option>
-              <option value="3">EUR</option>
+              {CURRENCY_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
             <button className="toolbar-button toolbar-button-primary" type="button" disabled={isUpdatingAll} onClick={() => void refreshAll()}>
               {isUpdatingAll ? UI_TEXT.updateAllPending : UI_TEXT.updateAll}
@@ -100,12 +122,24 @@ export const SavedSkinsPage: React.FC = () => {
         }
       />
       {notice && <ToastAlert type={notice.type} text={notice.text} />}
-      <SavedSkinsTable
-        items={items}
-        isUpdatingAll={isUpdatingAll}
-        updatingSkinIds={updatingSkinIds}
-        onRefreshOne={refreshOne}
-      />
+      {items.length === 0 ? (
+        <div className="empty-shell">
+          <EmptyState text={UI_TEXT.notFoundSaved} />
+          <p className="empty-hint">{UI_TEXT.emptySavedHint}</p>
+          <button className="toolbar-button toolbar-button-primary empty-action" type="button" onClick={() => navigate(ROUTES.newSkins)}>
+            {UI_TEXT.ctaAddSkins}
+          </button>
+        </div>
+      ) : (
+        <SavedSkinsTable
+          items={items}
+          isUpdatingAll={isUpdatingAll}
+          updatingSkinIds={updatingSkinIds}
+          deletingSkinIds={deletingSkinIds}
+          onRefreshOne={refreshOne}
+          onDelete={removeSkin}
+        />
+      )}
     </div>
   );
 };

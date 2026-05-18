@@ -3,18 +3,22 @@ package lisskins
 import (
 	"SkinPrice/skinprice/internal/application"
 	"SkinPrice/skinprice/internal/application/skins"
+	"SkinPrice/skinprice/internal/shared/logx"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strconv"
+	"time"
 )
 
 type Storage struct {
 	Client  *http.Client
 	BaseURL string
+	Logger  *slog.Logger
 }
 
 type marketSearchResponse struct {
@@ -48,11 +52,22 @@ type marketSearchItem struct {
 	} `json:"asset_description"`
 }
 
+const requestTimeout = 8 * time.Second
+
 func (s *Storage) GetList(criteria skins.SearchCriteria, params *application.Pagination) (skins.NewSkinsList, error) {
+	logger := logx.WithComponent(s.Logger, "lisskins_storage")
+	startedAt := time.Now()
 	q := buildLisSkinsMarketSearchParams(criteria, params, "")
 	endpoint := fmt.Sprintf("%s/market/search?%s", s.BaseURL, q.Encode())
 	payload, err := s.fetch(endpoint)
 	if err != nil {
+		logger.Error("lisskins search failed",
+			append([]any{
+				slog.String("operation", "search"),
+				slog.String("source", "lisskins"),
+				slog.Duration("duration", time.Since(startedAt)),
+			}, logx.ErrAttrs(err)...)...,
+		)
 		return skins.NewSkinsList{}, err
 	}
 
@@ -67,6 +82,14 @@ func (s *Storage) GetList(criteria skins.SearchCriteria, params *application.Pag
 		totalCount = payload.Count
 	}
 
+	logger.Debug("lisskins search completed",
+		slog.String("operation", "search"),
+		slog.String("source", "lisskins"),
+		slog.Int("items", len(result)),
+		slog.Int("total_count", totalCount),
+		slog.Duration("duration", time.Since(startedAt)),
+	)
+
 	return skins.NewSkinsList{
 		Items:      result,
 		TotalCount: totalCount,
@@ -76,10 +99,21 @@ func (s *Storage) GetList(criteria skins.SearchCriteria, params *application.Pag
 }
 
 func (s *Storage) GetByMarketHashName(marketHashName, currency string) (*skins.NewSkin, error) {
+	logger := logx.WithComponent(s.Logger, "lisskins_storage")
+	startedAt := time.Now()
 	q := buildLisSkinsMarketSearchParams(skins.SearchCriteria{MarketHashName: &marketHashName}, &application.Pagination{Limit: 20, Offset: 0}, currency)
 	endpoint := fmt.Sprintf("%s/market/search?%s", s.BaseURL, q.Encode())
 	payload, err := s.fetch(endpoint)
 	if err != nil {
+		logger.Error("lisskins price search failed",
+			append([]any{
+				slog.String("operation", "lookup"),
+				slog.String("source", "lisskins"),
+				slog.String("market_hash_name", marketHashName),
+				slog.String("currency", currency),
+				slog.Duration("duration", time.Since(startedAt)),
+			}, logx.ErrAttrs(err)...)...,
+		)
 		return nil, err
 	}
 
@@ -87,17 +121,35 @@ func (s *Storage) GetByMarketHashName(marketHashName, currency string) (*skins.N
 		hash := firstNonEmpty(item.HashName, item.MarketHash)
 		if hash == marketHashName {
 			skin := mapItem(item, s.BaseURL)
+			logger.Debug("lisskins lookup completed",
+				slog.String("operation", "lookup"),
+				slog.String("source", "lisskins"),
+				slog.String("market_hash_name", marketHashName),
+				slog.String("currency", currency),
+				slog.Duration("duration", time.Since(startedAt)),
+			)
 			return &skin, nil
 		}
 	}
+	logger.Warn("lisskins lookup returned no result",
+		slog.String("operation", "lookup"),
+		slog.String("source", "lisskins"),
+		slog.String("market_hash_name", marketHashName),
+		slog.String("currency", currency),
+		slog.Duration("duration", time.Since(startedAt)),
+	)
 	return nil, fmt.Errorf("%w: skin not found", skins.ErrNewSkinsResponseUnsuccess)
 }
 
 func (s *Storage) fetch(endpoint string) (_ marketSearchResponse, err error) {
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, endpoint, nil)
+	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
 		return marketSearchResponse{}, fmt.Errorf("%w: %w", skins.ErrNewSkinsRequestFailed, err)
 	}
+	setLisSkinsHeaders(req)
 
 	resp, err := s.Client.Do(req)
 	if err != nil {
@@ -121,6 +173,13 @@ func (s *Storage) fetch(endpoint string) (_ marketSearchResponse, err error) {
 		return marketSearchResponse{}, fmt.Errorf("%w: %s", skins.ErrNewSkinsResponseUnsuccess, firstNonEmpty(payload.Error, payload.Message))
 	}
 	return payload, nil
+}
+
+func setLisSkinsHeaders(req *http.Request) {
+	req.Header.Set("Accept", "application/json, text/plain, */*")
+	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
+	req.Header.Set("Referer", "https://lis-skins.ru/")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36")
 }
 
 func buildLisSkinsMarketSearchParams(criteria skins.SearchCriteria, params *application.Pagination, currency string) url.Values {

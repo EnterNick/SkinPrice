@@ -1,13 +1,16 @@
 package composion
 
-import "SkinPrice/skinprice/internal/composion/factory"
+import (
+	"SkinPrice/skinprice/internal/composion/factory"
+	"log/slog"
+)
 
 type BackendApp struct {
 	Factory *factory.Factory
 }
 
-func NewApp() (*BackendApp, error) {
-	f, err := factory.NewFactory()
+func NewApp(logger *slog.Logger) (*BackendApp, error) {
+	f, err := factory.NewFactory(logger)
 	if err != nil {
 		return nil, err
 	}

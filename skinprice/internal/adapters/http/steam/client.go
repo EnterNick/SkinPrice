@@ -11,6 +11,7 @@ func NewSteamClient(config config.Config) *http.Client {
 		MaxIdleConns:    config.MaxIdleConns,
 	}
 	return &http.Client{
+		Timeout:   config.HTTPTimeout,
 		Transport: tr,
 	}
 }

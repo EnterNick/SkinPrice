@@ -1,3 +1,10 @@
+export type SavedSkinCurrency = "1" | "3" | "5";
+
+export type CurrencyOption = {
+  value: SavedSkinCurrency;
+  label: "USD" | "EUR" | "RUB";
+};
+
 export type Skin = {
   id: string;
   name: string;
@@ -6,7 +13,7 @@ export type Skin = {
   pageUrl: string;
   priceText: string;
   priceCents?: number;
-  currency?: string;
+  currency?: SavedSkinCurrency;
   sellListings?: number;
   updatedAt?: string;
 };
@@ -15,15 +22,38 @@ export type SavedSkin = Skin;
 export type NewSkin = Skin;
 
 export type PriceUpdateResult = {
+  marketHashName?: string;
+  priceText?: string;
+  currency?: SavedSkinCurrency;
+  updatedAt?: string;
   updated: number;
 };
 
+export type BulkPriceUpdateFailure = {
+  marketHashName: string;
+  message: string;
+};
+
+export type BulkPriceUpdateResult = {
+  updated: number;
+  failed: number;
+  failures: BulkPriceUpdateFailure[];
+};
+
+export type SaveSkinResult = {
+  created: boolean;
+};
+
 export type ApiErrorCode =
-  | "NETWORK_ERROR"
-  | "NOT_FOUND"
-  | "VALIDATION_ERROR"
-  | "RATE_LIMIT"
-  | "SERVER_ERROR"
+  | "invalid_argument"
+  | "not_found"
+  | "already_exists"
+  | "conflict"
+  | "unavailable"
+  | "timeout"
+  | "external"
+  | "internal"
+  | "unknown"
   | "UNKNOWN_ERROR";
 
 export type ApiError = {

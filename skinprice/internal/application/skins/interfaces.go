@@ -6,8 +6,12 @@ type NewSkinsStorage interface {
 	GetList(criteria SearchCriteria, params *application.Pagination) (NewSkinsList, error)
 }
 
+type NewSkinsStorageSelector interface {
+	Get(source string) NewSkinsStorage
+}
+
 type SkinSaver interface {
-	Save(params SaveSkinParams) error
+	Save(params SaveSkinParams) (SaveSkinResult, error)
 }
 
 type SavedSkinsReader interface {
@@ -15,6 +19,10 @@ type SavedSkinsReader interface {
 }
 
 type SavedSkinPriceUpdater interface {
-	UpdateSavedSkinPrice(params UpdateSavedSkinPriceParams) error
-	UpdateAllSavedSkinsPrices(params UpdateAllSavedSkinsPricesParams) error
+	UpdateSavedSkinPrice(params UpdateSavedSkinPriceParams) (UpdateSavedSkinPriceResult, error)
+	UpdateAllSavedSkinsPrices(params UpdateAllSavedSkinsPricesParams) (UpdateAllSavedSkinsPricesResult, error)
+}
+
+type SavedSkinDeleter interface {
+	DeleteSavedSkin(params DeleteSavedSkinParams) error
 }

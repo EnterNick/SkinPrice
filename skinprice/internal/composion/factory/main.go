@@ -2,26 +2,33 @@ package factory
 
 import (
 	"SkinPrice/skinprice/internal/adapters/database"
-	"context"
+	"SkinPrice/skinprice/internal/shared/logx"
 	"errors"
 	"fmt"
+	"log/slog"
 )
 
 type Factory struct {
 	dbConnection *database.Connection
+	logger       *slog.Logger
 }
 
-func NewFactory() (*Factory, error) {
-	connection, err := database.New(nil)
+func NewFactory(logger *slog.Logger) (*Factory, error) {
+	logger = logx.WithComponent(logger, "factory")
+	connection, err := database.New(nil, logger)
 	if err != nil {
+		logger.Error("failed to initialize database connection", logx.ErrAttrs(err)...)
 		return nil, err
 	}
-	if err := connection.Client().Schema.Create(context.Background()); err != nil {
+	if err := database.EnsureSchema(connection); err != nil {
 		_ = connection.Close()
-		return nil, fmt.Errorf("create database schema: %w", err)
+		logger.Error("failed to ensure database schema", logx.ErrAttrs(err)...)
+		return nil, fmt.Errorf("ensure database schema: %w", err)
 	}
+	logger.Info("factory initialized")
 	return &Factory{
 		dbConnection: connection,
+		logger:       logger,
 	}, nil
 }
 
@@ -30,8 +37,12 @@ func (f *Factory) Close() error {
 
 	if f.dbConnection != nil {
 		if err := f.dbConnection.Close(); err != nil {
+			f.logger.Error("failed to close database connection", logx.ErrAttrs(err)...)
 			closeErr = errors.Join(closeErr, err)
 		}
+	}
+	if closeErr == nil {
+		f.logger.Info("factory closed")
 	}
 	return closeErr
 }

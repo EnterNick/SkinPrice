@@ -2,21 +2,33 @@ import React from "react";
 import { UI_TEXT } from "../../shared/config/uiText";
 
 type NewSkinsSearchPanelProps = {
-  searchLabel: string;
-  fallbackLabel: string;
+  value: string;
   activeSource: "steam" | "lisskins";
+  errorText?: string | null;
+  helperText: string;
+  disabled?: boolean;
+  onChange: (value: string) => void;
   onChangeSource: (source: "steam" | "lisskins") => void;
   onSearch: () => Promise<void> | void;
 };
 
 export const NewSkinsSearchPanel: React.FC<NewSkinsSearchPanelProps> = ({
-  searchLabel,
-  fallbackLabel,
+  value,
   activeSource,
+  errorText,
+  helperText,
+  disabled,
+  onChange,
   onChangeSource,
   onSearch,
 }) => (
-  <div className="search-panel">
+  <form
+    className="search-panel"
+    onSubmit={(event) => {
+      event.preventDefault();
+      void onSearch();
+    }}
+  >
     <div className="source-tabs" role="tablist" aria-label={UI_TEXT.sourceTabsAriaLabel}>
       <button
         className={`source-tab${activeSource === "steam" ? " source-tab-active" : ""}`}
@@ -37,9 +49,17 @@ export const NewSkinsSearchPanel: React.FC<NewSkinsSearchPanelProps> = ({
         {UI_TEXT.sourceLisSkins}
       </button>
     </div>
-    <button className="toolbar-button toolbar-button-primary" type="button" onClick={() => void onSearch()}>
+    <input
+      className="search-input"
+      type="text"
+      value={value}
+      placeholder={UI_TEXT.searchPlaceholder}
+      onChange={(event) => onChange(event.target.value)}
+      disabled={disabled}
+    />
+    <button className="toolbar-button toolbar-button-primary" type="submit" disabled={disabled}>
       {UI_TEXT.searchAction}
     </button>
-    <div className="search-query-label">{searchLabel || fallbackLabel}</div>
-  </div>
+    <div className={`search-query-label${errorText ? " search-query-label-error" : ""}`}>{errorText || helperText}</div>
+  </form>
 );
