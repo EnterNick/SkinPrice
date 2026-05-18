@@ -1,0 +1,33 @@
+export const ROUTE_TITLE = {
+  "/": "Сохранённые скины",
+  "/new": "Новые скины",
+} as const;
+
+export const UI_TEXT = {
+  ctaAddSkins: "Добавить скины",
+  ctaToHome: "На главную",
+  updateOne: "Обновить цену",
+  updateOnePending: "Обновляем цену...",
+  updateAll: "Обновить цены",
+  updateAllPending: "Обновляем цены...",
+  saveSkin: "Сохранить скин",
+  saveSkinPending: "Сохраняем скин...",
+  saveSkinDone: "Скин сохранён",
+  errLoadSaved: "Не удалось загрузить сохранённые скины.",
+  errLoadNew: "Не удалось загрузить новые скины.",
+  errUpdateOne: "Не удалось обновить цену.",
+  errUpdateAll: "Не удалось обновить цены.",
+  errSave: "Не удалось сохранить скин.",
+  loadingSaved: "Загрузка сохранённых скинов...",
+  loadingNew: "Загрузка новых скинов...",
+  notFoundSaved: "Нет сохранённых скинов.",
+  notFoundSearch: "По запросу ничего не найдено.",
+  pageNotFound: "Страница не найдена.",
+  searchPlaceholder: "Поиск по названию",
+  priceLabel: "Цена",
+  listingsLabel: "Лотов",
+  updatedLabel: "Обновлено",
+  successUpdatedAll: "Готово: цены обновлены для {count} скинов.",
+  warningPartialUpdated: "Частичный успех: цены обновлены, но не удалось синхронизировать список ({message}).",
+  saveDoneShort: "Скин сохранён.",
+} as const;
