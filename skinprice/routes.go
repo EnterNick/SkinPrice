@@ -27,7 +27,12 @@ func (a *App) registerRoutes() {
 			LisSkinsStorage: lisSkinsStorage,
 		},
 	}
-	saveSkinStorage := &adapterdbskins.Storage{Conn: a.backend.Factory.DBConnection(), SteamStorage: steamStorage, Logger: a.logger}
+	saveSkinStorage := &adapterdbskins.Storage{
+		Conn:             a.backend.Factory.DBConnection(),
+		SteamStorage:     steamStorage,
+		BatchUpdateDelay: cfg.BulkPriceUpdateDelay,
+		Logger:           a.logger,
+	}
 	saveSkinUC := skins.SaveSkin{SkinSaver: saveSkinStorage}
 	getSavedSkinsUC := skins.GetSavedSkins{SavedSkinsReader: saveSkinStorage}
 	updateSavedSkinPriceUC := skins.UpdateSavedSkinPrice{Updater: saveSkinStorage}

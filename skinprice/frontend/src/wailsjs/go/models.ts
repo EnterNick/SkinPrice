@@ -49,6 +49,18 @@ export namespace skins {
 	        this.offset = source["offset"];
 	    }
 	}
+	export class LisSkinsTokenStatusResponse {
+	    hasToken: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new LisSkinsTokenStatusResponse(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.hasToken = source["hasToken"];
+	    }
+	}
 	export class NewSkinItem {
 	    market_hash_name: string;
 	    display_name: string;
@@ -218,31 +230,6 @@ export namespace skins {
 		    return a;
 		}
 	}
-
-	export class LisSkinsTokenStatusResponse {
-	    hasToken: boolean;
-
-	    static createFrom(source: any = {}) {
-	        return new LisSkinsTokenStatusResponse(source);
-	    }
-
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.hasToken = source["hasToken"];
-	    }
-	}
-	export class SetLisSkinsTokenRequest {
-	    token: string;
-
-	    static createFrom(source: any = {}) {
-	        return new SetLisSkinsTokenRequest(source);
-	    }
-
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.token = source["token"];
-	    }
-	}
 	export class SearchNewSkinsFilter {
 	    market_hash_name?: string;
 	    source: string;
@@ -259,6 +246,18 @@ export namespace skins {
 	        this.source = source["source"];
 	        this.limit = source["limit"];
 	        this.offset = source["offset"];
+	    }
+	}
+	export class SetLisSkinsTokenRequest {
+	    token: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new SetLisSkinsTokenRequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.token = source["token"];
 	    }
 	}
 	export class UpdateAllSavedSkinsPricesRequest {

@@ -79,7 +79,7 @@ export const NewSkinsSearchPanel: React.FC<NewSkinsSearchPanelProps> = ({
       <div className="search-query-label">
         <div>{UI_TEXT.lisSkinsTokenRequired}</div>
         <div>{UI_TEXT.lisSkinsTokenHelp}</div>
-        <button className="toolbar-button" type="button" onClick={() => openExternal("https://lis-skins.com/profile/settings") }>
+        <button className="toolbar-button" type="button" onClick={() => openExternal("https://lis-skins.com/ru/profile/api/") }>
           {UI_TEXT.lisSkinsTokenLink}
         </button>
         <input

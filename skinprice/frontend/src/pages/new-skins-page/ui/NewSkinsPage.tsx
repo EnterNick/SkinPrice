@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../app/router/routes";
 import { saveSkin } from "../../../entities/skin/api/skinApi";
@@ -40,6 +40,10 @@ export const NewSkinsPage: React.FC = () => {
 
   const minSearchMessage = `Введите минимум ${MIN_SEARCH_LENGTH} символа для поиска.`;
 
+  useEffect(() => {
+    void loadNewSkins("", "steam");
+  }, []);
+
   const onSearch = async () => {
     const value = query.trim();
     if (value.length < MIN_SEARCH_LENGTH) {
@@ -66,8 +70,12 @@ export const NewSkinsPage: React.FC = () => {
   };
 
   const onChangeSource = (source: "steam" | "lisskins") => {
+    if (source === activeSource) return;
+
     setActiveSource(source);
     setNotice(null);
+    const value = query.trim();
+    void loadNewSkins(value.length >= MIN_SEARCH_LENGTH ? value : "", source);
   };
 
   return (
@@ -87,7 +95,7 @@ export const NewSkinsPage: React.FC = () => {
         value={query}
         activeSource={activeSource}
         errorText={notice?.type === "error" ? notice.text : null}
-        helperText={hasSearched ? `Текущий запрос: ${currentQuery} • Источник: ${currentSource}` : UI_TEXT.searchHelper}
+        helperText={hasSearched ? (currentQuery ? `Текущий запрос: ${currentQuery} • Источник: ${currentSource}` : `Источник: ${currentSource}`) : UI_TEXT.searchHelper}
         disabled={loading}
         tokenRequired={tokenRequired}
         tokenSaving={tokenSaving}

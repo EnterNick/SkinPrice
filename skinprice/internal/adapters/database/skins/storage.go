@@ -16,9 +16,10 @@ import (
 )
 
 type Storage struct {
-	Conn         *database.Connection
-	SteamStorage steamPriceReader
-	Logger       *slog.Logger
+	Conn             *database.Connection
+	SteamStorage     steamPriceReader
+	BatchUpdateDelay time.Duration
+	Logger           *slog.Logger
 }
 
 type steamPriceReader interface {
@@ -198,7 +199,10 @@ func (s *Storage) UpdateAllSavedSkinsPrices(params appskins.UpdateAllSavedSkinsP
 	failures := make([]appskins.UpdateSavedSkinPriceFailure, 0)
 	updatedCount := 0
 	currency := normalizeCurrencyCode(params.Currency)
-	for _, marketHashName := range names {
+	for i, marketHashName := range names {
+		if i > 0 && s.BatchUpdateDelay > 0 {
+			time.Sleep(s.BatchUpdateDelay)
+		}
 		if _, err := s.UpdateSavedSkinPrice(appskins.UpdateSavedSkinPriceParams{
 			MarketHashName: marketHashName,
 			Currency:       currency,
@@ -220,6 +224,7 @@ func (s *Storage) UpdateAllSavedSkinsPrices(params appskins.UpdateAllSavedSkinsP
 		slog.Int("updated_count", updatedCount),
 		slog.Int("failed_count", len(failures)),
 		slog.String("currency", currency),
+		slog.Duration("delay_between_requests", s.BatchUpdateDelay),
 	)
 	return appskins.UpdateAllSavedSkinsPricesResult{
 		UpdatedCount: updatedCount,

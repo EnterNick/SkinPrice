@@ -3,19 +3,73 @@ package database
 import (
 	"context"
 	"fmt"
+	"strings"
 )
 
 func EnsureSchema(connection *Connection) error {
+	ctx := context.Background()
 	query := sqliteSchemaQuery
 	if connection.Dialect() == "postgres" {
 		query = postgresSchemaQuery
 	}
 
-	if _, err := connection.DB().ExecContext(context.Background(), query); err != nil {
+	if _, err := connection.DB().ExecContext(ctx, query); err != nil {
 		return fmt.Errorf("apply schema: %w", err)
+	}
+	if err := ensureSourceStatesSchema(ctx, connection); err != nil {
+		return fmt.Errorf("ensure source_states schema: %w", err)
 	}
 
 	return nil
+}
+
+func ensureSourceStatesSchema(ctx context.Context, connection *Connection) error {
+	if connection.Dialect() == "postgres" {
+		if _, err := connection.DB().ExecContext(ctx, `
+ALTER TABLE source_states
+ADD COLUMN IF NOT EXISTS source TEXT NOT NULL DEFAULT 'lisskins'`); err != nil {
+			return err
+		}
+		if _, err := connection.DB().ExecContext(ctx, `
+ALTER TABLE source_states
+ADD COLUMN IF NOT EXISTS api_token_encrypted TEXT NOT NULL DEFAULT ''`); err != nil {
+			return err
+		}
+		if _, err := connection.DB().ExecContext(ctx, `
+ALTER TABLE source_states
+ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ`); err != nil {
+			return err
+		}
+		if _, err := connection.DB().ExecContext(ctx, `
+CREATE UNIQUE INDEX IF NOT EXISTS source_states_source_uq ON source_states (source)`); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	if _, err := connection.DB().ExecContext(ctx, `ALTER TABLE source_states ADD COLUMN source TEXT NOT NULL DEFAULT 'lisskins'`); err != nil && !isMissingColumnIgnored(err) {
+		return err
+	}
+	if _, err := connection.DB().ExecContext(ctx, `ALTER TABLE source_states ADD COLUMN api_token_encrypted TEXT NOT NULL DEFAULT ''`); err != nil && !isMissingColumnIgnored(err) {
+		return err
+	}
+	if _, err := connection.DB().ExecContext(ctx, `ALTER TABLE source_states ADD COLUMN updated_at DATETIME`); err != nil && !isMissingColumnIgnored(err) {
+		return err
+	}
+	if _, err := connection.DB().ExecContext(ctx, `CREATE UNIQUE INDEX IF NOT EXISTS source_states_source_uq ON source_states (source)`); err != nil {
+		return err
+	}
+	return nil
+}
+
+func isMissingColumnIgnored(err error) bool {
+	if err == nil {
+		return false
+	}
+	message := strings.ToLower(err.Error())
+	return strings.Contains(message, "duplicate column name: source") ||
+		strings.Contains(message, "duplicate column name: api_token_encrypted") ||
+		strings.Contains(message, "duplicate column name: updated_at")
 }
 
 const sqliteSchemaQuery = `

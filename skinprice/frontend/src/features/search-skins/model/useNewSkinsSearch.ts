@@ -33,24 +33,20 @@ export const useNewSkinsSearch = () => {
 
   const loadNewSkins = async (searchValue: string, source: "steam" | "lisskins", nextOffset = 0, append = false) => {
     const normalizedSearch = searchValue.trim();
-    if (!normalizedSearch) {
-      requestIdRef.current += 1;
-      setHasSearched(false);
-      setItems([]);
-      setOffset(0);
-      setHasMore(false);
-      setError(null);
-      setLoading(false);
-      setLoadingMore(false);
-      return;
-    }
 
     if (source === "lisskins") {
-      const hasToken = await hasLisSkinsToken();
-      if (!hasToken) {
-        pendingSearchRef.current = { query: normalizedSearch, source, nextOffset, append };
-        setTokenRequired(true);
+      try {
+        const hasToken = await hasLisSkinsToken();
+        if (!hasToken) {
+          pendingSearchRef.current = { query: normalizedSearch, source, nextOffset, append };
+          setTokenRequired(true);
+          setTokenSaved(false);
+          return;
+        }
+      } catch (err: unknown) {
+        setTokenRequired(false);
         setTokenSaved(false);
+        setTokenError(formatErrorMessage(UI_TEXT.errLoadNew, err));
         return;
       }
     }
