@@ -22,14 +22,12 @@ func (a *App) registerRoutes() {
 	steamStorage := &adaptersteam.Storage{Client: adaptersteam.NewSteamClient(cfg), BaseURL: cfg.SteamBaseURL, Logger: a.logger}
 	lisSkinsStorage := &adapterlisskins.Storage{Client: adapterlisskins.NewLisSkinsClient(cfg), BaseURL: cfg.LisSkinsBaseURL, Logger: a.logger}
 	searchNewSkinsUC := skins.SearchNewSkins{
-		Storages: skins.SearchStorageSelector{
-			DefaultStorage:  steamStorage,
-			LisSkinsStorage: lisSkinsStorage,
-		},
+		Storage: steamStorage,
 	}
 	saveSkinStorage := &adapterdbskins.Storage{
 		Conn:             a.backend.Factory.DBConnection(),
 		SteamStorage:     steamStorage,
+		LisSkinsStorage:  lisSkinsStorage,
 		BatchUpdateDelay: cfg.BulkPriceUpdateDelay,
 		Logger:           a.logger,
 	}
@@ -129,7 +127,6 @@ func (a *App) UpdateAllSavedSkinsPrices(payload presenterskins.UpdateAllSavedSki
 func (a *App) SearchNewSkins(filter presenterskins.SearchNewSkinsFilter) (presenterskins.NewSkinsResponse, error) {
 	logger := logx.WithComponent(a.logger, "route")
 	logger.Info("search new skins requested",
-		slog.String("source", filter.Source),
 		slog.Int("limit", filter.Limit),
 		slog.Int("offset", filter.Offset),
 		slog.Bool("has_query", filter.MarketHashName != nil && *filter.MarketHashName != ""),
@@ -140,7 +137,6 @@ func (a *App) SearchNewSkins(filter presenterskins.SearchNewSkinsFilter) (presen
 		return presenterskins.NewSkinsResponse{}, errx.FromError(err, "failed to search skins")
 	}
 	logger.Info("search new skins completed",
-		slog.String("source", filter.Source),
 		slog.Int("items", len(response.Items)),
 		slog.Int("total_count", response.TotalCount),
 	)

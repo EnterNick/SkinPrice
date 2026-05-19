@@ -8,8 +8,8 @@ export function LogClientEvent(arg1: ClientLogEvent): Promise<void>;
 export function SearchNewSkins(arg1: SearchNewSkinsFilter): Promise<NewSkinsResponse>;
 export function SetLisSkinsToken(arg1: SetLisSkinsTokenRequest): Promise<void>;
 export function Shutdown(): Promise<void>;
-export function UpdateAllSavedSkinsPrices(arg1: UpdateAllSavedSkinsPricesRequest): Promise<void>;
-export function UpdateSavedSkinPrice(arg1: UpdateSavedSkinPriceRequest): Promise<void>;
+export function UpdateAllSavedSkinsPrices(arg1: UpdateAllSavedSkinsPricesRequest): Promise<UpdateAllSavedSkinsPricesResponse>;
+export function UpdateSavedSkinPrice(arg1: UpdateSavedSkinPriceRequest): Promise<UpdateSavedSkinPriceResponse>;
 
 export interface GetSavedSkinsFilter {
   limit: number;
@@ -20,6 +20,7 @@ export interface SearchNewSkinsFilter {
   market_hash_name?: string;
   limit: number;
   offset: number;
+  cursor: string;
 }
 
 export interface UpdateAllSavedSkinsPricesRequest {
@@ -35,8 +36,12 @@ export interface SavedSkinItem {
   market_hash_name: string;
   display_name: string;
   icon_url: string;
-  page_url: string;
-  price_text: string;
+  steam_page_url: string;
+  steam_price_text: string;
+  steam_updated_at: string;
+  lisskins_page_url: string;
+  lisskins_price_text: string;
+  lisskins_updated_at: string;
   currency: string;
 }
 
@@ -62,6 +67,29 @@ export interface NewSkinsResponse {
   total_count: number;
   limit: number;
   offset: number;
+  next_cursor: string;
+}
+
+export interface UpdateSavedSkinPriceResponse {
+  market_hash_name: string;
+  steam_page_url: string;
+  steam_price_text: string;
+  steam_updated_at: string;
+  lisskins_page_url: string;
+  lisskins_price_text: string;
+  lisskins_updated_at: string;
+  currency: string;
+}
+
+export interface UpdateSavedSkinPriceFailure {
+  market_hash_name: string;
+  message: string;
+}
+
+export interface UpdateAllSavedSkinsPricesResponse {
+  updated_count: number;
+  failed_count: number;
+  failures: UpdateSavedSkinPriceFailure[];
 }
 
 export interface ClientLogEvent {

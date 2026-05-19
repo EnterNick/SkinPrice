@@ -30,7 +30,7 @@ func Load() (Config, error) {
 	cfg := Config{
 		AppEnv:               utils.GetStrWDefault("APP_ENV", "local"),
 		SteamBaseURL:         utils.GetStrWDefault("STEAM_BASE_URL", "https://steamcommunity.com/market"),
-		LisSkinsBaseURL:      utils.GetStrWDefault("LISSKINS_BASE_URL", "https://api.lis-skins.ru/v1"),
+		LisSkinsBaseURL:      utils.GetStrWDefault("LISSKINS_BASE_URL", "https://api.lis-skins.com/v1"),
 		HTTPTimeout:          time.Duration(utils.GetIntWDefault("HTTP_TIMEOUT_SECONDS", 10)) * time.Second,
 		BulkPriceUpdateDelay: time.Duration(utils.GetIntWDefault("BULK_PRICE_UPDATE_DELAY_MS", 1200)) * time.Millisecond,
 		CacheTTL:             time.Duration(utils.GetIntWDefault("CACHE_TTL_SECONDS", 300)) * time.Second,

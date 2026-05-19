@@ -4,7 +4,6 @@ import "time"
 
 type SearchCriteria struct {
 	MarketHashName *string
-	Source         string
 }
 
 type NewSkinsList struct {
@@ -12,6 +11,7 @@ type NewSkinsList struct {
 	TotalCount int
 	Offset     int
 	Limit      int
+	NextCursor string
 }
 
 type NewSkin struct {
@@ -46,13 +46,16 @@ type SavedSkinsList struct {
 }
 
 type SavedSkin struct {
-	MarketHashName string
-	DisplayName    string
-	IconURL        string
-	PageURL        string
-	PriceText      string
-	Currency       string
-	UpdatedAt      time.Time
+	MarketHashName    string
+	DisplayName       string
+	IconURL           string
+	SteamPageURL      string
+	SteamPriceText    string
+	SteamUpdatedAt    time.Time
+	LisSkinsPageURL   string
+	LisSkinsPriceText string
+	LisSkinsUpdatedAt time.Time
+	Currency          string
 }
 
 type UpdateSavedSkinPriceParams struct {
@@ -61,10 +64,14 @@ type UpdateSavedSkinPriceParams struct {
 }
 
 type UpdateSavedSkinPriceResult struct {
-	MarketHashName string
-	PriceText      string
-	Currency       string
-	UpdatedAt      time.Time
+	MarketHashName    string
+	SteamPageURL      string
+	SteamPriceText    string
+	SteamUpdatedAt    time.Time
+	LisSkinsPageURL   string
+	LisSkinsPriceText string
+	LisSkinsUpdatedAt time.Time
+	Currency          string
 }
 
 type UpdateAllSavedSkinsPricesParams struct {

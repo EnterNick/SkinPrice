@@ -6,10 +6,6 @@ type NewSkinsStorage interface {
 	GetList(criteria SearchCriteria, params *application.Pagination) (NewSkinsList, error)
 }
 
-type NewSkinsStorageSelector interface {
-	Get(source string) NewSkinsStorage
-}
-
 type SkinSaver interface {
 	Save(params SaveSkinParams) (SaveSkinResult, error)
 }

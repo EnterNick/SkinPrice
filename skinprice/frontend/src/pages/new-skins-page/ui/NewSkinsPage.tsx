@@ -21,39 +21,14 @@ export const NewSkinsPage: React.FC = () => {
     error,
     hasMore,
     hasSearched,
-    currentQuery,
-    currentSource,
-    tokenRequired,
-    tokenSaving,
-    tokenError,
-    tokenSaved,
     loadNewSkins,
     loadNextPage,
-    saveLisSkinsToken,
+    resetSearchState,
   } = useNewSkinsSearch();
   const [savingIds, setSavingIds] = useState<Record<string, boolean>>({});
   const [savedIds, setSavedIds] = useState<Record<string, boolean>>({});
   const [notice, setNotice] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [query, setQuery] = useState("");
-  const [lisSkinsToken, setLisSkinsToken] = useState("");
-  const [activeSource, setActiveSource] = useState<"steam" | "lisskins">("steam");
-
-  const minSearchMessage = `Введите минимум ${MIN_SEARCH_LENGTH} символа для поиска.`;
-
-  useEffect(() => {
-    void loadNewSkins("", "steam");
-  }, []);
-
-  const onSearch = async () => {
-    const value = query.trim();
-    if (value.length < MIN_SEARCH_LENGTH) {
-      setNotice({ type: "error", text: minSearchMessage });
-      return;
-    }
-
-    setNotice(null);
-    await loadNewSkins(value, activeSource);
-  };
 
   const onSave = async (skin: NewSkin) => {
     setSavingIds((prev) => ({ ...prev, [skin.id]: true }));
@@ -69,14 +44,29 @@ export const NewSkinsPage: React.FC = () => {
     }
   };
 
-  const onChangeSource = (source: "steam" | "lisskins") => {
-    if (source === activeSource) return;
-
-    setActiveSource(source);
-    setNotice(null);
+  useEffect(() => {
     const value = query.trim();
-    void loadNewSkins(value.length >= MIN_SEARCH_LENGTH ? value : "", source);
-  };
+    if (value.length === 0) {
+      setNotice(null);
+      void loadNewSkins("");
+      return;
+    }
+
+    if (value.length < MIN_SEARCH_LENGTH) {
+      setNotice(null);
+      resetSearchState();
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setNotice(null);
+      void loadNewSkins(value);
+    }, 1000);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [loadNewSkins, query, resetSearchState]);
 
   return (
     <div className="new-skins-page">
@@ -93,25 +83,13 @@ export const NewSkinsPage: React.FC = () => {
       />
       <NewSkinsSearchPanel
         value={query}
-        activeSource={activeSource}
         errorText={notice?.type === "error" ? notice.text : null}
-        helperText={hasSearched ? (currentQuery ? `Текущий запрос: ${currentQuery} • Источник: ${currentSource}` : `Источник: ${currentSource}`) : UI_TEXT.searchHelper}
-        disabled={loading}
-        tokenRequired={tokenRequired}
-        tokenSaving={tokenSaving}
-        tokenError={tokenError}
-        tokenSaved={tokenSaved}
-        tokenValue={lisSkinsToken}
+        disabled={false}
         onChange={setQuery}
-        onTokenChange={setLisSkinsToken}
-        onSaveToken={() => saveLisSkinsToken(lisSkinsToken)}
-        onChangeSource={onChangeSource}
-        onSearch={onSearch}
       />
       {notice && <ToastAlert type={notice.type} text={notice.text} />}
       {loading && <LoadingState text={UI_TEXT.loadingNew} />}
       {error && !loading && <ErrorState text={error} />}
-      {!loading && !error && !hasSearched && <EmptyState text={minSearchMessage} />}
       {!loading && !error && hasSearched && items.length === 0 && <EmptyState text={UI_TEXT.notFoundSearch} />}
       {!loading && !error && items.length > 0 && (
         <NewSkinsResults

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../app/router/routes";
 import { CURRENCY_OPTIONS, deleteSavedSkin, normalizeCurrency, updateAllSkinPrices, updateSkinPrice } from "../../../entities/skin/api/skinApi";
@@ -11,6 +11,8 @@ import { EmptyState, ErrorState, LoadingState, ToastAlert } from "../../../share
 import { PageHeader } from "../../../shared/ui/page-header/PageHeader";
 import { SavedSkinsTable } from "../../../widgets/saved-skins-table/SavedSkinsTable";
 
+const AUTO_REFRESH_MS = 10_000;
+
 export const SavedSkinsPage: React.FC = () => {
   const navigate = useNavigate();
   const { items, loading, error, loadSkins } = useSavedSkins();
@@ -19,9 +21,10 @@ export const SavedSkinsPage: React.FC = () => {
   const [deletingSkinIds, setDeletingSkinIds] = useState<Record<string, boolean>>({});
   const [isUpdatingAll, setIsUpdatingAll] = useState(false);
   const [notice, setNotice] = useState<{ type: "success" | "warning" | "error"; text: string } | null>(null);
-  const autoSyncedCurrencyRef = useRef<string | null>(null);
+  const autoRefreshInFlightRef = useRef(false);
+  const currencyDirty = useMemo(() => items.length > 0 && items.some((skin) => skin.currency !== currency), [currency, items]);
 
-  const refreshOne = async (skinId: string) => {
+  const refreshOne = useCallback(async (skinId: string) => {
     setUpdatingSkinIds((prev) => ({ ...prev, [skinId]: true }));
     setNotice(null);
     try {
@@ -32,32 +35,40 @@ export const SavedSkinsPage: React.FC = () => {
     } finally {
       setUpdatingSkinIds((prev) => ({ ...prev, [skinId]: false }));
     }
-  };
+  }, [currency, loadSkins]);
 
-  const refreshAll = async (nextCurrency: SavedSkinCurrency = currency) => {
+  const refreshAll = useCallback(async (nextCurrency: SavedSkinCurrency = currency, showNotice = true) => {
     setIsUpdatingAll(true);
-    setNotice(null);
+    if (showNotice) {
+      setNotice(null);
+    }
     try {
       const result = await updateAllSkinPrices(nextCurrency);
       try {
         await loadSkins();
-        const text =
-          result.failed > 0
-            ? UI_TEXT.partialUpdatedAll.replace("{updated}", String(result.updated)).replace("{failed}", String(result.failed))
-            : UI_TEXT.successUpdatedAll.replace("{count}", String(result.updated));
-        setNotice({ type: result.failed > 0 ? "warning" : "success", text });
+        if (showNotice) {
+          const text =
+            result.failed > 0
+              ? UI_TEXT.partialUpdatedAll.replace("{updated}", String(result.updated)).replace("{failed}", String(result.failed))
+              : UI_TEXT.successUpdatedAll.replace("{count}", String(result.updated));
+          setNotice({ type: result.failed > 0 ? "warning" : "success", text });
+        }
       } catch (reloadError) {
-        const message = formatErrorMessage("", reloadError).trim();
-        setNotice({ type: "warning", text: UI_TEXT.warningPartialUpdated.replace("{message}", message) });
+        if (showNotice) {
+          const message = formatErrorMessage("", reloadError).trim();
+          setNotice({ type: "warning", text: UI_TEXT.warningPartialUpdated.replace("{message}", message) });
+        }
       }
     } catch (updateError) {
-      setNotice({ type: "error", text: formatErrorMessage(UI_TEXT.errUpdateAll, updateError) });
+      if (showNotice) {
+        setNotice({ type: "error", text: formatErrorMessage(UI_TEXT.errUpdateAll, updateError) });
+      }
     } finally {
       setIsUpdatingAll(false);
     }
-  };
+  }, [currency, loadSkins]);
 
-  const removeSkin = async (skinId: string) => {
+  const removeSkin = useCallback(async (skinId: string) => {
     setDeletingSkinIds((prev) => ({ ...prev, [skinId]: true }));
     setNotice(null);
     try {
@@ -68,32 +79,38 @@ export const SavedSkinsPage: React.FC = () => {
     } finally {
       setDeletingSkinIds((prev) => ({ ...prev, [skinId]: false }));
     }
-  };
+  }, [loadSkins]);
 
-  const onCurrencyChange = (nextCurrencyValue: string) => {
+  const onCurrencyChange = useCallback((nextCurrencyValue: string) => {
     const nextCurrency = normalizeCurrency(nextCurrencyValue);
     setCurrency(nextCurrency);
     window.localStorage.setItem(STORAGE_KEYS.currency, nextCurrency);
-    autoSyncedCurrencyRef.current = nextCurrency;
-    if (items.length > 0) {
-      void refreshAll(nextCurrency);
-    }
-  };
+  }, []);
 
   useEffect(() => {
-    if (loading || isUpdatingAll || items.length === 0) return;
+    if (loading || items.length === 0 || !currencyDirty || isUpdatingAll) return;
+    void refreshAll(currency, false);
+  }, [currency, currencyDirty, items.length, isUpdatingAll, loading, refreshAll]);
 
-    const needsCurrencySync = items.some((skin) => skin.currency !== currency);
-    if (!needsCurrencySync) {
-      autoSyncedCurrencyRef.current = currency;
-      return;
-    }
+  useEffect(() => {
+    if (loading || items.length === 0 || currencyDirty) return undefined;
 
-    if (autoSyncedCurrencyRef.current === currency) return;
+    const intervalId = window.setInterval(() => {
+      const hasRowOperation = Object.values(updatingSkinIds).some(Boolean) || Object.values(deletingSkinIds).some(Boolean);
+      if (autoRefreshInFlightRef.current || isUpdatingAll || hasRowOperation) {
+        return;
+      }
 
-    autoSyncedCurrencyRef.current = currency;
-    void refreshAll(currency);
-  }, [currency, items, loading, isUpdatingAll]);
+      autoRefreshInFlightRef.current = true;
+      void refreshAll(currency, false).finally(() => {
+        autoRefreshInFlightRef.current = false;
+      });
+    }, AUTO_REFRESH_MS);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [currency, currencyDirty, deletingSkinIds, isUpdatingAll, items.length, loading, refreshAll, updatingSkinIds]);
 
   if (loading) return <LoadingState text={UI_TEXT.loadingSaved} />;
   if (error) return <ErrorState text={error} />;

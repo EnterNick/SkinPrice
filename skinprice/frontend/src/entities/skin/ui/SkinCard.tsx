@@ -16,15 +16,11 @@ export const SkinCard: React.FC<SkinCardProps> = ({ skin, saving, saved, onSave 
       {skin.imageUrl ? <img src={skin.imageUrl} alt={skin.title} className="card-image" /> : <div className="image-fallback">{skin.title}</div>}
     </div>
     <div className="card-body">
-      <button className="card-link-button" type="button" onClick={() => openExternal(skin.pageUrl)}>
+      <button className="card-link-button" type="button" onClick={() => openExternal(skin.steamPageUrl)}>
         <h2 className="title">{skin.title}</h2>
       </button>
-      <p className="text">{skin.name}</p>
       <p className="text">
         {UI_TEXT.priceLabel}: {skin.priceText || "-"}
-      </p>
-      <p className="text">
-        {UI_TEXT.listingsLabel}: {skin.sellListings ?? "-"}
       </p>
       <button
         className="toolbar-button toolbar-button-primary card-save-button"

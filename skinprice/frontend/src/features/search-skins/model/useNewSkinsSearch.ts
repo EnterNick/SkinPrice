@@ -1,9 +1,8 @@
-import { useRef, useState } from "react";
-import { UI_TEXT } from "../../../shared/config/uiText";
-import { getNewSkins, hasLisSkinsToken, setLisSkinsToken } from "../../../entities/skin/api/skinApi";
+import { useCallback, useRef, useState } from "react";
+import { getNewSkins } from "../../../entities/skin/api/skinApi";
 import type { NewSkin } from "../../../entities/skin/model/types";
+import { UI_TEXT } from "../../../shared/config/uiText";
 import { formatErrorMessage } from "../../../shared/lib/error/formatErrorMessage";
-import { STORAGE_KEYS } from "../../../shared/config/storage";
 
 const PAGE_SIZE = 20;
 
@@ -20,45 +19,28 @@ export const useNewSkinsSearch = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentQuery, setCurrentQuery] = useState("");
-  const [currentSource, setCurrentSource] = useState<"steam" | "lisskins">("steam");
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [tokenRequired, setTokenRequired] = useState(false);
-  const [tokenSaving, setTokenSaving] = useState(false);
-  const [tokenError, setTokenError] = useState<string | null>(null);
-  const [tokenSaved, setTokenSaved] = useState(false);
-  const pendingSearchRef = useRef<{ query: string; source: "steam" | "lisskins"; nextOffset: number; append: boolean } | null>(null);
   const requestIdRef = useRef(0);
 
-  const loadNewSkins = async (searchValue: string, source: "steam" | "lisskins", nextOffset = 0, append = false) => {
+  const resetSearchState = useCallback(() => {
+    requestIdRef.current += 1;
+    setItems([]);
+    setError(null);
+    setHasMore(false);
+    setHasSearched(false);
+    setCurrentQuery("");
+    setOffset(0);
+  }, []);
+
+  const loadNewSkins = useCallback(async (searchValue: string, nextOffset = 0, append = false) => {
     const normalizedSearch = searchValue.trim();
-
-    if (source === "lisskins") {
-      try {
-        const hasToken = await hasLisSkinsToken();
-        if (!hasToken) {
-          pendingSearchRef.current = { query: normalizedSearch, source, nextOffset, append };
-          setTokenRequired(true);
-          setTokenSaved(false);
-          return;
-        }
-      } catch (err: unknown) {
-        setTokenRequired(false);
-        setTokenSaved(false);
-        setTokenError(formatErrorMessage(UI_TEXT.errLoadNew, err));
-        return;
-      }
-    }
-
-    setTokenRequired(false);
-    setTokenError(null);
-
     const requestId = requestIdRef.current + 1;
     requestIdRef.current = requestId;
+
     setHasSearched(true);
     setCurrentQuery(normalizedSearch);
-    setCurrentSource(source);
     if (append) {
       setLoadingMore(true);
     } else {
@@ -69,7 +51,7 @@ export const useNewSkinsSearch = () => {
 
     try {
       await allowPaint();
-      const response = await getNewSkins(normalizedSearch, PAGE_SIZE, nextOffset, source);
+      const response = await getNewSkins(normalizedSearch, PAGE_SIZE, nextOffset);
       if (requestId !== requestIdRef.current) return;
 
       const normalizedQuery = normalizedSearch.toLowerCase();
@@ -92,33 +74,12 @@ export const useNewSkinsSearch = () => {
       setLoading(false);
       setLoadingMore(false);
     }
-  };
+  }, []);
 
-  const saveLisSkinsToken = async (token: string) => {
-    setTokenSaving(true);
-    setTokenError(null);
-    setTokenSaved(false);
-    try {
-      await setLisSkinsToken(token.trim());
-      window.localStorage.setItem(STORAGE_KEYS.lisSkinsTokenSaved, "1");
-      setTokenSaved(true);
-      setTokenRequired(false);
-      const pending = pendingSearchRef.current;
-      if (pending) {
-        pendingSearchRef.current = null;
-        await loadNewSkins(pending.query, pending.source, pending.nextOffset, pending.append);
-      }
-    } catch (err) {
-      setTokenError(formatErrorMessage(UI_TEXT.errLisSkinsTokenSave, err));
-    } finally {
-      setTokenSaving(false);
-    }
-  };
-
-  const loadNextPage = async () => {
+  const loadNextPage = useCallback(async () => {
     if (loading || loadingMore || !hasMore) return;
-    await loadNewSkins(currentQuery, currentSource, offset, true);
-  };
+    await loadNewSkins(currentQuery, offset, true);
+  }, [currentQuery, hasMore, loadNewSkins, loading, loadingMore, offset]);
 
   return {
     items,
@@ -127,14 +88,8 @@ export const useNewSkinsSearch = () => {
     error,
     hasMore,
     hasSearched,
-    currentQuery,
-    currentSource,
-    tokenRequired,
-    tokenSaving,
-    tokenError,
-    tokenSaved,
     loadNewSkins,
     loadNextPage,
-    saveLisSkinsToken,
+    resetSearchState,
   };
 };

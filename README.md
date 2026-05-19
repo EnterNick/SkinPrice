@@ -33,6 +33,7 @@ wails dev
 - `APP_DB_DRIVER=sqlite3`
 - `APP_DB_NAME=./skinprice.db`
 - `STEAM_BASE_URL=https://steamcommunity.com/market`
+- `LISSKINS_BASE_URL=https://api.lis-skins.com/v1`
 - `HTTP_TIMEOUT_SECONDS=10`
 
 `Postgres` можно использовать для разработки, но для первого релиза основным storage считается `SQLite`.

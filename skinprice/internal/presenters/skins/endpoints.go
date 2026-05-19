@@ -68,8 +68,7 @@ func NewEndpoints(searchNewSkinsUC SearchNewSkinsUseCase, saveSkinUC SaveSkinUse
 func (e *Endpoints) SearchNewSkins(filter SearchNewSkinsFilter) (NewSkinsResponse, error) {
 	result, err := e.searchNewSkinsUC.Execute(appskins.SearchCriteria{
 		MarketHashName: filter.MarketHashName,
-		Source:         filter.Source,
-	}, app.Pagination{Limit: filter.Limit, Offset: filter.Offset})
+	}, app.Pagination{Limit: filter.Limit, Offset: filter.Offset, Cursor: filter.Cursor})
 	if err != nil {
 		return NewSkinsResponse{}, err
 	}
@@ -87,7 +86,13 @@ func (e *Endpoints) SearchNewSkins(filter SearchNewSkinsFilter) (NewSkinsRespons
 		})
 	}
 
-	return NewSkinsResponse{Items: items, TotalCount: result.TotalCount, Limit: result.Limit, Offset: result.Offset}, nil
+	return NewSkinsResponse{
+		Items:      items,
+		TotalCount: result.TotalCount,
+		Limit:      result.Limit,
+		Offset:     result.Offset,
+		NextCursor: result.NextCursor,
+	}, nil
 }
 
 func (e *Endpoints) SaveSkin(payload SaveSkinRequest) (SaveSkinResponse, error) {
@@ -112,13 +117,16 @@ func (e *Endpoints) GetSavedSkins(filter GetSavedSkinsFilter) (SavedSkinsRespons
 	items := make([]SavedSkinItem, 0, len(result.Items))
 	for _, item := range result.Items {
 		items = append(items, SavedSkinItem{
-			MarketHashName: item.MarketHashName,
-			DisplayName:    item.DisplayName,
-			IconURL:        item.IconURL,
-			PageURL:        item.PageURL,
-			PriceText:      item.PriceText,
-			Currency:       item.Currency,
-			UpdatedAt:      item.UpdatedAt,
+			MarketHashName:    item.MarketHashName,
+			DisplayName:       item.DisplayName,
+			IconURL:           item.IconURL,
+			SteamPageURL:      item.SteamPageURL,
+			SteamPriceText:    item.SteamPriceText,
+			SteamUpdatedAt:    item.SteamUpdatedAt,
+			LisSkinsPageURL:   item.LisSkinsPageURL,
+			LisSkinsPriceText: item.LisSkinsPriceText,
+			LisSkinsUpdatedAt: item.LisSkinsUpdatedAt,
+			Currency:          item.Currency,
 		})
 	}
 
@@ -131,10 +139,14 @@ func (e *Endpoints) UpdateSavedSkinPrice(payload UpdateSavedSkinPriceRequest) (U
 		return UpdateSavedSkinPriceResponse{}, err
 	}
 	return UpdateSavedSkinPriceResponse{
-		MarketHashName: result.MarketHashName,
-		PriceText:      result.PriceText,
-		Currency:       result.Currency,
-		UpdatedAt:      result.UpdatedAt,
+		MarketHashName:    result.MarketHashName,
+		SteamPageURL:      result.SteamPageURL,
+		SteamPriceText:    result.SteamPriceText,
+		SteamUpdatedAt:    result.SteamUpdatedAt,
+		LisSkinsPageURL:   result.LisSkinsPageURL,
+		LisSkinsPriceText: result.LisSkinsPriceText,
+		LisSkinsUpdatedAt: result.LisSkinsUpdatedAt,
+		Currency:          result.Currency,
 	}, nil
 }
 

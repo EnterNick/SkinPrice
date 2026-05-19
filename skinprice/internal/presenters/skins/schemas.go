@@ -4,9 +4,9 @@ import "time"
 
 type SearchNewSkinsFilter struct {
 	MarketHashName *string `json:"market_hash_name"`
-	Source         string  `json:"source"`
 	Limit          int     `json:"limit"`
 	Offset         int     `json:"offset"`
+	Cursor         string  `json:"cursor"`
 }
 
 type NewSkinsResponse struct {
@@ -14,6 +14,7 @@ type NewSkinsResponse struct {
 	TotalCount int           `json:"total_count"`
 	Limit      int           `json:"limit"`
 	Offset     int           `json:"offset"`
+	NextCursor string        `json:"next_cursor"`
 }
 
 type NewSkinItem struct {
@@ -50,13 +51,16 @@ type SavedSkinsResponse struct {
 }
 
 type SavedSkinItem struct {
-	MarketHashName string    `json:"market_hash_name"`
-	DisplayName    string    `json:"display_name"`
-	IconURL        string    `json:"icon_url"`
-	PageURL        string    `json:"page_url"`
-	PriceText      string    `json:"price_text"`
-	Currency       string    `json:"currency"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	MarketHashName    string    `json:"market_hash_name"`
+	DisplayName       string    `json:"display_name"`
+	IconURL           string    `json:"icon_url"`
+	SteamPageURL      string    `json:"steam_page_url"`
+	SteamPriceText    string    `json:"steam_price_text"`
+	SteamUpdatedAt    time.Time `json:"steam_updated_at"`
+	LisSkinsPageURL   string    `json:"lisskins_page_url"`
+	LisSkinsPriceText string    `json:"lisskins_price_text"`
+	LisSkinsUpdatedAt time.Time `json:"lisskins_updated_at"`
+	Currency          string    `json:"currency"`
 }
 
 type UpdateSavedSkinPriceRequest struct {
@@ -65,10 +69,14 @@ type UpdateSavedSkinPriceRequest struct {
 }
 
 type UpdateSavedSkinPriceResponse struct {
-	MarketHashName string    `json:"market_hash_name"`
-	PriceText      string    `json:"price_text"`
-	Currency       string    `json:"currency"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	MarketHashName    string    `json:"market_hash_name"`
+	SteamPageURL      string    `json:"steam_page_url"`
+	SteamPriceText    string    `json:"steam_price_text"`
+	SteamUpdatedAt    time.Time `json:"steam_updated_at"`
+	LisSkinsPageURL   string    `json:"lisskins_page_url"`
+	LisSkinsPriceText string    `json:"lisskins_price_text"`
+	LisSkinsUpdatedAt time.Time `json:"lisskins_updated_at"`
+	Currency          string    `json:"currency"`
 }
 
 type UpdateAllSavedSkinsPricesRequest struct {

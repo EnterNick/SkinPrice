@@ -3,6 +3,8 @@ import { UI_TEXT } from "../../shared/config/uiText";
 import { openExternal } from "../../shared/lib/browser/openExternal";
 import { formatUpdatedAt } from "../../shared/lib/date/formatUpdatedAt";
 import { SkinThumb } from "../../entities/skin/ui/SkinThumb";
+import steamLogo from "../../assets/images/steam-logo.png";
+import lisSkinsLogo from "../../assets/images/lisskins-logo.svg";
 import type { SavedSkin } from "../../entities/skin/model/types";
 
 type SavedSkinsTableProps = {
@@ -14,16 +16,24 @@ type SavedSkinsTableProps = {
   onDelete: (skinId: string) => Promise<void> | void;
 };
 
+const buildPriceTooltip = (source: string, updatedAt?: string) => {
+  const formatted = formatUpdatedAt(updatedAt);
+  if (formatted === "-") {
+    return `${UI_TEXT.updateOne}\n${source}: ${UI_TEXT.notUpdatedYet}`;
+  }
+  return `${UI_TEXT.updateOne}\n${source}: ${formatted}`;
+};
+
 export const SavedSkinsTable: React.FC<SavedSkinsTableProps> = ({ items, isUpdatingAll, updatingSkinIds, deletingSkinIds, onRefreshOne, onDelete }) => (
   <div className="table-shell">
     <table className="skins-table">
       <thead>
         <tr>
           <th>Скин</th>
-          <th>{UI_TEXT.priceLabel}</th>
-          <th>{UI_TEXT.updatedLabel}</th>
-          <th>Ссылка</th>
-          <th>Действие</th>
+          <th>{UI_TEXT.steamPriceLabel}</th>
+          <th>{UI_TEXT.lisSkinsPriceLabel}</th>
+          <th className="links-column">Ссылки</th>
+          <th className="actions-column">Действие</th>
         </tr>
       </thead>
       <tbody>
@@ -44,21 +54,42 @@ export const SavedSkinsTable: React.FC<SavedSkinsTableProps> = ({ items, isUpdat
                   type="button"
                   disabled={isUpdating || isUpdatingAll || isDeleting}
                   onClick={() => void onRefreshOne(skin.id)}
-                  title={UI_TEXT.updateOne}
+                  title={buildPriceTooltip(UI_TEXT.sourceSteamShort, skin.steamUpdatedAt)}
                 >
-                  <span className="price-cell-value">{skin.priceText || "-"}</span>
-                </button>
-              </td>
-              <td>{formatUpdatedAt(skin.updatedAt)}</td>
-              <td>
-                <button className="table-link-button" type="button" onClick={() => openExternal(skin.pageUrl)}>
-                  {UI_TEXT.openLink}
+                  <span className="price-cell-value">{skin.steamPriceText || "-"}</span>
                 </button>
               </td>
               <td>
+                <button
+                  className="price-cell-button"
+                  type="button"
+                  disabled={isUpdating || isUpdatingAll || isDeleting}
+                  onClick={() => void onRefreshOne(skin.id)}
+                  title={buildPriceTooltip(UI_TEXT.sourceLisSkinsShort, skin.lisSkinsUpdatedAt)}
+                >
+                  <span className="price-cell-value">{skin.lisSkinsPriceText || "-"}</span>
+                </button>
+              </td>
+              <td className="links-column">
+                <div className="table-actions">
+                  <button className="table-link-button table-link-button-icon" type="button" title={UI_TEXT.sourceSteamShort} onClick={() => openExternal(skin.steamPageUrl)}>
+                    <img className="store-icon" src={steamLogo} alt={UI_TEXT.sourceSteamShort} />
+                  </button>
+                  <button
+                    className="table-link-button table-link-button-icon"
+                    type="button"
+                    disabled={!skin.lisSkinsPageUrl}
+                    title={UI_TEXT.sourceLisSkinsShort}
+                    onClick={() => openExternal(skin.lisSkinsPageUrl)}
+                  >
+                    <img className="store-icon" src={lisSkinsLogo} alt={UI_TEXT.sourceLisSkinsShort} />
+                  </button>
+                </div>
+              </td>
+              <td className="actions-column">
                 <div className="table-actions">
                   <button
-                    className="toolbar-button"
+                    className="toolbar-button toolbar-button-danger"
                     type="button"
                     disabled={isUpdating || isUpdatingAll || isDeleting}
                     onClick={() => void onDelete(skin.id)}

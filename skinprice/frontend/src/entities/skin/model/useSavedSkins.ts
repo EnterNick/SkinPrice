@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { UI_TEXT } from "../../../shared/config/uiText";
 import { toApiError } from "../../../shared/api/errors";
 import { getSavedSkins } from "../api/skinApi";
@@ -9,13 +9,13 @@ export const useSavedSkins = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadSkins = async () => {
+  const loadSkins = useCallback(async () => {
     const response = await getSavedSkins();
     setItems(response.items);
     setError(null);
     setLoading(false);
     return response;
-  };
+  }, []);
 
   useEffect(() => {
     void loadSkins().catch((err: unknown) => {
@@ -24,7 +24,7 @@ export const useSavedSkins = () => {
       setLoading(false);
       setError(apiError.message || UI_TEXT.errLoadSaved);
     });
-  }, []);
+  }, [loadSkins]);
 
   return { items, loading, error, loadSkins };
 };
