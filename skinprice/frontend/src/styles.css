@@ -788,6 +788,89 @@ body {
   justify-content: flex-start;
 }
 
+.actions-menu-column {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.row-actions-menu {
+  position: relative;
+}
+
+.row-actions-toggle {
+  list-style: none;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--color-border) 78%, white 22%);
+  background: rgba(148, 163, 184, 0.12);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-app-region: no-drag;
+}
+
+.row-actions-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.row-actions-menu[open] .row-actions-toggle,
+.row-actions-toggle:hover {
+  color: var(--color-text-primary);
+  background: rgba(148, 163, 184, 0.2);
+}
+
+.row-actions-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 180px;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--color-border) 70%, white 30%);
+  background: var(--color-background-elevated);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 5;
+}
+
+.skins-table tbody tr:nth-last-child(-n + 3) .row-actions-dropdown {
+  top: auto;
+  bottom: calc(100% + 8px);
+}
+
+.row-actions-item {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-secondary);
+  background: transparent;
+  cursor: pointer;
+}
+
+.row-actions-item:hover {
+  color: var(--color-text-primary);
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.row-actions-item:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.secondary-danger {
+  justify-content: flex-start;
+}
+
 
 .saved-skins-controls {
   display: flex;

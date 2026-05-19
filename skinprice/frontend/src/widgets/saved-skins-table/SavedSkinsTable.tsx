@@ -32,8 +32,7 @@ export const SavedSkinsTable: React.FC<SavedSkinsTableProps> = ({ items, isUpdat
           <th>Скин</th>
           <th>{UI_TEXT.steamPriceLabel}</th>
           <th>{UI_TEXT.lisSkinsPriceLabel}</th>
-          <th className="links-column">Ссылки</th>
-          <th className="actions-column">Действия</th>
+          <th className="actions-menu-column" aria-label="Действия" />
         </tr>
       </thead>
       <tbody>
@@ -70,33 +69,30 @@ export const SavedSkinsTable: React.FC<SavedSkinsTableProps> = ({ items, isUpdat
                   <span className="price-cell-value">{skin.lisSkinsPriceText || "-"}</span>
                 </button>
               </td>
-              <td className="links-column">
-                <div className="table-actions">
-                  <button className="table-link-button table-link-button-icon" type="button" title={UI_TEXT.sourceSteamShort} onClick={() => openExternal(skin.steamPageUrl)}>
-                    <img className="store-icon" src={steamLogo} alt={UI_TEXT.sourceSteamShort} />
-                  </button>
-                  <button
-                    className="table-link-button table-link-button-icon"
-                    type="button"
-                    disabled={!skin.lisSkinsPageUrl}
-                    title={UI_TEXT.sourceLisSkinsShort}
-                    onClick={() => openExternal(skin.lisSkinsPageUrl)}
-                  >
-                    <img className="store-icon" src={lisSkinsLogo} alt={UI_TEXT.sourceLisSkinsShort} />
-                  </button>
-                </div>
-              </td>
-              <td className="actions-column">
-                <div className="table-actions">
-                  <button
-                    className="toolbar-button danger-outline"
-                    type="button"
-                    disabled={isUpdating || isUpdatingAll || isDeleting}
-                    onClick={() => void onDelete(skin.id)}
-                  >
-                    {isDeleting ? UI_TEXT.deleteSkinPending : UI_TEXT.deleteSkin}
-                  </button>
-                </div>
+              <td className="actions-menu-column">
+                <details className="row-actions-menu" role="group">
+                  <summary className="row-actions-toggle" aria-label="Действия">
+                    •••
+                  </summary>
+                  <div className="row-actions-dropdown">
+                    <button className="row-actions-item" type="button" onClick={() => openExternal(skin.steamPageUrl)}>
+                      <img className="store-icon" src={steamLogo} alt={UI_TEXT.sourceSteamShort} />
+                      <span>{UI_TEXT.sourceSteamShort}</span>
+                    </button>
+                    <button className="row-actions-item" type="button" disabled={!skin.lisSkinsPageUrl} onClick={() => openExternal(skin.lisSkinsPageUrl)}>
+                      <img className="store-icon" src={lisSkinsLogo} alt={UI_TEXT.sourceLisSkinsShort} />
+                      <span>{UI_TEXT.sourceLisSkinsShort}</span>
+                    </button>
+                    <button
+                      className="row-actions-item toolbar-button-danger-secondary secondary-danger"
+                      type="button"
+                      disabled={isUpdating || isUpdatingAll || isDeleting}
+                      onClick={() => void onDelete(skin.id)}
+                    >
+                      {isDeleting ? UI_TEXT.deleteSkinPending : UI_TEXT.deleteSkin}
+                    </button>
+                  </div>
+                </details>
               </td>
             </tr>
           );
