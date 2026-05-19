@@ -112,9 +112,16 @@ jobs:
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Build desktop application
+        if: runner.os != 'Windowns'
         working-directory: skinprice
         shell: bash
         run: wails build -clean ${{ matrix.build_flags }}
+
+      - name: Build windows desktop application
+        if: runner.os == 'Windowns'
+        working-directory: skinprice
+        shell: bash
+        run: CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ wails build -platform windows/amd64
 
       - name: Package Linux build
         if: runner.os == 'Linux'
