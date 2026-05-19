@@ -2,6 +2,20 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
+
+:root {
+  --color-background: #080B12;
+  --color-background-elevated: #0B101A;
+  --color-surface: #111827;
+  --color-surface-hover: #172033;
+  --color-border: #243044;
+  --color-text-primary: #F5F7FA;
+  --color-text-secondary: #9CA3AF;
+  --color-accent: #F97316;
+  --color-danger: #EF4444;
+  --color-success: #22C55E;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -10,7 +24,7 @@
 
 body {
   font-family: "Inter", sans-serif;
-  background: #0f1117;
+  background: var(--color-background);
   color: white;
   overflow-x: hidden;
 }
@@ -23,7 +37,7 @@ body {
   background:
     radial-gradient(circle at top left, #1a1f2e 0%, transparent 35%),
     radial-gradient(circle at bottom right, #1b263b 0%, transparent 35%),
-    #0f1117;
+    var(--color-background);
 }
 
 /* 4 КАРТОЧКИ В РЯД */
@@ -48,9 +62,9 @@ body {
 
   min-width: 0;
 
-  background: rgba(24, 28, 39, 0.96);
+  background: var(--color-surface);
 
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid color-mix(in srgb, var(--color-border) 70%, white 30%);
 
   border-radius: 14px;
 
@@ -166,9 +180,9 @@ body {
 
   object-fit: cover;
 
-  border: 2px solid rgba(255, 255, 255, 0.08);
+  border: 2px solid color-mix(in srgb, var(--color-border) 70%, white 30%);
 
-  background: #1f2937;
+  background: var(--color-surface);
 
   flex-shrink: 0;
 }
@@ -195,24 +209,24 @@ body {
 }
 
 .text {
-  color: #f3f4f6;
+  color: var(--color-text-primary);
   font-weight: 500;
 }
 
 .positive {
-  color: #41d392;
+  color: var(--color-success);
   font-weight: 600;
 }
 
 .negative {
-  color: #ff5c5c;
+  color: var(--color-danger);
   font-weight: 600;
 }
 
 .feature {
   margin-left: auto;
 
-  color: #9ca3af;
+  color: var(--color-text-secondary);
 
   font-size: 14px;
 }
@@ -246,7 +260,7 @@ body {
 }
 
 .notice-success {
-  color: #41d392;
+  color: var(--color-success);
 }
 
 .notice-warning {
@@ -254,7 +268,7 @@ body {
 }
 
 .notice-error {
-  color: #ff5c5c;
+  color: var(--color-danger);
 }
 
 .saved-skins-page {
@@ -290,7 +304,7 @@ body {
   font-size: 32px;
   line-height: 1.05;
   font-weight: 700;
-  color: #f8fafc;
+  color: var(--color-text-primary);
 }
 
 .toolbar-button,
@@ -299,9 +313,9 @@ body {
 .table-link-button {
   min-height: 44px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(15, 23, 42, 0.86);
-  color: #f8fafc;
+  border: 1px solid color-mix(in srgb, var(--color-border) 60%, white 40%);
+  background: var(--color-background-elevated);
+  color: var(--color-text-primary);
   padding: 0 16px;
   font-size: 14px;
   font-weight: 600;
@@ -332,7 +346,7 @@ body {
 
 .toolbar-button-primary,
 .table-action-button {
-  background: linear-gradient(135deg, #f97316, #ea580c);
+  background: linear-gradient(135deg, var(--color-accent), #ea580c);
   border-color: transparent;
   color: white;
 }
@@ -351,8 +365,8 @@ body {
 .skins-table {
   width: 100%;
   border-collapse: collapse;
-  background: rgba(24, 28, 39, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--color-surface);
+  border: 1px solid color-mix(in srgb, var(--color-border) 70%, white 30%);
   border-radius: 12px;
   overflow: hidden;
 }
@@ -367,7 +381,7 @@ body {
 .skins-table td {
   text-align: left;
   padding: 14px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 70%, white 30%);
   vertical-align: middle;
 }
 
@@ -377,7 +391,7 @@ body {
 
 .skins-table th {
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -393,8 +407,8 @@ body {
 
 .status-box {
   padding: 16px;
-  background: rgba(24, 28, 39, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--color-surface);
+  border: 1px solid color-mix(in srgb, var(--color-border) 70%, white 30%);
   border-radius: 12px;
 }
 
@@ -424,8 +438,8 @@ body {
   gap: 10px;
   padding: 16px;
   border-radius: 16px;
-  background: rgba(15, 23, 42, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--color-background-elevated);
+  border: 1px solid color-mix(in srgb, var(--color-border) 70%, white 30%);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.2);
   position: relative;
   z-index: 3;
@@ -456,25 +470,25 @@ body {
   border-radius: 8px;
   padding: 0 12px;
   background: transparent;
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
 }
 
 .source-tab-active {
-  background: rgba(15, 23, 42, 0.9);
-  color: #f8fafc;
+  background: var(--color-background-elevated);
+  color: var(--color-text-primary);
 }
 
 .token-panel-label {
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
   font-size: 13px;
   font-weight: 600;
 }
 
 .search-query-label {
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
   font-size: 14px;
   word-break: break-word;
 }
@@ -484,9 +498,9 @@ body {
   max-width: none;
   padding: 14px 16px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(24, 28, 39, 0.92);
-  color: #f3f4f6;
+  border: 1px solid color-mix(in srgb, var(--color-border) 45%, white 55%);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
   font-size: 16px;
   position: relative;
   z-index: 4;
@@ -498,7 +512,7 @@ body {
 }
 
 .search-query-label-error {
-  color: #fca5a5;
+  color: var(--color-danger);
 }
 
 .search-input:focus {
@@ -513,8 +527,8 @@ body {
   gap: 14px;
   padding: 16px;
   border-radius: 16px;
-  background: rgba(15, 23, 42, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--color-background-elevated);
+  border: 1px solid color-mix(in srgb, var(--color-border) 70%, white 30%);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.2);
 }
 
@@ -527,14 +541,14 @@ body {
 }
 
 .token-panel-title {
-  color: #f8fafc;
+  color: var(--color-text-primary);
   font-size: 20px;
   line-height: 1.2;
 }
 
 .token-panel-description {
   margin-top: 6px;
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
   max-width: 720px;
 }
 
@@ -561,14 +575,14 @@ body {
 .token-panel-status {
   padding: 12px 14px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid color-mix(in srgb, var(--color-border) 70%, white 30%);
   background: rgba(255, 255, 255, 0.03);
-  color: #e2e8f0;
+  color: var(--color-text-primary);
 }
 
 .token-panel-status-success {
   border-color: rgba(65, 211, 146, 0.28);
-  color: #86efac;
+  color: var(--color-success);
 }
 
 .token-panel-status-warning {
@@ -578,7 +592,7 @@ body {
 
 .token-panel-status-error {
   border-color: rgba(252, 165, 165, 0.24);
-  color: #fca5a5;
+  color: var(--color-danger);
 }
 
 .search-results {
@@ -628,12 +642,13 @@ body {
 }
 
 .skin-thumb-fallback {
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
   font-weight: 700;
 }
 
 .skin-title {
-  color: #f8fafc;
+  color: var(--color-text-primary);
+  /* Skin names must stay neutral and never use danger color. */
   font-weight: 700;
   word-break: break-word;
 }
@@ -659,13 +674,13 @@ body {
 }
 
 .price-cell-value {
-  color: #f8fafc;
+  color: var(--color-text-primary);
   font-size: 16px;
   font-weight: 700;
 }
 
 .price-cell-meta {
-  color: #94a3b8;
+  color: var(--color-text-secondary);
   font-size: 12px;
   line-height: 1.2;
   transition: color 0.2s ease;
@@ -714,7 +729,7 @@ body {
 }
 
 .empty-hint {
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
   max-width: 480px;
 }
 
@@ -734,19 +749,19 @@ body {
   gap: 12px;
   padding: 18px;
   border-radius: 16px;
-  background: rgba(15, 23, 42, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--color-background-elevated);
+  border: 1px solid color-mix(in srgb, var(--color-border) 70%, white 30%);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.2);
 }
 
 .settings-card-title {
-  color: #f8fafc;
+  color: var(--color-text-primary);
   font-size: 20px;
   line-height: 1.2;
 }
 
 .settings-card-description {
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
   max-width: 720px;
 }
 
@@ -756,7 +771,7 @@ body {
 }
 
 .toolbar-hint {
-  color: #cbd5e1;
+  color: var(--color-text-secondary);
   font-size: 14px;
 }
 
@@ -765,12 +780,12 @@ body {
 }
 
 .toolbar-button-danger {
-  border-color: rgba(248, 113, 113, 0.2);
+  border-color: color-mix(in srgb, var(--color-danger) 35%, transparent);
   color: #fecaca;
 }
 
 .toolbar-button-danger:hover {
-  border-color: rgba(248, 113, 113, 0.45);
+  border-color: color-mix(in srgb, var(--color-danger) 60%, transparent);
 }
 
 @media (max-width: 900px) {
