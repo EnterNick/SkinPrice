@@ -43,3 +43,35 @@ wails dev
 go test ./...
 cd skinprice/frontend && npm run lint && npm run build
 ```
+
+
+## LisSkins токен
+
+Для поиска через LisSkins нужен персональный API-токен.
+
+### Обязательные env
+
+- `TOKEN_ENCRYPTION_KEY` — base64-ключ длиной 32 байта (AES-256-GCM).
+
+Пример генерации:
+
+```bash
+openssl rand -base64 32
+```
+
+### Где взять токен LisSkins
+
+1. Откройте профиль LisSkins: `https://lis-skins.com/profile/settings`.
+2. Сгенерируйте/скопируйте API-токен в личном кабинете.
+3. В приложении переключитесь на источник **LisSkins**, вставьте токен и нажмите **Сохранить токен**.
+
+### Как сбросить токен локально
+
+- Через UI: повторно откройте экран поиска LisSkins и очистите/обновите токен.
+- Через БД SQLite вручную:
+
+```bash
+sqlite3 skinprice/skinprice.db "DELETE FROM source_states WHERE source = 'lisskins';"
+```
+
+После удаления приложение снова покажет CTA на ввод токена.
