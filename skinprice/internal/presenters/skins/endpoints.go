@@ -27,6 +27,18 @@ type DeleteSavedSkinUseCase interface {
 	Execute(params appskins.DeleteSavedSkinParams) error
 }
 
+type SaveLisSkinsTokenUseCase interface {
+	Execute(token string) error
+}
+
+type HasLisSkinsTokenUseCase interface {
+	Execute() (bool, error)
+}
+
+type ClearLisSkinsTokenUseCase interface {
+	Execute() error
+}
+
 type Endpoints struct {
 	searchNewSkinsUC            SearchNewSkinsUseCase
 	saveSkinUC                  SaveSkinUseCase
@@ -34,9 +46,12 @@ type Endpoints struct {
 	updateSavedSkinPriceUC      UpdateSavedSkinPriceUseCase
 	updateAllSavedSkinsPricesUC UpdateAllSavedSkinsPricesUseCase
 	deleteSavedSkinUC           DeleteSavedSkinUseCase
+	saveLisSkinsTokenUC         SaveLisSkinsTokenUseCase
+	hasLisSkinsTokenUC          HasLisSkinsTokenUseCase
+	clearLisSkinsTokenUC        ClearLisSkinsTokenUseCase
 }
 
-func NewEndpoints(searchNewSkinsUC SearchNewSkinsUseCase, saveSkinUC SaveSkinUseCase, getSavedSkinsUC GetSavedSkinsUseCase, updateSavedSkinPriceUC UpdateSavedSkinPriceUseCase, updateAllSavedSkinsPricesUC UpdateAllSavedSkinsPricesUseCase, deleteSavedSkinUC DeleteSavedSkinUseCase) *Endpoints {
+func NewEndpoints(searchNewSkinsUC SearchNewSkinsUseCase, saveSkinUC SaveSkinUseCase, getSavedSkinsUC GetSavedSkinsUseCase, updateSavedSkinPriceUC UpdateSavedSkinPriceUseCase, updateAllSavedSkinsPricesUC UpdateAllSavedSkinsPricesUseCase, deleteSavedSkinUC DeleteSavedSkinUseCase, saveLisSkinsTokenUC SaveLisSkinsTokenUseCase, hasLisSkinsTokenUC HasLisSkinsTokenUseCase, clearLisSkinsTokenUC ClearLisSkinsTokenUseCase) *Endpoints {
 	return &Endpoints{
 		searchNewSkinsUC:            searchNewSkinsUC,
 		saveSkinUC:                  saveSkinUC,
@@ -44,6 +59,9 @@ func NewEndpoints(searchNewSkinsUC SearchNewSkinsUseCase, saveSkinUC SaveSkinUse
 		updateSavedSkinPriceUC:      updateSavedSkinPriceUC,
 		updateAllSavedSkinsPricesUC: updateAllSavedSkinsPricesUC,
 		deleteSavedSkinUC:           deleteSavedSkinUC,
+		saveLisSkinsTokenUC:         saveLisSkinsTokenUC,
+		hasLisSkinsTokenUC:          hasLisSkinsTokenUC,
+		clearLisSkinsTokenUC:        clearLisSkinsTokenUC,
 	}
 }
 
@@ -143,4 +161,20 @@ func (e *Endpoints) UpdateAllSavedSkinsPrices(payload UpdateAllSavedSkinsPricesR
 
 func (e *Endpoints) DeleteSavedSkin(payload DeleteSavedSkinRequest) error {
 	return e.deleteSavedSkinUC.Execute(appskins.DeleteSavedSkinParams{MarketHashName: payload.MarketHashName})
+}
+
+func (e *Endpoints) SetLisSkinsToken(payload SetLisSkinsTokenRequest) error {
+	return e.saveLisSkinsTokenUC.Execute(payload.Token)
+}
+
+func (e *Endpoints) GetLisSkinsTokenStatus() (LisSkinsTokenStatusResponse, error) {
+	hasToken, err := e.hasLisSkinsTokenUC.Execute()
+	if err != nil {
+		return LisSkinsTokenStatusResponse{}, err
+	}
+	return LisSkinsTokenStatusResponse{HasToken: hasToken}, nil
+}
+
+func (e *Endpoints) ClearLisSkinsToken() error {
+	return e.clearLisSkinsTokenUC.Execute()
 }

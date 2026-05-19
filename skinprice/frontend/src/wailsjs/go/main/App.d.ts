@@ -3,6 +3,10 @@
 import {skins} from '../models';
 import {main} from '../models';
 
+
+export function ClearLisSkinsToken():Promise<void>;
+
+export function HasLisSkinsToken():Promise<skins.LisSkinsTokenStatusResponse>;
 export function DeleteSavedSkin(arg1:skins.DeleteSavedSkinRequest):Promise<void>;
 
 export function GetSavedSkins(arg1:skins.GetSavedSkinsFilter):Promise<skins.SavedSkinsResponse>;
@@ -10,6 +14,8 @@ export function GetSavedSkins(arg1:skins.GetSavedSkinsFilter):Promise<skins.Save
 export function LogClientEvent(arg1:main.ClientLogEvent):Promise<void>;
 
 export function SaveSkin(arg1:skins.SaveSkinRequest):Promise<skins.SaveSkinResponse>;
+
+export function SetLisSkinsToken(arg1:skins.SetLisSkinsTokenRequest):Promise<void>;
 
 export function SearchNewSkins(arg1:skins.SearchNewSkinsFilter):Promise<skins.NewSkinsResponse>;
 
