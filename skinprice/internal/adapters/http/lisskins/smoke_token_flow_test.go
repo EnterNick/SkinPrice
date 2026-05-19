@@ -32,7 +32,7 @@ func TestLisSkinsTokenSmokeFlow(t *testing.T) {
 	}
 
 	key := base64.StdEncoding.EncodeToString([]byte("0123456789abcdef0123456789abcdef"))
-	cipher, err := sharedcrypto.NewTokenCipher(key)
+	cipher, err := sharedcrypto.NewTokenCipherFromBase64(key)
 	if err != nil {
 		t.Fatalf("cipher init: %v", err)
 	}
