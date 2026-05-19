@@ -59,7 +59,7 @@ export const NewSkinsResults: React.FC<NewSkinsResultsProps> = ({
     />
     {!loading && hasMore && !loadingMore && (
       <div className="load-more-wrap">
-        <button className="toolbar-button toolbar-button-primary" type="button" onClick={() => void onLoadMore()}>
+        <button className="toolbar-button toolbar-button-secondary load-more-button" type="button" onClick={() => void onLoadMore()}>
           {UI_TEXT.loadMore}
         </button>
       </div>

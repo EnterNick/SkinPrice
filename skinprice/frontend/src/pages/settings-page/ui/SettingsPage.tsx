@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../app/router/routes";
 import { clearLisSkinsToken, getAppSettings, hasLisSkinsToken, saveAppSettings, saveLisSkinsToken } from "../../../entities/skin/api/skinApi";
@@ -15,16 +15,21 @@ import { PageHeader } from "../../../shared/ui/page-header/PageHeader";
 import { ErrorState, LoadingState, ToastAlert } from "../../../shared/ui/states/States";
 import { LisSkinsTokenPanel } from "../../../widgets/lisskins-token-panel/LisSkinsTokenPanel";
 
+type TokenStatus = "missing" | "saved" | "verified" | "authError";
+
 export const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
   const [currency, setCurrency] = useState(DEFAULT_CURRENCY);
   const [autoRefreshInput, setAutoRefreshInput] = useState(String(DEFAULT_AUTO_REFRESH_INTERVAL_SECONDS));
   const [isTokenConfigured, setIsTokenConfigured] = useState(false);
   const [tokenValue, setTokenValue] = useState("");
+  const [tokenBaseline, setTokenBaseline] = useState("");
+  const [tokenStatus, setTokenStatus] = useState<TokenStatus>("missing");
+  const [revealToken, setRevealToken] = useState(false);
   const [loading, setLoading] = useState(true);
   const [savingToken, setSavingToken] = useState(false);
   const [resettingToken, setResettingToken] = useState(false);
-  const [tokenSaved, setTokenSaved] = useState(false);
+  const [checkingToken, setCheckingToken] = useState(false);
   const [tokenError, setTokenError] = useState<string | null>(null);
   const [pageError, setPageError] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ type: "success" | "warning" | "error"; text: string } | null>(null);
@@ -39,29 +44,29 @@ export const SettingsPage: React.FC = () => {
         setCurrency(settings.currency);
         setAutoRefreshInput(String(settings.autoRefreshIntervalSeconds));
         setIsTokenConfigured(hasToken);
+        setTokenStatus(hasToken ? "saved" : "missing");
         setPageError(null);
       } catch (err: unknown) {
         if (!active) return;
         setPageError(formatErrorMessage("Не удалось загрузить настройки.", err));
       } finally {
-        if (active) {
-          setLoading(false);
-        }
+        if (active) setLoading(false);
       }
     };
 
     void loadPageState();
-
     return () => {
       active = false;
     };
   }, []);
 
+  const canSaveToken = useMemo(() => {
+    const trimmed = tokenValue.trim();
+    return trimmed.length > 0 && trimmed !== tokenBaseline.trim();
+  }, [tokenBaseline, tokenValue]);
+
   const persistSettings = async (nextCurrency: SavedSkinCurrency, nextInterval: number) => {
-    const saved = await saveAppSettings({
-      currency: nextCurrency,
-      autoRefreshIntervalSeconds: nextInterval,
-    });
+    const saved = await saveAppSettings({ currency: nextCurrency, autoRefreshIntervalSeconds: nextInterval });
     setCurrency(saved.currency);
     setAutoRefreshInput(String(saved.autoRefreshIntervalSeconds));
     setNotice({ type: "success", text: UI_TEXT.settingsAutoSaved });
@@ -93,16 +98,31 @@ export const SettingsPage: React.FC = () => {
     setTokenError(null);
     setNotice(null);
     try {
-      await saveLisSkinsToken(tokenValue);
+      const trimmed = tokenValue.trim();
+      await saveLisSkinsToken(trimmed);
       setIsTokenConfigured(true);
-      setTokenSaved(true);
-      setTokenValue("");
+      setTokenBaseline(trimmed);
+      setTokenStatus("saved");
       setNotice({ type: "success", text: UI_TEXT.lisSkinsTokenSaved });
     } catch (err: unknown) {
-      setTokenSaved(false);
+      setTokenStatus("authError");
       setTokenError(formatErrorMessage(UI_TEXT.errLisSkinsTokenSave, err));
     } finally {
       setSavingToken(false);
+    }
+  };
+
+  const onCheckToken = async () => {
+    setCheckingToken(true);
+    setTokenError(null);
+    try {
+      await saveLisSkinsToken(tokenValue.trim());
+      setTokenStatus("verified");
+    } catch (err: unknown) {
+      setTokenStatus("authError");
+      setTokenError(formatErrorMessage(UI_TEXT.errLisSkinsTokenSave, err));
+    } finally {
+      setCheckingToken(false);
     }
   };
 
@@ -113,11 +133,12 @@ export const SettingsPage: React.FC = () => {
     try {
       await clearLisSkinsToken();
       setIsTokenConfigured(false);
-      setTokenSaved(false);
       setTokenValue("");
+      setTokenBaseline("");
+      setTokenStatus("missing");
       setNotice({ type: "success", text: UI_TEXT.lisSkinsTokenResetDone });
     } catch (err: unknown) {
-      setTokenSaved(false);
+      setTokenStatus("authError");
       setTokenError(formatErrorMessage(UI_TEXT.errLisSkinsTokenReset, err));
     } finally {
       setResettingToken(false);
@@ -129,73 +150,32 @@ export const SettingsPage: React.FC = () => {
 
   return (
     <div className="settings-page">
-      <PageHeader
-        sectionLabel={UI_TEXT.settingsEyebrow}
-        title={UI_TEXT.settingsTitle}
-        actions={
-          <div className="toolbar-group">
-            <button className="toolbar-button" type="button" onClick={() => navigate(ROUTES.home)}>
-              {UI_TEXT.ctaToHome}
-            </button>
-          </div>
-        }
-      />
+      <PageHeader sectionLabel={UI_TEXT.settingsEyebrow} title={UI_TEXT.settingsTitle} actions={<div className="toolbar-group"><button className="toolbar-button" type="button" onClick={() => navigate(ROUTES.home)}>{UI_TEXT.ctaToHome}</button></div>} />
       {notice && <ToastAlert type={notice.type} text={notice.text} />}
       <LisSkinsTokenPanel
         visible
         configured={isTokenConfigured}
-        required={!isTokenConfigured}
         saving={savingToken}
         resetting={resettingToken}
+        checking={checkingToken}
         error={tokenError}
-        saved={tokenSaved}
         value={tokenValue}
+        canSave={canSaveToken}
+        status={tokenStatus}
+        revealToken={revealToken}
+        onToggleReveal={() => setRevealToken((v) => !v)}
         onChange={(nextValue) => {
           setTokenValue(nextValue);
-          setTokenSaved(false);
           setTokenError(null);
+          setTokenStatus(nextValue.trim().length === 0 ? "missing" : isTokenConfigured ? "saved" : "missing");
         }}
         onSave={onSaveToken}
+        onCheck={onCheckToken}
         onReset={onResetToken}
       />
       <section className="settings-grid">
-        <article className="settings-card">
-          <h2 className="settings-card-title">{UI_TEXT.settingsCurrencyTitle}</h2>
-          <p className="settings-card-description">{UI_TEXT.settingsCurrencyHelp}</p>
-          <label className="token-panel-field" htmlFor="settings-currency-select">
-            <span className="token-panel-label">{UI_TEXT.settingsCurrencyTitle}</span>
-            <select
-              id="settings-currency-select"
-              className="toolbar-select settings-select"
-              value={currency}
-              onChange={(event) => void onCurrencyChange(event.target.value as SavedSkinCurrency)}
-            >
-              {CURRENCY_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-        </article>
-        <article className="settings-card">
-          <h2 className="settings-card-title">{UI_TEXT.settingsRefreshTitle}</h2>
-          <p className="settings-card-description">{UI_TEXT.settingsRefreshHelp}</p>
-          <label className="token-panel-field" htmlFor="settings-refresh-interval">
-            <span className="token-panel-label">{UI_TEXT.settingsRefreshLabel}</span>
-            <input
-              id="settings-refresh-interval"
-              className="search-input settings-number-input"
-              type="number"
-              min={5}
-              step={5}
-              value={autoRefreshInput}
-              onChange={(event) => setAutoRefreshInput(event.target.value)}
-              onBlur={onAutoRefreshBlur}
-            />
-          </label>
-          <p className="toolbar-hint">{UI_TEXT.settingsRefreshHint}</p>
-        </article>
+        <article className="settings-card"><h2 className="settings-card-title">{UI_TEXT.settingsCurrencyTitle}</h2><p className="settings-card-description">{UI_TEXT.settingsCurrencyHelp}</p><label className="token-panel-field" htmlFor="settings-currency-select"><span className="token-panel-label">{UI_TEXT.settingsCurrencyTitle}</span><select id="settings-currency-select" className="toolbar-select settings-select" value={currency} onChange={(event) => void onCurrencyChange(event.target.value as SavedSkinCurrency)}>{CURRENCY_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label></article>
+        <article className="settings-card"><h2 className="settings-card-title">{UI_TEXT.settingsRefreshTitle}</h2><p className="settings-card-description">{UI_TEXT.settingsRefreshHelp}</p><label className="token-panel-field" htmlFor="settings-refresh-interval"><span className="token-panel-label">{UI_TEXT.settingsRefreshLabel}</span><input id="settings-refresh-interval" className="search-input settings-number-input" type="number" min={5} step={5} value={autoRefreshInput} onChange={(event) => setAutoRefreshInput(event.target.value)} onBlur={onAutoRefreshBlur} /></label><p className="toolbar-hint">{UI_TEXT.settingsRefreshHint}</p></article>
       </section>
     </div>
   );

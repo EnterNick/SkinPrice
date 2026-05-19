@@ -903,3 +903,59 @@ body {
     min-width: 760px;
   }
 }
+
+
+.toolbar-button-secondary {
+  background: rgba(148, 163, 184, 0.12);
+  border-color: color-mix(in srgb, var(--color-border) 78%, white 22%);
+  color: var(--color-text-secondary);
+}
+
+.toolbar-button-secondary:hover {
+  color: var(--color-text-primary);
+  background: rgba(148, 163, 184, 0.2);
+}
+
+.toolbar-button-danger-secondary {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.38);
+  color: #fca5a5;
+}
+
+.toolbar-button-danger-secondary:hover {
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(248, 113, 113, 0.62);
+  color: #fecaca;
+}
+
+.load-more-wrap {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.load-more-button {
+  min-width: 180px;
+}
+
+.token-panel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.token-panel-subtitle {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.token-panel-divider {
+  width: 100%;
+  border-top: 1px solid color-mix(in srgb, var(--color-border) 70%, white 30%);
+}
+
+.token-panel-body-stack {
+  gap: 12px;
+}
