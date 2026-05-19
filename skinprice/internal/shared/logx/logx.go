@@ -93,7 +93,7 @@ func ErrAttrs(err error) []any {
 		if ex.Code != "" {
 			attrs = append(attrs, slog.String("code", string(ex.Code)))
 		}
-		for key, value := range ex.Fields {
+		for key, value := range SanitizeAttrs(ex.Fields) {
 			attrs = append(attrs, slog.Any(key, value))
 		}
 	}
