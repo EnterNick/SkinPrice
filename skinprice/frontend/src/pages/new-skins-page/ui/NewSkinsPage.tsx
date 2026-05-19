@@ -14,11 +14,28 @@ import { NewSkinsSearchPanel } from "../../../widgets/new-skins-search-panel/New
 
 export const NewSkinsPage: React.FC = () => {
   const navigate = useNavigate();
-  const { items, loading, loadingMore, error, hasMore, hasSearched, currentQuery, currentSource, loadNewSkins, loadNextPage } = useNewSkinsSearch();
+  const {
+    items,
+    loading,
+    loadingMore,
+    error,
+    hasMore,
+    hasSearched,
+    currentQuery,
+    currentSource,
+    tokenRequired,
+    tokenSaving,
+    tokenError,
+    tokenSaved,
+    loadNewSkins,
+    loadNextPage,
+    saveLisSkinsToken,
+  } = useNewSkinsSearch();
   const [savingIds, setSavingIds] = useState<Record<string, boolean>>({});
   const [savedIds, setSavedIds] = useState<Record<string, boolean>>({});
   const [notice, setNotice] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [query, setQuery] = useState("");
+  const [lisSkinsToken, setLisSkinsToken] = useState("");
   const [activeSource, setActiveSource] = useState<"steam" | "lisskins">("steam");
 
   const minSearchMessage = `Введите минимум ${MIN_SEARCH_LENGTH} символа для поиска.`;
@@ -72,7 +89,14 @@ export const NewSkinsPage: React.FC = () => {
         errorText={notice?.type === "error" ? notice.text : null}
         helperText={hasSearched ? `Текущий запрос: ${currentQuery} • Источник: ${currentSource}` : UI_TEXT.searchHelper}
         disabled={loading}
+        tokenRequired={tokenRequired}
+        tokenSaving={tokenSaving}
+        tokenError={tokenError}
+        tokenSaved={tokenSaved}
+        tokenValue={lisSkinsToken}
         onChange={setQuery}
+        onTokenChange={setLisSkinsToken}
+        onSaveToken={() => saveLisSkinsToken(lisSkinsToken)}
         onChangeSource={onChangeSource}
         onSearch={onSearch}
       />
