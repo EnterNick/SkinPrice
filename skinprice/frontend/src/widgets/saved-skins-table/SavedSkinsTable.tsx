@@ -33,7 +33,7 @@ export const SavedSkinsTable: React.FC<SavedSkinsTableProps> = ({ items, isUpdat
           <th>{UI_TEXT.steamPriceLabel}</th>
           <th>{UI_TEXT.lisSkinsPriceLabel}</th>
           <th className="links-column">Ссылки</th>
-          <th className="actions-column">Действие</th>
+          <th className="actions-column">Действия</th>
         </tr>
       </thead>
       <tbody>
