@@ -94,7 +94,7 @@ func (s *Storage) GetList(criteria skins.SearchCriteria, params *application.Pag
 	items := payload.extractItems()
 	result := make([]skins.NewSkin, 0, len(items))
 	for _, item := range items {
-		result = append(result, mapItem(item, s.BaseURL))
+		result = append(result, mapItem(item))
 	}
 
 	totalCount := payload.total()
@@ -138,7 +138,7 @@ func (s *Storage) GetByMarketHashName(marketHashName, currency string) (*skins.N
 
 	for _, item := range payload.extractItems() {
 		if matchesMarketHashName(marketHashName, item) {
-			skin := mapItem(item, s.BaseURL)
+			skin := mapItem(item)
 			logger.Debug("lisskins lookup completed",
 				slog.String("operation", "lookup"),
 				slog.String("source", "lisskins"),
@@ -281,7 +281,7 @@ func (r marketSearchResponse) total() int {
 	}
 }
 
-func mapItem(item marketSearchItem, baseURL string) skins.NewSkin {
+func mapItem(item marketSearchItem) skins.NewSkin {
 	hash := firstNonEmpty(item.HashName, item.MarketHash, item.Name, item.Title)
 	icon := firstNonEmpty(item.IconURL, item.Image, item.AssetDesc.IconURL)
 	priceValue := firstNonEmpty(item.SellPrice.String(), item.Price.String())
