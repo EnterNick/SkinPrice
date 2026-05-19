@@ -141,10 +141,10 @@ export const SavedSkinsPage: React.FC = () => {
   return (
     <div className="saved-skins-page">
       <PageHeader
-        eyebrow={UI_TEXT.collectionEyebrow}
+        sectionLabel={UI_TEXT.collectionEyebrow}
         title={UI_TEXT.savedSkinsTitle}
         actions={
-          <div className="saved-skins-toolbar">
+          <div className="toolbar-group">
             <button className="toolbar-button" type="button" onClick={() => navigate(ROUTES.settings)}>
               {UI_TEXT.ctaToSettings}
             </button>
