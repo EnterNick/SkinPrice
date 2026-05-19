@@ -6,8 +6,7 @@ import (
 )
 
 func TestTokenCipherRoundTrip(t *testing.T) {
-	key := base64.StdEncoding.EncodeToString([]byte("12345678901234567890123456789012"))
-	cipher, err := NewTokenCipher(key)
+	cipher, err := NewTokenCipher([]byte("12345678901234567890123456789012"))
 	if err != nil {
 		t.Fatalf("NewTokenCipher() error = %v", err)
 	}
@@ -26,15 +25,20 @@ func TestTokenCipherRoundTrip(t *testing.T) {
 }
 
 func TestTokenCipherInvalidKey(t *testing.T) {
-	bad := base64.StdEncoding.EncodeToString([]byte("short"))
-	if _, err := NewTokenCipher(bad); err == nil {
+	if _, err := NewTokenCipher([]byte("short")); err == nil {
 		t.Fatal("NewTokenCipher() expected error for invalid key length")
 	}
 }
 
-func TestTokenCipherCorruptedCiphertext(t *testing.T) {
+func TestTokenCipherFromBase64(t *testing.T) {
 	key := base64.StdEncoding.EncodeToString([]byte("12345678901234567890123456789012"))
-	cipher, err := NewTokenCipher(key)
+	if _, err := NewTokenCipherFromBase64(key); err != nil {
+		t.Fatalf("NewTokenCipherFromBase64() error = %v", err)
+	}
+}
+
+func TestTokenCipherCorruptedCiphertext(t *testing.T) {
+	cipher, err := NewTokenCipher([]byte("12345678901234567890123456789012"))
 	if err != nil {
 		t.Fatalf("NewTokenCipher() error = %v", err)
 	}
