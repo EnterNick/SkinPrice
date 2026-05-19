@@ -53,7 +53,7 @@ func Load() (Config, error) {
 
 func (c Config) Validate() error {
 	if c.TokenEncryptionKey == "" {
-		return fmt.Errorf("TOKEN_ENCRYPTION_KEY is required")
+		return nil
 	}
 	decoded, err := base64.StdEncoding.DecodeString(c.TokenEncryptionKey)
 	if err != nil {

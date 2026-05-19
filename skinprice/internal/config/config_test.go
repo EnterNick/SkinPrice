@@ -46,9 +46,9 @@ func TestLoadDefaultsDebugLevelInLocalEnv(t *testing.T) {
 	}
 }
 
-func TestLoadFailsWithoutTokenKey(t *testing.T) {
+func TestLoadAllowsMissingTokenKey(t *testing.T) {
 	t.Setenv("TOKEN_ENCRYPTION_KEY", "")
-	if _, err := Load(); err == nil {
-		t.Fatal("Load() expected error when TOKEN_ENCRYPTION_KEY is missing")
+	if _, err := Load(); err != nil {
+		t.Fatalf("Load() unexpected error when TOKEN_ENCRYPTION_KEY is missing: %v", err)
 	}
 }

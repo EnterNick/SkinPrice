@@ -6,21 +6,28 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
+	"strings"
 )
 
 type TokenCipher struct {
 	key []byte
 }
 
-func NewTokenCipher(key string) (*TokenCipher, error) {
-	keyBytes, err := base64.StdEncoding.DecodeString(key)
+func NewTokenCipher(key []byte) (*TokenCipher, error) {
+	if len(key) != 32 {
+		return nil, fmt.Errorf("invalid token encryption key length: got %d bytes, expected 32 bytes", len(key))
+	}
+	copyKey := make([]byte, len(key))
+	copy(copyKey, key)
+	return &TokenCipher{key: copyKey}, nil
+}
+
+func NewTokenCipherFromBase64(encodedKey string) (*TokenCipher, error) {
+	keyBytes, err := base64.StdEncoding.DecodeString(strings.TrimSpace(encodedKey))
 	if err != nil {
 		return nil, fmt.Errorf("decode token encryption key: %w", err)
 	}
-	if len(keyBytes) != 32 {
-		return nil, fmt.Errorf("invalid token encryption key length: got %d bytes, expected 32 bytes", len(keyBytes))
-	}
-	return &TokenCipher{key: keyBytes}, nil
+	return NewTokenCipher(keyBytes)
 }
 
 func (c *TokenCipher) Encrypt(plain string) (string, error) {
