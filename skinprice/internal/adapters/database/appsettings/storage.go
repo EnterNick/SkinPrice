@@ -26,7 +26,9 @@ func (s *Storage) GetAppSettings() (appsettings.AppSettings, error) {
 	if err != nil {
 		return appsettings.AppSettings{}, errx.E("appsettings.storage.get.query", errx.CodeInternal, "failed to load app settings", err)
 	}
-	defer rows.Close()
+	defer func() {
+		_ = rows.Close()
+	}()
 
 	settings := appsettings.AppSettings{}
 	for rows.Next() {
