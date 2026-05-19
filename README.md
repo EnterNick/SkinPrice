@@ -43,3 +43,11 @@ wails dev
 go test ./...
 cd skinprice/frontend && npm run lint && npm run build
 ```
+
+## GitHub Actions
+
+В репозитории настроен workflow [`.github/workflows/build.yml`](.github/workflows/build.yml).
+
+- На `push` и `pull_request` запускаются проверки: `go test`, `npm run lint`, `npm run build`.
+- На теге формата `v*` и при ручном запуске (`workflow_dispatch`) собираются desktop-артефакты Wails для `Linux`, `Windows` и `macOS`.
+- Готовые сборки можно скачать из вкладки `Actions` как artifacts.
