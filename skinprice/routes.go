@@ -33,7 +33,17 @@ func (a *App) registerRoutes() {
 	updateSavedSkinPriceUC := skins.UpdateSavedSkinPrice{Updater: saveSkinStorage}
 	updateAllSavedSkinsPricesUC := skins.UpdateAllSavedSkinsPrices{Updater: saveSkinStorage}
 	deleteSavedSkinUC := skins.DeleteSavedSkin{Deleter: saveSkinStorage}
-	tokenCipher, err := sharedcrypto.NewTokenCipher(cfg.TokenEncryptionKey)
+	keyBytes, keyErr := sharedcrypto.LoadOrCreateTokenKey("SkinPrice")
+	if keyErr != nil && cfg.TokenEncryptionKey != "" {
+		a.logger.Warn("fallback to TOKEN_ENCRYPTION_KEY due to key file issue", logx.ErrAttrs(keyErr)...)
+		keyBytes = nil
+	}
+	var tokenCipher *sharedcrypto.TokenCipher
+	if len(keyBytes) == 32 {
+		tokenCipher, err = sharedcrypto.NewTokenCipher(keyBytes)
+	} else {
+		tokenCipher, err = sharedcrypto.NewTokenCipherFromBase64(cfg.TokenEncryptionKey)
+	}
 	if err != nil {
 		panic(err)
 	}
