@@ -81,7 +81,7 @@ export const LisSkinsTokenPanel: React.FC<LisSkinsTokenPanelProps> = ({
           </button>
           {onReset && (
             <button
-              className="toolbar-button toolbar-button-danger"
+              className="toolbar-button danger-outline"
               type="button"
               onClick={() => void onReset()}
               disabled={saving || resetting || !configured}

@@ -89,7 +89,7 @@ export const SavedSkinsTable: React.FC<SavedSkinsTableProps> = ({ items, isUpdat
               <td className="actions-column">
                 <div className="table-actions">
                   <button
-                    className="toolbar-button toolbar-button-danger"
+                    className="toolbar-button danger-outline"
                     type="button"
                     disabled={isUpdating || isUpdatingAll || isDeleting}
                     onClick={() => void onDelete(skin.id)}
