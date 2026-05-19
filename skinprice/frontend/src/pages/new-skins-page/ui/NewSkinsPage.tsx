@@ -8,7 +8,7 @@ import { MIN_SEARCH_LENGTH } from "../../../shared/config/search";
 import { UI_TEXT } from "../../../shared/config/uiText";
 import { formatErrorMessage } from "../../../shared/lib/error/formatErrorMessage";
 import { PageHeader } from "../../../shared/ui/page-header/PageHeader";
-import { EmptyState, ErrorState, LoadingState, ToastAlert } from "../../../shared/ui/states/States";
+import { EmptyState, ErrorState, ToastAlert } from "../../../shared/ui/states/States";
 import { NewSkinsResults } from "../../../widgets/new-skins-results/NewSkinsResults";
 import { NewSkinsSearchPanel } from "../../../widgets/new-skins-search-panel/NewSkinsSearchPanel";
 
@@ -88,12 +88,12 @@ export const NewSkinsPage: React.FC = () => {
         onChange={setQuery}
       />
       {notice && <ToastAlert type={notice.type} text={notice.text} />}
-      {loading && <LoadingState text={UI_TEXT.loadingNew} />}
       {error && !loading && <ErrorState text={error} />}
       {!loading && !error && hasSearched && items.length === 0 && <EmptyState text={UI_TEXT.notFoundSearch} />}
-      {!loading && !error && items.length > 0 && (
+      {!error && hasSearched && (
         <NewSkinsResults
           items={items}
+          loading={loading}
           loadingMore={loadingMore}
           hasMore={hasMore}
           savingIds={savingIds}

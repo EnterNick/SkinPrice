@@ -231,6 +231,53 @@ body {
   font-size: 14px;
 }
 
+.card-skeleton {
+  pointer-events: none;
+}
+
+.skeleton-image,
+.skeleton-line {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.skeleton-image::after,
+.skeleton-line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: skeleton-shimmer 1.2s infinite;
+}
+
+.skeleton-image {
+  height: 160px;
+}
+
+.skeleton-line {
+  height: 14px;
+  margin-bottom: 10px;
+}
+
+.skeleton-line-title {
+  height: 20px;
+  width: 72%;
+  margin-bottom: 16px;
+}
+
+.skeleton-line-short {
+  width: 58%;
+}
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 /* АДАПТИВ */
 @media (max-width: 1200px) {
   .container {
