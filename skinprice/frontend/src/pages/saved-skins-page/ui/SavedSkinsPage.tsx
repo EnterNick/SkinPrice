@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../app/router/routes";
 import { deleteSavedSkin, getAppSettings, updateAllSkinPrices, updateSkinPrice } from "../../../entities/skin/api/skinApi";
-import type { SavedSkinCurrency } from "../../../entities/skin/model/types";
+import type { SavedSkin, SavedSkinCurrency } from "../../../entities/skin/model/types";
 import { useSavedSkins } from "../../../entities/skin/model/useSavedSkins";
 import { DEFAULT_AUTO_REFRESH_INTERVAL_SECONDS, DEFAULT_CURRENCY } from "../../../shared/config/settings";
 import { UI_TEXT } from "../../../shared/config/uiText";
@@ -10,6 +10,19 @@ import { formatErrorMessage } from "../../../shared/lib/error/formatErrorMessage
 import { EmptyState, ErrorState, LoadingState, ToastAlert } from "../../../shared/ui/states/States";
 import { PageHeader } from "../../../shared/ui/page-header/PageHeader";
 import { SavedSkinsTable } from "../../../widgets/saved-skins-table/SavedSkinsTable";
+
+type SortMode = "price" | "title" | "source";
+
+const parsePriceValue = (skin: SavedSkin): number => {
+  const preferred = skin.lisSkinsPriceText || skin.steamPriceText || skin.priceText || "";
+  const normalized = preferred.replace(/\s/g, "").replace(",", ".");
+  const matched = normalized.match(/\d+(?:\.\d+)?/);
+  if (!matched) return Number.POSITIVE_INFINITY;
+  const value = Number.parseFloat(matched[0]);
+  return Number.isFinite(value) ? value : Number.POSITIVE_INFINITY;
+};
+
+const getSourceLabel = (skin: SavedSkin): string => (skin.lisSkinsPageUrl ? UI_TEXT.sourceLisSkinsShort : UI_TEXT.sourceSteamShort);
 
 export const SavedSkinsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -22,8 +35,24 @@ export const SavedSkinsPage: React.FC = () => {
   const [deletingSkinIds, setDeletingSkinIds] = useState<Record<string, boolean>>({});
   const [isUpdatingAll, setIsUpdatingAll] = useState(false);
   const [notice, setNotice] = useState<{ type: "success" | "warning" | "error"; text: string } | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortMode, setSortMode] = useState<SortMode>("title");
   const autoRefreshInFlightRef = useRef(false);
   const currencyDirty = useMemo(() => items.length > 0 && items.some((skin) => skin.currency !== currency), [currency, items]);
+
+  const filteredItems = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    const base = query.length === 0 ? items : items.filter((skin) => skin.title.toLowerCase().includes(query));
+    return [...base].sort((a, b) => {
+      if (sortMode === "price") {
+        return parsePriceValue(a) - parsePriceValue(b) || a.title.localeCompare(b.title, "ru");
+      }
+      if (sortMode === "source") {
+        return getSourceLabel(a).localeCompare(getSourceLabel(b), "ru") || a.title.localeCompare(b.title, "ru");
+      }
+      return a.title.localeCompare(b.title, "ru");
+    });
+  }, [items, searchQuery, sortMode]);
 
   useEffect(() => {
     let active = true;
@@ -160,21 +189,38 @@ export const SavedSkinsPage: React.FC = () => {
       {notice && <ToastAlert type={notice.type} text={notice.text} />}
       {items.length === 0 ? (
         <div className="empty-shell">
-          <EmptyState text={UI_TEXT.notFoundSaved} />
-          <p className="empty-hint">{UI_TEXT.emptySavedHint}</p>
+          <h3 className="empty-title">В коллекции пока нет скинов</h3>
+          <p className="empty-hint">Добавьте первый скин, чтобы начать отслеживать цену</p>
           <button className="toolbar-button toolbar-button-primary empty-action" type="button" onClick={() => navigate(ROUTES.newSkins)}>
-            {UI_TEXT.ctaAddSkins}
+            Добавить скин
           </button>
         </div>
       ) : (
-        <SavedSkinsTable
-          items={items}
-          isUpdatingAll={isUpdatingAll}
-          updatingSkinIds={updatingSkinIds}
-          deletingSkinIds={deletingSkinIds}
-          onRefreshOne={refreshOne}
-          onDelete={removeSkin}
-        />
+        <>
+          <div className="saved-skins-controls">
+            <input
+              className="search-input"
+              type="text"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Поиск по названию"
+            />
+            <select className="toolbar-select" value={sortMode} onChange={(event) => setSortMode(event.target.value as SortMode)}>
+              <option value="title">Сортировка: по названию</option>
+              <option value="price">Сортировка: по цене</option>
+              <option value="source">Сортировка: по источнику</option>
+            </select>
+          </div>
+          <SavedSkinsTable
+            items={filteredItems}
+            isUpdatingAll={isUpdatingAll}
+            updatingSkinIds={updatingSkinIds}
+            deletingSkinIds={deletingSkinIds}
+            onRefreshOne={refreshOne}
+            onDelete={removeSkin}
+          />
+          {filteredItems.length === 0 && <EmptyState text="По текущему поиску ничего не найдено" />}
+        </>
       )}
     </div>
   );

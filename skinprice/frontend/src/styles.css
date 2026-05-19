@@ -734,6 +734,21 @@ body {
   justify-content: flex-start;
 }
 
+
+.saved-skins-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.saved-skins-controls .search-input {
+  flex: 1;
+}
+
+.empty-title {
+  font-size: 22px;
+  color: var(--color-text-primary);
+}
 .load-more-wrap {
   display: flex;
   justify-content: center;
