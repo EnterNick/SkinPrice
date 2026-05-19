@@ -3,7 +3,7 @@ name: Build
 on:
   push:
     branches:
-      - '**'
+      - master
     tags:
       - 'v*'
   pull_request:
@@ -68,12 +68,15 @@ jobs:
           - os: ubuntu-24.04
             artifact_name: skinprice-linux
             build_flags: -platform linux/amd64 -tags webkit2_41
+            archive_name: SkinPrice-linux-amd64.tar.gz
           - os: windows-2022
             artifact_name: skinprice-windows
             build_flags: -platform windows/amd64
+            archive_name: SkinPrice-windows-amd64.zip
           - os: macos-14
             artifact_name: skinprice-macos
             build_flags: -platform darwin/universal
+            archive_name: SkinPrice-macos-universal.zip
 
     steps:
       - name: Checkout repository
@@ -113,9 +116,49 @@ jobs:
         shell: bash
         run: wails build -clean ${{ matrix.build_flags }}
 
+      - name: Package Linux build
+        if: runner.os == 'Linux'
+        working-directory: skinprice/build/bin
+        shell: bash
+        run: tar -czf "${{ matrix.archive_name }}" .
+
+      - name: Package macOS build
+        if: runner.os == 'macOS'
+        working-directory: skinprice/build/bin
+        shell: bash
+        run: ditto -c -k --sequesterRsrc --keepParent . "${{ matrix.archive_name }}"
+
+      - name: Package Windows build
+        if: runner.os == 'Windows'
+        working-directory: skinprice/build/bin
+        shell: pwsh
+        run: Compress-Archive -Path * -DestinationPath "${{ matrix.archive_name }}" -Force
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
-          path: skinprice/build/bin/**
+          path: skinprice/build/bin/${{ matrix.archive_name }}
           if-no-files-found: error
+
+  release:
+    name: Release
+    runs-on: ubuntu-24.04
+    needs: desktop-build
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            release-assets/**/*.zip
+            release-assets/**/*.tar.gz
