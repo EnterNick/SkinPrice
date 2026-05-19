@@ -69,10 +69,7 @@ jobs:
             artifact_name: skinprice-linux
             build_flags: -platform linux/amd64 -tags webkit2_41
             archive_name: SkinPrice-linux-amd64.tar.gz
-          - os: windows-2022
-            artifact_name: skinprice-windows
-            build_flags: -platform windows/amd64
-            archive_name: SkinPrice-windows-amd64.zip
+
           - os: macos-14
             artifact_name: skinprice-macos
             build_flags: -platform darwin/universal
@@ -112,16 +109,9 @@ jobs:
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Build desktop application
-        if: matrix.platform != 'windows/amd64'
         working-directory: skinprice
         shell: bash
         run: wails build -clean ${{ matrix.build_flags }}
-
-      - name: Build windows desktop application
-        if: matrix.platform == 'windows/amd64'
-        working-directory: skinprice
-        shell: bash
-        run: CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ wails build -platform windows/amd64
 
       - name: Package Linux build
         if: runner.os == 'Linux'
@@ -137,13 +127,6 @@ jobs:
           mkdir -p dist
           ditto -c -k --sequesterRsrc --keepParent skinprice/build/bin "dist/${{ matrix.archive_name }}"
 
-      - name: Package Windows build
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force -Path dist | Out-Null
-          Compress-Archive -Path "skinprice/build/bin/*" -DestinationPath "dist/${{ matrix.archive_name }}" -Force
-
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -151,10 +134,79 @@ jobs:
           path: dist/${{ matrix.archive_name }}
           if-no-files-found: error
 
+  windows-build:
+    name: Desktop build Windows
+    runs-on: ubuntu-24.04
+    needs: checks
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+
+    env:
+      WINDOWS_ARCHIVE_NAME: SkinPrice-windows-amd64.zip
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: ${{ env.GO_VERSION_FILE }}
+          cache-dependency-path: go.sum
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: skinprice/frontend/package-lock.json
+
+      - name: Install Windows cross-build dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mingw-w64 zip
+
+      - name: Install frontend dependencies
+        working-directory: skinprice/frontend
+        run: npm ci
+
+      - name: Install Wails CLI
+        shell: bash
+        run: |
+          go install github.com/wailsapp/wails/v2/cmd/wails@${WAILS_VERSION}
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Build Windows desktop application
+        working-directory: skinprice
+        shell: bash
+        run: |
+          CGO_ENABLED=1 \
+          GOOS=windows \
+          GOARCH=amd64 \
+          CC=x86_64-w64-mingw32-gcc \
+          CXX=x86_64-w64-mingw32-g++ \
+          wails build -platform windows/amd64 -clean
+
+      - name: Package Windows build
+        shell: bash
+        run: |
+          mkdir -p dist
+          cd skinprice/build/bin
+          zip -r "$GITHUB_WORKSPACE/dist/${WINDOWS_ARCHIVE_NAME}" .
+
+      - name: Upload Windows build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: skinprice-windows
+          path: dist/${{ env.WINDOWS_ARCHIVE_NAME }}
+          if-no-files-found: error
+
   release:
     name: Release
     runs-on: ubuntu-24.04
-    needs: desktop-build
+    needs:
+      - desktop-build
+      - windows-build
     if: startsWith(github.ref, 'refs/tags/')
     permissions:
       contents: write
