@@ -22,6 +22,9 @@ func EnsureSchema(connection *Connection) error {
 	if err := ensureSkinsSchema(ctx, connection); err != nil {
 		return fmt.Errorf("ensure skins schema: %w", err)
 	}
+	if err := ensureAppSettingsSchema(ctx, connection); err != nil {
+		return fmt.Errorf("ensure app_settings schema: %w", err)
+	}
 
 	return nil
 }
@@ -99,6 +102,32 @@ CREATE UNIQUE INDEX IF NOT EXISTS source_states_source_uq ON source_states (sour
 	return nil
 }
 
+func ensureAppSettingsSchema(ctx context.Context, connection *Connection) error {
+	if connection.Dialect() == "postgres" {
+		if _, err := connection.DB().ExecContext(ctx, `
+CREATE TABLE IF NOT EXISTS app_settings (
+	id BIGSERIAL PRIMARY KEY,
+	key TEXT NOT NULL UNIQUE,
+	value TEXT NOT NULL DEFAULT '',
+	updated_at TIMESTAMPTZ
+)`); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	if _, err := connection.DB().ExecContext(ctx, `
+CREATE TABLE IF NOT EXISTS app_settings (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	key TEXT NOT NULL UNIQUE,
+	value TEXT NOT NULL DEFAULT '',
+	updated_at DATETIME
+)`); err != nil {
+		return err
+	}
+	return nil
+}
+
 func isMissingColumnIgnored(err error) bool {
 	if err == nil {
 		return false
@@ -139,6 +168,13 @@ CREATE TABLE IF NOT EXISTS source_states (
 	api_token_encrypted TEXT NOT NULL DEFAULT '',
 	updated_at DATETIME
 );
+
+CREATE TABLE IF NOT EXISTS app_settings (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	key TEXT NOT NULL UNIQUE,
+	value TEXT NOT NULL DEFAULT '',
+	updated_at DATETIME
+);
 `
 
 const postgresSchemaQuery = `
@@ -163,6 +199,13 @@ CREATE TABLE IF NOT EXISTS source_states (
 	id BIGSERIAL PRIMARY KEY,
 	source TEXT NOT NULL UNIQUE,
 	api_token_encrypted TEXT NOT NULL DEFAULT '',
+	updated_at TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS app_settings (
+	id BIGSERIAL PRIMARY KEY,
+	key TEXT NOT NULL UNIQUE,
+	value TEXT NOT NULL DEFAULT '',
 	updated_at TIMESTAMPTZ
 );
 `

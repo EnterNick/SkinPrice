@@ -21,6 +21,39 @@ export namespace main {
 
 }
 
+export namespace settings {
+	
+	export class AppSettingsResponse {
+	    currency: string;
+	    auto_refresh_interval_seconds: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new AppSettingsResponse(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.currency = source["currency"];
+	        this.auto_refresh_interval_seconds = source["auto_refresh_interval_seconds"];
+	    }
+	}
+	export class SaveAppSettingsRequest {
+	    currency: string;
+	    auto_refresh_interval_seconds: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new SaveAppSettingsRequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.currency = source["currency"];
+	        this.auto_refresh_interval_seconds = source["auto_refresh_interval_seconds"];
+	    }
+	}
+
+}
+
 export namespace skins {
 	
 	export class DeleteSavedSkinRequest {
