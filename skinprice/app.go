@@ -2,6 +2,7 @@ package main
 
 import (
 	"SkinPrice/skinprice/internal/composion"
+	presentersettings "SkinPrice/skinprice/internal/presenters/settings"
 	presenterskins "SkinPrice/skinprice/internal/presenters/skins"
 	"SkinPrice/skinprice/internal/shared/errx"
 	"SkinPrice/skinprice/internal/shared/logx"
@@ -10,10 +11,11 @@ import (
 )
 
 type App struct {
-	ctx            context.Context
-	backend        *composion.BackendApp
-	skinsEndpoints *presenterskins.Endpoints
-	logger         *slog.Logger
+	ctx               context.Context
+	backend           *composion.BackendApp
+	skinsEndpoints    *presenterskins.Endpoints
+	settingsEndpoints *presentersettings.Endpoints
+	logger            *slog.Logger
 }
 
 func NewApp(logger *slog.Logger) (*App, error) {

@@ -1,35 +1,13 @@
-import { DeleteSavedSkin, GetSavedSkins, SaveSkin, SearchNewSkins, UpdateAllSavedSkinsPrices, UpdateSavedSkinPrice } from "../../../wailsjs/go/main/App";
+import { ClearLisSkinsToken, DeleteSavedSkin, GetAppSettings, GetSavedSkins, HasLisSkinsToken, SaveAppSettings, SaveSkin, SearchNewSkins, SetLisSkinsToken, UpdateAllSavedSkinsPrices, UpdateSavedSkinPrice } from "../../../wailsjs/go/main/App";
 import type { skins } from "../../../wailsjs/go/models";
 import { toApiError } from "../../../shared/api/errors";
+import { normalizeAutoRefreshIntervalSeconds, normalizeCurrency } from "../../../shared/config/settings";
 import { logClientEvent } from "../../../shared/lib/logging/logger";
-import type { BulkPriceUpdateResult, CurrencyOption, NewSkin, PaginatedResult, PriceUpdateResult, SaveSkinResult, SavedSkin, SavedSkinCurrency } from "../model/types";
+import type { BulkPriceUpdateResult, NewSkin, PaginatedResult, PriceUpdateResult, SaveSkinResult, SavedSkin, SavedSkinCurrency } from "../model/types";
 
 const DEFAULT_LIMIT = 20;
 const DEFAULT_OFFSET = 0;
 const SEARCH_TIMEOUT_MS = 8000;
-
-export const DEFAULT_CURRENCY: SavedSkinCurrency = "1";
-export const CURRENCY_OPTIONS: CurrencyOption[] = [
-  { value: "1", label: "USD" },
-  { value: "5", label: "RUB" },
-  { value: "3", label: "EUR" },
-];
-
-export const normalizeCurrency = (value?: string | null): SavedSkinCurrency => {
-  switch (value) {
-    case "1":
-    case "USD":
-      return "1";
-    case "3":
-    case "EUR":
-      return "3";
-    case "5":
-    case "RUB":
-      return "5";
-    default:
-      return DEFAULT_CURRENCY;
-  }
-};
 
 const normalizeImageUrl = (imageUrl?: string, pageUrl?: string): string => {
   if (!imageUrl) return "";
@@ -214,6 +192,84 @@ export const deleteSavedSkin = async (skinId: string): Promise<void> => {
     logClientEvent("error", "deleteSavedSkin failed", "skinApi", {
       operation: "deleteSavedSkin",
       skinId,
+      error: err instanceof Error ? err.message : String(err ?? ""),
+    });
+    throw toApiError(err);
+  }
+};
+
+export const hasLisSkinsToken = async (): Promise<boolean> => {
+  try {
+    const response = await HasLisSkinsToken();
+    return response.hasToken;
+  } catch (err) {
+    logClientEvent("error", "hasLisSkinsToken failed", "skinApi", {
+      operation: "hasLisSkinsToken",
+      error: err instanceof Error ? err.message : String(err ?? ""),
+    });
+    throw toApiError(err);
+  }
+};
+
+export const saveLisSkinsToken = async (token: string): Promise<void> => {
+  try {
+    await SetLisSkinsToken({ token });
+  } catch (err) {
+    logClientEvent("error", "saveLisSkinsToken failed", "skinApi", {
+      operation: "saveLisSkinsToken",
+      error: err instanceof Error ? err.message : String(err ?? ""),
+    });
+    throw toApiError(err);
+  }
+};
+
+export const clearLisSkinsToken = async (): Promise<void> => {
+  try {
+    await ClearLisSkinsToken();
+  } catch (err) {
+    logClientEvent("error", "clearLisSkinsToken failed", "skinApi", {
+      operation: "clearLisSkinsToken",
+      error: err instanceof Error ? err.message : String(err ?? ""),
+    });
+    throw toApiError(err);
+  }
+};
+
+export type AppSettings = {
+  currency: SavedSkinCurrency;
+  autoRefreshIntervalSeconds: number;
+};
+
+export const getAppSettings = async (): Promise<AppSettings> => {
+  try {
+    const response = await GetAppSettings();
+    return {
+      currency: normalizeCurrency(response.currency),
+      autoRefreshIntervalSeconds: normalizeAutoRefreshIntervalSeconds(response.auto_refresh_interval_seconds),
+    };
+  } catch (err) {
+    logClientEvent("error", "getAppSettings failed", "skinApi", {
+      operation: "getAppSettings",
+      error: err instanceof Error ? err.message : String(err ?? ""),
+    });
+    throw toApiError(err);
+  }
+};
+
+export const saveAppSettings = async (settings: AppSettings): Promise<AppSettings> => {
+  try {
+    const normalized = {
+      currency: normalizeCurrency(settings.currency),
+      autoRefreshIntervalSeconds: normalizeAutoRefreshIntervalSeconds(settings.autoRefreshIntervalSeconds),
+    };
+    await SaveAppSettings({
+      currency: normalized.currency,
+      auto_refresh_interval_seconds: normalized.autoRefreshIntervalSeconds,
+    });
+    return normalized;
+  } catch (err) {
+    logClientEvent("error", "saveAppSettings failed", "skinApi", {
+      operation: "saveAppSettings",
       error: err instanceof Error ? err.message : String(err ?? ""),
     });
     throw toApiError(err);

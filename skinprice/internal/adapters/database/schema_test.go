@@ -21,6 +21,22 @@ func TestEnsureSchemaCreatesSourceStatesTable(t *testing.T) {
 	}
 }
 
+func TestEnsureSchemaCreatesAppSettingsTable(t *testing.T) {
+	connection, err := New(&Config{Driver: "sqlite3", DBName: t.TempDir() + "/skinprice.db"})
+	if err != nil {
+		t.Fatalf("open db: %v", err)
+	}
+	t.Cleanup(func() { _ = connection.Close() })
+
+	if err := EnsureSchema(connection); err != nil {
+		t.Fatalf("ensure schema: %v", err)
+	}
+
+	if _, err := connection.DB().ExecContext(context.Background(), `INSERT INTO app_settings (key, value) VALUES (?, ?)`, "saved_skins.currency", "1"); err != nil {
+		t.Fatalf("insert into app_settings: %v", err)
+	}
+}
+
 func TestEnsureSchemaCreatesExtendedSkinsColumns(t *testing.T) {
 	connection, err := New(&Config{Driver: "sqlite3", DBName: t.TempDir() + "/skinprice.db"})
 	if err != nil {

@@ -6,6 +6,10 @@ export function ClearLisSkinsToken() {
   return window['go']['main']['App']['ClearLisSkinsToken']();
 }
 
+export function GetAppSettings() {
+  return window['go']['main']['App']['GetAppSettings']();
+}
+
 export function GetSavedSkins(arg1) {
   return window['go']['main']['App']['GetSavedSkins'](arg1);
 }
@@ -16,6 +20,10 @@ export function HasLisSkinsToken() {
 
 export function LogClientEvent(arg1) {
   return window['go']['main']['App']['LogClientEvent'](arg1);
+}
+
+export function SaveAppSettings(arg1) {
+  return window['go']['main']['App']['SaveAppSettings'](arg1);
 }
 
 export function SearchNewSkins(arg1) {

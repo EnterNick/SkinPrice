@@ -7,11 +7,13 @@ type LisSkinsTokenPanelProps = {
   configured: boolean;
   required: boolean;
   saving?: boolean;
+  resetting?: boolean;
   error?: string | null;
   saved?: boolean;
   value: string;
   onChange: (value: string) => void;
   onSave: () => Promise<void> | void;
+  onReset?: () => Promise<void> | void;
 };
 
 export const LisSkinsTokenPanel: React.FC<LisSkinsTokenPanelProps> = ({
@@ -19,11 +21,13 @@ export const LisSkinsTokenPanel: React.FC<LisSkinsTokenPanelProps> = ({
   configured,
   required,
   saving,
+  resetting,
   error,
   saved,
   value,
   onChange,
   onSave,
+  onReset,
 }) => {
   if (!visible) return null;
 
@@ -66,14 +70,26 @@ export const LisSkinsTokenPanel: React.FC<LisSkinsTokenPanelProps> = ({
             aria-describedby="lisskins-token-status"
           />
         </label>
-        <button
-          className="toolbar-button toolbar-button-primary"
-          type="button"
-          onClick={() => void onSave()}
-          disabled={saving || value.trim().length === 0}
-        >
-          {saving ? UI_TEXT.lisSkinsTokenSaving : UI_TEXT.lisSkinsTokenSave}
-        </button>
+        <div className="token-panel-actions">
+          <button
+            className="toolbar-button toolbar-button-primary"
+            type="button"
+            onClick={() => void onSave()}
+            disabled={saving || resetting || value.trim().length === 0}
+          >
+            {saving ? UI_TEXT.lisSkinsTokenSaving : UI_TEXT.lisSkinsTokenSave}
+          </button>
+          {onReset && (
+            <button
+              className="toolbar-button toolbar-button-danger"
+              type="button"
+              onClick={() => void onReset()}
+              disabled={saving || resetting || !configured}
+            >
+              {resetting ? UI_TEXT.lisSkinsTokenResetting : UI_TEXT.lisSkinsTokenReset}
+            </button>
+          )}
+        </div>
       </div>
       <div className={`token-panel-status ${statusTone}`} id="lisskins-token-status" role={error ? "alert" : "status"}>
         {error || statusText}

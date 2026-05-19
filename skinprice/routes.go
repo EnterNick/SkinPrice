@@ -1,12 +1,15 @@
 package main
 
 import (
+	adapterdbappsettings "SkinPrice/skinprice/internal/adapters/database/appsettings"
 	adapterdbskins "SkinPrice/skinprice/internal/adapters/database/skins"
 	adapterdbsourcestate "SkinPrice/skinprice/internal/adapters/database/sourcestate"
 	adapterlisskins "SkinPrice/skinprice/internal/adapters/http/lisskins"
 	adaptersteam "SkinPrice/skinprice/internal/adapters/http/steam"
+	appsettings "SkinPrice/skinprice/internal/application/settings"
 	"SkinPrice/skinprice/internal/application/skins"
 	"SkinPrice/skinprice/internal/config"
+	presentersettings "SkinPrice/skinprice/internal/presenters/settings"
 	presenterskins "SkinPrice/skinprice/internal/presenters/skins"
 	"SkinPrice/skinprice/internal/shared/errx"
 	"SkinPrice/skinprice/internal/shared/logx"
@@ -51,12 +54,16 @@ func (a *App) registerRoutes() {
 		panic(err)
 	}
 	sourceStateStorage := &adapterdbsourcestate.Storage{Conn: a.backend.Factory.DBConnection()}
+	appSettingsStorage := &adapterdbappsettings.Storage{Conn: a.backend.Factory.DBConnection()}
 	getLisSkinsTokenUC := skins.GetLisSkinsToken{Storage: sourceStateStorage, Cipher: tokenCipher}
 	lisSkinsStorage.TokenProvider = getLisSkinsTokenUC
 	saveLisSkinsTokenUC := skins.SaveLisSkinsToken{Storage: sourceStateStorage, Cipher: tokenCipher}
 	hasLisSkinsTokenUC := skins.HasLisSkinsToken{Storage: sourceStateStorage}
 	clearLisSkinsTokenUC := skins.ClearLisSkinsToken{Storage: sourceStateStorage}
+	getAppSettingsUC := appsettings.GetAppSettings{Storage: appSettingsStorage}
+	saveAppSettingsUC := appsettings.SaveAppSettings{Storage: appSettingsStorage}
 	a.skinsEndpoints = presenterskins.NewEndpoints(searchNewSkinsUC, saveSkinUC, getSavedSkinsUC, updateSavedSkinPriceUC, updateAllSavedSkinsPricesUC, deleteSavedSkinUC, saveLisSkinsTokenUC, hasLisSkinsTokenUC, clearLisSkinsTokenUC)
+	a.settingsEndpoints = presentersettings.NewEndpoints(getAppSettingsUC, saveAppSettingsUC)
 	a.logger.Info("routes registered")
 }
 
@@ -176,6 +183,39 @@ func (a *App) DeleteSavedSkin(payload presenterskins.DeleteSavedSkinRequest) err
 		return errx.FromError(err, "failed to delete saved skin")
 	}
 	logger.Info("delete saved skin completed", slog.String("market_hash_name", payload.MarketHashName))
+	return nil
+}
+
+func (a *App) GetAppSettings() (presentersettings.AppSettingsResponse, error) {
+	logger := logx.WithComponent(a.logger, "route")
+	logger.Info("get app settings requested")
+	response, err := a.settingsEndpoints.GetAppSettings()
+	if err != nil {
+		logRouteError(logger, "get app settings failed", err)
+		return presentersettings.AppSettingsResponse{}, errx.FromError(err, "failed to load app settings")
+	}
+	logger.Info("get app settings completed",
+		slog.String("currency", response.Currency),
+		slog.Int("auto_refresh_interval_seconds", response.AutoRefreshIntervalSeconds),
+	)
+	return response, nil
+}
+
+func (a *App) SaveAppSettings(payload presentersettings.SaveAppSettingsRequest) error {
+	logger := logx.WithComponent(a.logger, "route")
+	logger.Info("save app settings requested",
+		slog.String("currency", payload.Currency),
+		slog.Int("auto_refresh_interval_seconds", payload.AutoRefreshIntervalSeconds),
+	)
+	err := a.settingsEndpoints.SaveAppSettings(payload)
+	if err != nil {
+		logRouteError(logger, "save app settings failed", err)
+		return errx.FromError(err, "failed to save app settings")
+	}
+	logger.Info("save app settings completed",
+		slog.String("currency", payload.Currency),
+		slog.Int("auto_refresh_interval_seconds", payload.AutoRefreshIntervalSeconds),
+	)
 	return nil
 }
 
