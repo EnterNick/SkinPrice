@@ -118,27 +118,30 @@ jobs:
 
       - name: Package Linux build
         if: runner.os == 'Linux'
-        working-directory: skinprice/build/bin
         shell: bash
-        run: tar -czf "${{ matrix.archive_name }}" .
+        run: |
+          mkdir -p dist
+          tar -C skinprice/build/bin -czf "dist/${{ matrix.archive_name }}" .
 
       - name: Package macOS build
         if: runner.os == 'macOS'
-        working-directory: skinprice/build/bin
         shell: bash
-        run: ditto -c -k --sequesterRsrc --keepParent . "${{ matrix.archive_name }}"
+        run: |
+          mkdir -p dist
+          ditto -c -k --sequesterRsrc --keepParent skinprice/build/bin "dist/${{ matrix.archive_name }}"
 
       - name: Package Windows build
         if: runner.os == 'Windows'
-        working-directory: skinprice/build/bin
         shell: pwsh
-        run: Compress-Archive -Path * -DestinationPath "${{ matrix.archive_name }}" -Force
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Compress-Archive -Path "skinprice/build/bin/*" -DestinationPath "dist/${{ matrix.archive_name }}" -Force
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
-          path: skinprice/build/bin/${{ matrix.archive_name }}
+          path: dist/${{ matrix.archive_name }}
           if-no-files-found: error
 
   release:
