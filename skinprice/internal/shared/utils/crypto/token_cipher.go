@@ -44,7 +44,9 @@ func (c *TokenCipher) Encrypt(plain string) (string, error) {
 		return "", fmt.Errorf("generate nonce: %w", err)
 	}
 	sealed := gcm.Seal(nil, nonce, []byte(plain), nil)
-	payload := append(nonce, sealed...)
+	payload := make([]byte, 0, len(nonce)+len(sealed))
+	payload = append(payload, nonce...)
+	payload = append(payload, sealed...)
 	return base64.StdEncoding.EncodeToString(payload), nil
 }
 

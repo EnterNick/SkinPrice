@@ -2,6 +2,7 @@ package skins
 
 import (
 	"SkinPrice/skinprice/internal/shared/errx"
+	"errors"
 	"strings"
 )
 
@@ -58,7 +59,7 @@ func (uc HasLisSkinsToken) Execute() (bool, error) {
 	if err == nil {
 		return true, nil
 	}
-	if err == ErrLisSkinsTokenMissing {
+	if errors.Is(err, ErrLisSkinsTokenMissing) {
 		return false, nil
 	}
 	return false, errx.E("has_lisskins_token.get", errx.CodeInternal, "failed to check lisskins token", err)

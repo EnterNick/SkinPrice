@@ -19,7 +19,11 @@ func TestLisSkinsTokenSmokeFlow(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open db: %v", err)
 	}
-	defer conn.Close()
+	defer func() {
+		if closeErr := conn.Close(); closeErr != nil {
+			t.Fatalf("close db: %v", closeErr)
+		}
+	}()
 	if err = database.EnsureSchema(conn); err != nil {
 		t.Fatalf("ensure schema: %v", err)
 	}
