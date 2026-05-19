@@ -5,6 +5,7 @@ package ent
 import (
 	"SkinPrice/skinprice/internal/adapters/database/ent/skin"
 	"context"
+	"errors"
 	"fmt"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -16,6 +17,46 @@ type SkinCreate struct {
 	config
 	mutation *SkinMutation
 	hooks    []Hook
+}
+
+// SetMarketHashName sets the "market_hash_name" field.
+func (_c *SkinCreate) SetMarketHashName(v string) *SkinCreate {
+	_c.mutation.SetMarketHashName(v)
+	return _c
+}
+
+// SetDisplayName sets the "display_name" field.
+func (_c *SkinCreate) SetDisplayName(v string) *SkinCreate {
+	_c.mutation.SetDisplayName(v)
+	return _c
+}
+
+// SetIconURL sets the "icon_url" field.
+func (_c *SkinCreate) SetIconURL(v string) *SkinCreate {
+	_c.mutation.SetIconURL(v)
+	return _c
+}
+
+// SetNillableIconURL sets the "icon_url" field if the given value is not nil.
+func (_c *SkinCreate) SetNillableIconURL(v *string) *SkinCreate {
+	if v != nil {
+		_c.SetIconURL(*v)
+	}
+	return _c
+}
+
+// SetPageURL sets the "page_url" field.
+func (_c *SkinCreate) SetPageURL(v string) *SkinCreate {
+	_c.mutation.SetPageURL(v)
+	return _c
+}
+
+// SetNillablePageURL sets the "page_url" field if the given value is not nil.
+func (_c *SkinCreate) SetNillablePageURL(v *string) *SkinCreate {
+	if v != nil {
+		_c.SetPageURL(*v)
+	}
+	return _c
 }
 
 // Mutation returns the SkinMutation object of the builder.
@@ -52,6 +93,22 @@ func (_c *SkinCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *SkinCreate) check() error {
+	if _, ok := _c.mutation.MarketHashName(); !ok {
+		return &ValidationError{Name: "market_hash_name", err: errors.New(`ent: missing required field "Skin.market_hash_name"`)}
+	}
+	if v, ok := _c.mutation.MarketHashName(); ok {
+		if err := skin.MarketHashNameValidator(v); err != nil {
+			return &ValidationError{Name: "market_hash_name", err: fmt.Errorf(`ent: validator failed for field "Skin.market_hash_name": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.DisplayName(); !ok {
+		return &ValidationError{Name: "display_name", err: errors.New(`ent: missing required field "Skin.display_name"`)}
+	}
+	if v, ok := _c.mutation.DisplayName(); ok {
+		if err := skin.DisplayNameValidator(v); err != nil {
+			return &ValidationError{Name: "display_name", err: fmt.Errorf(`ent: validator failed for field "Skin.display_name": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -78,6 +135,22 @@ func (_c *SkinCreate) createSpec() (*Skin, *sqlgraph.CreateSpec) {
 		_node = &Skin{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(skin.Table, sqlgraph.NewFieldSpec(skin.FieldID, field.TypeInt))
 	)
+	if value, ok := _c.mutation.MarketHashName(); ok {
+		_spec.SetField(skin.FieldMarketHashName, field.TypeString, value)
+		_node.MarketHashName = value
+	}
+	if value, ok := _c.mutation.DisplayName(); ok {
+		_spec.SetField(skin.FieldDisplayName, field.TypeString, value)
+		_node.DisplayName = value
+	}
+	if value, ok := _c.mutation.IconURL(); ok {
+		_spec.SetField(skin.FieldIconURL, field.TypeString, value)
+		_node.IconURL = value
+	}
+	if value, ok := _c.mutation.PageURL(); ok {
+		_spec.SetField(skin.FieldPageURL, field.TypeString, value)
+		_node.PageURL = value
+	}
 	return _node, _spec
 }
 

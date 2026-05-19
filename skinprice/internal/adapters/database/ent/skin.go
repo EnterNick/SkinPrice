@@ -13,9 +13,17 @@ import (
 
 // Skin is the model entity for the Skin schema.
 type Skin struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
-	ID           int `json:"id,omitempty"`
+	ID int `json:"id,omitempty"`
+	// MarketHashName holds the value of the "market_hash_name" field.
+	MarketHashName string `json:"market_hash_name,omitempty"`
+	// DisplayName holds the value of the "display_name" field.
+	DisplayName string `json:"display_name,omitempty"`
+	// IconURL holds the value of the "icon_url" field.
+	IconURL string `json:"icon_url,omitempty"`
+	// PageURL holds the value of the "page_url" field.
+	PageURL      string `json:"page_url,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -26,6 +34,8 @@ func (*Skin) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case skin.FieldID:
 			values[i] = new(sql.NullInt64)
+		case skin.FieldMarketHashName, skin.FieldDisplayName, skin.FieldIconURL, skin.FieldPageURL:
+			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -47,6 +57,30 @@ func (_m *Skin) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			_m.ID = int(value.Int64)
+		case skin.FieldMarketHashName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field market_hash_name", values[i])
+			} else if value.Valid {
+				_m.MarketHashName = value.String
+			}
+		case skin.FieldDisplayName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field display_name", values[i])
+			} else if value.Valid {
+				_m.DisplayName = value.String
+			}
+		case skin.FieldIconURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field icon_url", values[i])
+			} else if value.Valid {
+				_m.IconURL = value.String
+			}
+		case skin.FieldPageURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field page_url", values[i])
+			} else if value.Valid {
+				_m.PageURL = value.String
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -82,7 +116,18 @@ func (_m *Skin) Unwrap() *Skin {
 func (_m *Skin) String() string {
 	var builder strings.Builder
 	builder.WriteString("Skin(")
-	builder.WriteString(fmt.Sprintf("id=%v", _m.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("market_hash_name=")
+	builder.WriteString(_m.MarketHashName)
+	builder.WriteString(", ")
+	builder.WriteString("display_name=")
+	builder.WriteString(_m.DisplayName)
+	builder.WriteString(", ")
+	builder.WriteString("icon_url=")
+	builder.WriteString(_m.IconURL)
+	builder.WriteString(", ")
+	builder.WriteString("page_url=")
+	builder.WriteString(_m.PageURL)
 	builder.WriteByte(')')
 	return builder.String()
 }

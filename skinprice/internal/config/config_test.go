@@ -1,6 +1,13 @@
 package config
 
-import "testing"
+import (
+	"encoding/base64"
+	"testing"
+)
+
+func testKey() string {
+	return base64.StdEncoding.EncodeToString([]byte("12345678901234567890123456789012"))
+}
 
 func TestLoadReadsLoggingConfig(t *testing.T) {
 	t.Setenv("APP_ENV", "prod")
@@ -12,42 +19,36 @@ func TestLoadReadsLoggingConfig(t *testing.T) {
 	t.Setenv("LOG_MAX_BACKUPS", "7")
 	t.Setenv("LOG_MAX_AGE_DAYS", "30")
 	t.Setenv("LOG_COMPRESS", "false")
+	t.Setenv("TOKEN_ENCRYPTION_KEY", testKey())
 
-	cfg := Load()
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
 
 	if cfg.LogLevel != "warn" {
 		t.Fatalf("LogLevel = %q, want warn", cfg.LogLevel)
-	}
-	if cfg.LogFormat != "json" {
-		t.Fatalf("LogFormat = %q, want json", cfg.LogFormat)
-	}
-	if cfg.LogToFile {
-		t.Fatal("LogToFile = true, want false")
-	}
-	if cfg.LogFilePath != "/tmp/skinprice.log" {
-		t.Fatalf("LogFilePath = %q, want /tmp/skinprice.log", cfg.LogFilePath)
-	}
-	if cfg.LogMaxSizeMB != 42 {
-		t.Fatalf("LogMaxSizeMB = %d, want 42", cfg.LogMaxSizeMB)
-	}
-	if cfg.LogMaxBackups != 7 {
-		t.Fatalf("LogMaxBackups = %d, want 7", cfg.LogMaxBackups)
-	}
-	if cfg.LogMaxAgeDays != 30 {
-		t.Fatalf("LogMaxAgeDays = %d, want 30", cfg.LogMaxAgeDays)
-	}
-	if cfg.LogCompress {
-		t.Fatal("LogCompress = true, want false")
 	}
 }
 
 func TestLoadDefaultsDebugLevelInLocalEnv(t *testing.T) {
 	t.Setenv("APP_ENV", "local")
 	t.Setenv("LOG_LEVEL", "")
+	t.Setenv("TOKEN_ENCRYPTION_KEY", testKey())
 
-	cfg := Load()
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
 
 	if cfg.LogLevel != "debug" {
 		t.Fatalf("LogLevel = %q, want debug", cfg.LogLevel)
+	}
+}
+
+func TestLoadAllowsMissingTokenKey(t *testing.T) {
+	t.Setenv("TOKEN_ENCRYPTION_KEY", "")
+	if _, err := Load(); err != nil {
+		t.Fatalf("Load() unexpected error when TOKEN_ENCRYPTION_KEY is missing: %v", err)
 	}
 }

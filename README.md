@@ -91,7 +91,7 @@ Important variables:
 - `APP_DB_DRIVER=sqlite3`
 - `APP_DB_NAME=./skinprice.db`
 - `STEAM_BASE_URL=https://steamcommunity.com/market`
-- `LISSKINS_BASE_URL=https://lis-skins.ru`
+- `LISSKINS_BASE_URL=https://api.lis-skins.com/v1`
 - `HTTP_TIMEOUT_SECONDS=10`
 - `CACHE_TTL_SECONDS=300`
 - `LOG_LEVEL=debug`
@@ -107,34 +107,34 @@ Backend tests:
 go test ./...
 ```
 
-Frontend checks:
+
+## LisSkins токен
+
+Для поиска через LisSkins нужен персональный API-токен.
+
+### Обязательные env
+
+- `TOKEN_ENCRYPTION_KEY` — base64-ключ длиной 32 байта (AES-256-GCM).
+
+Пример генерации:
 
 ```bash
-cd skinprice/frontend
-npm run lint
-npm run build
+openssl rand -base64 32
 ```
 
-## Useful Commands
+### Где взять токен LisSkins
+
+1. Откройте профиль LisSkins: `https://lis-skins.com/profile/settings`.
+2. Сгенерируйте/скопируйте API-токен в личном кабинете.
+3. В приложении переключитесь на источник **LisSkins**, вставьте токен и нажмите **Сохранить токен**.
+
+### Как сбросить токен локально
+
+- Через UI: повторно откройте экран поиска LisSkins и очистите/обновите токен.
+- Через БД SQLite вручную:
 
 ```bash
-make deps
-make test
-make lint-ci
-make wails
+sqlite3 skinprice/skinprice.db "DELETE FROM source_states WHERE source = 'lisskins';"
 ```
 
-## CI/CD
-
-The main workflow is defined in [`.github/workflows/build.yml`](.github/workflows/build.yml).
-
-- `pull_request`: runs project checks.
-- `push` to `master`: runs project checks for the main branch state.
-- `push` of tag `v*`: runs checks, builds desktop applications for `Linux`, `Windows`, and `macOS`, then creates a GitHub Release with attached archives.
-- `workflow_dispatch`: allows manual desktop builds with downloadable Action artifacts.
-
-Generated release artifact names:
-
-- `SkinPrice-linux-amd64.tar.gz`
-- `SkinPrice-windows-amd64.zip`
-- `SkinPrice-macos-universal.zip`
+После удаления приложение снова покажет CTA на ввод токена.

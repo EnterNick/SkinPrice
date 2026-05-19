@@ -1,8 +1,8 @@
-import { useRef, useState } from "react";
-import { UI_TEXT } from "../../../shared/config/uiText";
-import { toApiError } from "../../../shared/api/errors";
+import { useCallback, useRef, useState } from "react";
 import { getNewSkins } from "../../../entities/skin/api/skinApi";
 import type { NewSkin } from "../../../entities/skin/model/types";
+import { UI_TEXT } from "../../../shared/config/uiText";
+import { formatErrorMessage } from "../../../shared/lib/error/formatErrorMessage";
 
 const PAGE_SIZE = 20;
 
@@ -19,31 +19,28 @@ export const useNewSkinsSearch = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentQuery, setCurrentQuery] = useState("");
-  const [currentSource, setCurrentSource] = useState<"steam" | "lisskins">("steam");
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const requestIdRef = useRef(0);
 
-  const loadNewSkins = async (searchValue: string, source: "steam" | "lisskins", nextOffset = 0, append = false) => {
-    const normalizedSearch = searchValue.trim();
-    if (!normalizedSearch) {
-      requestIdRef.current += 1;
-      setHasSearched(false);
-      setItems([]);
-      setOffset(0);
-      setHasMore(false);
-      setError(null);
-      setLoading(false);
-      setLoadingMore(false);
-      return;
-    }
+  const resetSearchState = useCallback(() => {
+    requestIdRef.current += 1;
+    setItems([]);
+    setError(null);
+    setHasMore(false);
+    setHasSearched(false);
+    setCurrentQuery("");
+    setOffset(0);
+  }, []);
 
+  const loadNewSkins = useCallback(async (searchValue: string, nextOffset = 0, append = false) => {
+    const normalizedSearch = searchValue.trim();
     const requestId = requestIdRef.current + 1;
     requestIdRef.current = requestId;
+
     setHasSearched(true);
     setCurrentQuery(normalizedSearch);
-    setCurrentSource(source);
     if (append) {
       setLoadingMore(true);
     } else {
@@ -54,7 +51,7 @@ export const useNewSkinsSearch = () => {
 
     try {
       await allowPaint();
-      const response = await getNewSkins(normalizedSearch, PAGE_SIZE, nextOffset, source);
+      const response = await getNewSkins(normalizedSearch, PAGE_SIZE, nextOffset);
       if (requestId !== requestIdRef.current) return;
 
       const normalizedQuery = normalizedSearch.toLowerCase();
@@ -69,8 +66,7 @@ export const useNewSkinsSearch = () => {
       setLoadingMore(false);
     } catch (err: unknown) {
       if (requestId !== requestIdRef.current) return;
-      const apiError = toApiError(err);
-      setError(apiError.message || UI_TEXT.errLoadNew);
+      setError(formatErrorMessage(UI_TEXT.errLoadNew, err));
       if (!append) {
         setItems([]);
       }
@@ -78,12 +74,22 @@ export const useNewSkinsSearch = () => {
       setLoading(false);
       setLoadingMore(false);
     }
-  };
+  }, []);
 
-  const loadNextPage = async () => {
+  const loadNextPage = useCallback(async () => {
     if (loading || loadingMore || !hasMore) return;
-    await loadNewSkins(currentQuery, currentSource, offset, true);
-  };
+    await loadNewSkins(currentQuery, offset, true);
+  }, [currentQuery, hasMore, loadNewSkins, loading, loadingMore, offset]);
 
-  return { items, loading, loadingMore, error, hasMore, hasSearched, currentQuery, currentSource, loadNewSkins, loadNextPage };
+  return {
+    items,
+    loading,
+    loadingMore,
+    error,
+    hasMore,
+    hasSearched,
+    loadNewSkins,
+    loadNextPage,
+    resetSearchState,
+  };
 };

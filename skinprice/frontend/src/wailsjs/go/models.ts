@@ -49,6 +49,18 @@ export namespace skins {
 	        this.offset = source["offset"];
 	    }
 	}
+	export class LisSkinsTokenStatusResponse {
+	    hasToken: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new LisSkinsTokenStatusResponse(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.hasToken = source["hasToken"];
+	    }
+	}
 	export class NewSkinItem {
 	    market_hash_name: string;
 	    display_name: string;
@@ -78,6 +90,7 @@ export namespace skins {
 	    total_count: number;
 	    limit: number;
 	    offset: number;
+	    next_cursor: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new NewSkinsResponse(source);
@@ -89,6 +102,7 @@ export namespace skins {
 	        this.total_count = source["total_count"];
 	        this.limit = source["limit"];
 	        this.offset = source["offset"];
+	        this.next_cursor = source["next_cursor"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -143,11 +157,15 @@ export namespace skins {
 	    market_hash_name: string;
 	    display_name: string;
 	    icon_url: string;
-	    page_url: string;
-	    price_text: string;
-	    currency: string;
+	    steam_page_url: string;
+	    steam_price_text: string;
 	    // Go type: time
-	    updated_at: any;
+	    steam_updated_at: any;
+	    lisskins_page_url: string;
+	    lisskins_price_text: string;
+	    // Go type: time
+	    lisskins_updated_at: any;
+	    currency: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new SavedSkinItem(source);
@@ -158,10 +176,13 @@ export namespace skins {
 	        this.market_hash_name = source["market_hash_name"];
 	        this.display_name = source["display_name"];
 	        this.icon_url = source["icon_url"];
-	        this.page_url = source["page_url"];
-	        this.price_text = source["price_text"];
+	        this.steam_page_url = source["steam_page_url"];
+	        this.steam_price_text = source["steam_price_text"];
+	        this.steam_updated_at = this.convertValues(source["steam_updated_at"], null);
+	        this.lisskins_page_url = source["lisskins_page_url"];
+	        this.lisskins_price_text = source["lisskins_price_text"];
+	        this.lisskins_updated_at = this.convertValues(source["lisskins_updated_at"], null);
 	        this.currency = source["currency"];
-	        this.updated_at = this.convertValues(source["updated_at"], null);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -220,9 +241,9 @@ export namespace skins {
 	}
 	export class SearchNewSkinsFilter {
 	    market_hash_name?: string;
-	    source: string;
 	    limit: number;
 	    offset: number;
+	    cursor: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new SearchNewSkinsFilter(source);
@@ -231,9 +252,21 @@ export namespace skins {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.market_hash_name = source["market_hash_name"];
-	        this.source = source["source"];
 	        this.limit = source["limit"];
 	        this.offset = source["offset"];
+	        this.cursor = source["cursor"];
+	    }
+	}
+	export class SetLisSkinsTokenRequest {
+	    token: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new SetLisSkinsTokenRequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.token = source["token"];
 	    }
 	}
 	export class UpdateAllSavedSkinsPricesRequest {
@@ -313,10 +346,15 @@ export namespace skins {
 	}
 	export class UpdateSavedSkinPriceResponse {
 	    market_hash_name: string;
-	    price_text: string;
-	    currency: string;
+	    steam_page_url: string;
+	    steam_price_text: string;
 	    // Go type: time
-	    updated_at: any;
+	    steam_updated_at: any;
+	    lisskins_page_url: string;
+	    lisskins_price_text: string;
+	    // Go type: time
+	    lisskins_updated_at: any;
+	    currency: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new UpdateSavedSkinPriceResponse(source);
@@ -325,9 +363,13 @@ export namespace skins {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.market_hash_name = source["market_hash_name"];
-	        this.price_text = source["price_text"];
+	        this.steam_page_url = source["steam_page_url"];
+	        this.steam_price_text = source["steam_price_text"];
+	        this.steam_updated_at = this.convertValues(source["steam_updated_at"], null);
+	        this.lisskins_page_url = source["lisskins_page_url"];
+	        this.lisskins_price_text = source["lisskins_price_text"];
+	        this.lisskins_updated_at = this.convertValues(source["lisskins_updated_at"], null);
 	        this.currency = source["currency"];
-	        this.updated_at = this.convertValues(source["updated_at"], null);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

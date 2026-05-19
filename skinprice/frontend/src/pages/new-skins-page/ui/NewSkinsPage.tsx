@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../app/router/routes";
 import { saveSkin } from "../../../entities/skin/api/skinApi";
@@ -14,25 +14,21 @@ import { NewSkinsSearchPanel } from "../../../widgets/new-skins-search-panel/New
 
 export const NewSkinsPage: React.FC = () => {
   const navigate = useNavigate();
-  const { items, loading, loadingMore, error, hasMore, hasSearched, currentQuery, currentSource, loadNewSkins, loadNextPage } = useNewSkinsSearch();
+  const {
+    items,
+    loading,
+    loadingMore,
+    error,
+    hasMore,
+    hasSearched,
+    loadNewSkins,
+    loadNextPage,
+    resetSearchState,
+  } = useNewSkinsSearch();
   const [savingIds, setSavingIds] = useState<Record<string, boolean>>({});
   const [savedIds, setSavedIds] = useState<Record<string, boolean>>({});
   const [notice, setNotice] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [query, setQuery] = useState("");
-  const [activeSource, setActiveSource] = useState<"steam" | "lisskins">("steam");
-
-  const minSearchMessage = `Введите минимум ${MIN_SEARCH_LENGTH} символа для поиска.`;
-
-  const onSearch = async () => {
-    const value = query.trim();
-    if (value.length < MIN_SEARCH_LENGTH) {
-      setNotice({ type: "error", text: minSearchMessage });
-      return;
-    }
-
-    setNotice(null);
-    await loadNewSkins(value, activeSource);
-  };
 
   const onSave = async (skin: NewSkin) => {
     setSavingIds((prev) => ({ ...prev, [skin.id]: true }));
@@ -48,10 +44,29 @@ export const NewSkinsPage: React.FC = () => {
     }
   };
 
-  const onChangeSource = (source: "steam" | "lisskins") => {
-    setActiveSource(source);
-    setNotice(null);
-  };
+  useEffect(() => {
+    const value = query.trim();
+    if (value.length === 0) {
+      setNotice(null);
+      void loadNewSkins("");
+      return;
+    }
+
+    if (value.length < MIN_SEARCH_LENGTH) {
+      setNotice(null);
+      resetSearchState();
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setNotice(null);
+      void loadNewSkins(value);
+    }, 1000);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [loadNewSkins, query, resetSearchState]);
 
   return (
     <div className="new-skins-page">
@@ -68,18 +83,13 @@ export const NewSkinsPage: React.FC = () => {
       />
       <NewSkinsSearchPanel
         value={query}
-        activeSource={activeSource}
         errorText={notice?.type === "error" ? notice.text : null}
-        helperText={hasSearched ? `Текущий запрос: ${currentQuery} • Источник: ${currentSource}` : UI_TEXT.searchHelper}
-        disabled={loading}
+        disabled={false}
         onChange={setQuery}
-        onChangeSource={onChangeSource}
-        onSearch={onSearch}
       />
       {notice && <ToastAlert type={notice.type} text={notice.text} />}
       {loading && <LoadingState text={UI_TEXT.loadingNew} />}
       {error && !loading && <ErrorState text={error} />}
-      {!loading && !error && !hasSearched && <EmptyState text={minSearchMessage} />}
       {!loading && !error && hasSearched && items.length === 0 && <EmptyState text={UI_TEXT.notFoundSearch} />}
       {!loading && !error && items.length > 0 && (
         <NewSkinsResults

@@ -10,12 +10,17 @@ export type Skin = {
   name: string;
   title: string;
   imageUrl: string;
-  pageUrl: string;
+  steamPageUrl: string;
+  lisSkinsPageUrl: string;
   priceText: string;
+  steamPriceText?: string;
+  lisSkinsPriceText?: string;
   priceCents?: number;
   currency?: SavedSkinCurrency;
   sellListings?: number;
   updatedAt?: string;
+  steamUpdatedAt?: string;
+  lisSkinsUpdatedAt?: string;
 };
 
 export type SavedSkin = Skin;
@@ -23,9 +28,13 @@ export type NewSkin = Skin;
 
 export type PriceUpdateResult = {
   marketHashName?: string;
-  priceText?: string;
+  steamPageUrl?: string;
+  steamPriceText?: string;
+  steamUpdatedAt?: string;
+  lisSkinsPageUrl?: string;
+  lisSkinsPriceText?: string;
+  lisSkinsUpdatedAt?: string;
   currency?: SavedSkinCurrency;
-  updatedAt?: string;
   updated: number;
 };
 
@@ -67,4 +76,5 @@ export type PaginatedResult<T> = {
   total: number;
   limit: number;
   offset: number;
+  nextCursor?: string;
 };

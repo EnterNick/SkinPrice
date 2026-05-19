@@ -31,31 +31,47 @@ export const normalizeCurrency = (value?: string | null): SavedSkinCurrency => {
   }
 };
 
-const normalizeImageUrl = (imageUrl?: string): string => {
+const normalizeImageUrl = (imageUrl?: string, pageUrl?: string): string => {
   if (!imageUrl) return "";
   if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://") || imageUrl.startsWith("data:")) return imageUrl;
   if (imageUrl.startsWith("//")) return `https:${imageUrl}`;
-  if (imageUrl.startsWith("/")) return `https://community.akamai.steamstatic.com${imageUrl}`;
+  if (imageUrl.startsWith("/")) {
+    if (pageUrl?.includes("lis-skins.com")) {
+      return `https://lis-skins.com${imageUrl}`;
+    }
+    return `https://community.akamai.steamstatic.com${imageUrl}`;
+  }
   return `https://community.akamai.steamstatic.com/economy/image/${imageUrl}`;
 };
 
-const mapSavedSkin = (item: skins.SavedSkinItem): SavedSkin => ({
-  id: item.market_hash_name,
-  name: item.market_hash_name,
-  title: item.display_name,
-  imageUrl: normalizeImageUrl(item.icon_url),
-  pageUrl: item.page_url,
-  priceText: item.price_text,
-  currency: normalizeCurrency(item.currency),
-  updatedAt: item.updated_at,
-});
+const mapSavedSkin = (item: skins.SavedSkinItem): SavedSkin => {
+  const steamPageUrl = item.steam_page_url;
+  const lisSkinsPageUrl = item.lisskins_page_url;
+
+  return {
+    id: item.market_hash_name,
+    name: item.market_hash_name,
+    title: item.display_name,
+    imageUrl: normalizeImageUrl(item.icon_url, steamPageUrl),
+    steamPageUrl,
+    lisSkinsPageUrl,
+    priceText: item.steam_price_text,
+    currency: normalizeCurrency(item.currency),
+    updatedAt: item.steam_updated_at,
+    steamPriceText: item.steam_price_text,
+    steamUpdatedAt: item.steam_updated_at,
+    lisSkinsPriceText: item.lisskins_price_text,
+    lisSkinsUpdatedAt: item.lisskins_updated_at,
+  };
+};
 
 const mapNewSkin = (item: skins.NewSkinItem): NewSkin => ({
   id: item.market_hash_name,
   name: item.market_hash_name,
   title: item.display_name,
-  imageUrl: normalizeImageUrl(item.icon_url),
-  pageUrl: item.page_url,
+  imageUrl: normalizeImageUrl(item.icon_url, item.page_url),
+  steamPageUrl: item.page_url,
+  lisSkinsPageUrl: "",
   priceText: item.price_text,
   priceCents: item.price_cents,
   sellListings: item.sell_listings,
@@ -100,11 +116,11 @@ export const getNewSkins = async (
   query?: string,
   limit = DEFAULT_LIMIT,
   offset = DEFAULT_OFFSET,
-  source: "steam" | "lisskins" = "steam",
+  cursor = "",
 ): Promise<PaginatedResult<NewSkin>> => {
   try {
     const response = await withTimeout(
-      SearchNewSkins({ market_hash_name: query, source, limit, offset }),
+      SearchNewSkins({ market_hash_name: query, limit, offset, cursor }),
       SEARCH_TIMEOUT_MS,
       "search timeout",
     );
@@ -113,12 +129,13 @@ export const getNewSkins = async (
       total: response.total_count,
       limit: response.limit,
       offset: response.offset,
+      nextCursor: response.next_cursor,
     };
   } catch (err) {
     logClientEvent("error", "getNewSkins failed", "skinApi", {
       operation: "getNewSkins",
-      source,
       query: query ?? "",
+      cursor,
       error: err instanceof Error ? err.message : String(err ?? ""),
     });
     throw toApiError(err);
@@ -131,9 +148,13 @@ export const updateSkinPrice = async (skinId: string, currency: SavedSkinCurrenc
     return {
       updated: 1,
       marketHashName: response.market_hash_name,
-      priceText: response.price_text,
+      steamPageUrl: response.steam_page_url,
+      steamPriceText: response.steam_price_text,
+      steamUpdatedAt: response.steam_updated_at,
+      lisSkinsPageUrl: response.lisskins_page_url,
+      lisSkinsPriceText: response.lisskins_price_text,
+      lisSkinsUpdatedAt: response.lisskins_updated_at,
       currency: normalizeCurrency(response.currency),
-      updatedAt: response.updated_at,
     };
   } catch (err) {
     logClientEvent("error", "updateSkinPrice failed", "skinApi", {
@@ -167,13 +188,13 @@ export const updateAllSkinPrices = async (currency: SavedSkinCurrency): Promise<
   }
 };
 
-export const saveSkin = async (skin: Pick<NewSkin, "id" | "title" | "imageUrl" | "pageUrl">): Promise<SaveSkinResult> => {
+export const saveSkin = async (skin: Pick<NewSkin, "id" | "title" | "imageUrl" | "steamPageUrl">): Promise<SaveSkinResult> => {
   try {
     const response = await SaveSkin({
       market_hash_name: skin.id,
       display_name: skin.title,
       icon_url: skin.imageUrl,
-      page_url: skin.pageUrl,
+      page_url: skin.steamPageUrl,
     });
     return { created: response.created };
   } catch (err) {

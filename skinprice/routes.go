@@ -2,6 +2,7 @@ package main
 
 import (
 	adapterdbskins "SkinPrice/skinprice/internal/adapters/database/skins"
+	adapterdbsourcestate "SkinPrice/skinprice/internal/adapters/database/sourcestate"
 	adapterlisskins "SkinPrice/skinprice/internal/adapters/http/lisskins"
 	adaptersteam "SkinPrice/skinprice/internal/adapters/http/steam"
 	"SkinPrice/skinprice/internal/application/skins"
@@ -9,27 +10,90 @@ import (
 	presenterskins "SkinPrice/skinprice/internal/presenters/skins"
 	"SkinPrice/skinprice/internal/shared/errx"
 	"SkinPrice/skinprice/internal/shared/logx"
+	sharedcrypto "SkinPrice/skinprice/internal/shared/utils/crypto"
 	"log/slog"
 )
 
 func (a *App) registerRoutes() {
-	cfg := config.Load()
+	cfg, err := config.Load()
+	if err != nil {
+		panic(err)
+	}
 	steamStorage := &adaptersteam.Storage{Client: adaptersteam.NewSteamClient(cfg), BaseURL: cfg.SteamBaseURL, Logger: a.logger}
 	lisSkinsStorage := &adapterlisskins.Storage{Client: adapterlisskins.NewLisSkinsClient(cfg), BaseURL: cfg.LisSkinsBaseURL, Logger: a.logger}
 	searchNewSkinsUC := skins.SearchNewSkins{
-		Storages: skins.SearchStorageSelector{
-			DefaultStorage:  steamStorage,
-			LisSkinsStorage: lisSkinsStorage,
-		},
+		Storage: steamStorage,
 	}
-	saveSkinStorage := &adapterdbskins.Storage{Conn: a.backend.Factory.DBConnection(), SteamStorage: steamStorage, Logger: a.logger}
+	saveSkinStorage := &adapterdbskins.Storage{
+		Conn:             a.backend.Factory.DBConnection(),
+		SteamStorage:     steamStorage,
+		LisSkinsStorage:  lisSkinsStorage,
+		BatchUpdateDelay: cfg.BulkPriceUpdateDelay,
+		Logger:           a.logger,
+	}
 	saveSkinUC := skins.SaveSkin{SkinSaver: saveSkinStorage}
 	getSavedSkinsUC := skins.GetSavedSkins{SavedSkinsReader: saveSkinStorage}
 	updateSavedSkinPriceUC := skins.UpdateSavedSkinPrice{Updater: saveSkinStorage}
 	updateAllSavedSkinsPricesUC := skins.UpdateAllSavedSkinsPrices{Updater: saveSkinStorage}
 	deleteSavedSkinUC := skins.DeleteSavedSkin{Deleter: saveSkinStorage}
-	a.skinsEndpoints = presenterskins.NewEndpoints(searchNewSkinsUC, saveSkinUC, getSavedSkinsUC, updateSavedSkinPriceUC, updateAllSavedSkinsPricesUC, deleteSavedSkinUC)
+	keyBytes, keyErr := sharedcrypto.LoadOrCreateTokenKey("SkinPrice")
+	if keyErr != nil && cfg.TokenEncryptionKey != "" {
+		a.logger.Warn("fallback to TOKEN_ENCRYPTION_KEY due to key file issue", logx.ErrAttrs(keyErr)...)
+		keyBytes = nil
+	}
+	var tokenCipher *sharedcrypto.TokenCipher
+	if len(keyBytes) == 32 {
+		tokenCipher, err = sharedcrypto.NewTokenCipher(keyBytes)
+	} else {
+		tokenCipher, err = sharedcrypto.NewTokenCipherFromBase64(cfg.TokenEncryptionKey)
+	}
+	if err != nil {
+		panic(err)
+	}
+	sourceStateStorage := &adapterdbsourcestate.Storage{Conn: a.backend.Factory.DBConnection()}
+	getLisSkinsTokenUC := skins.GetLisSkinsToken{Storage: sourceStateStorage, Cipher: tokenCipher}
+	lisSkinsStorage.TokenProvider = getLisSkinsTokenUC
+	saveLisSkinsTokenUC := skins.SaveLisSkinsToken{Storage: sourceStateStorage, Cipher: tokenCipher}
+	hasLisSkinsTokenUC := skins.HasLisSkinsToken{Storage: sourceStateStorage}
+	clearLisSkinsTokenUC := skins.ClearLisSkinsToken{Storage: sourceStateStorage}
+	a.skinsEndpoints = presenterskins.NewEndpoints(searchNewSkinsUC, saveSkinUC, getSavedSkinsUC, updateSavedSkinPriceUC, updateAllSavedSkinsPricesUC, deleteSavedSkinUC, saveLisSkinsTokenUC, hasLisSkinsTokenUC, clearLisSkinsTokenUC)
 	a.logger.Info("routes registered")
+}
+
+func (a *App) SetLisSkinsToken(payload presenterskins.SetLisSkinsTokenRequest) error {
+	logger := logx.WithComponent(a.logger, "route")
+	logger.Info("set lisskins token requested")
+	err := a.skinsEndpoints.SetLisSkinsToken(payload)
+	if err != nil {
+		logRouteError(logger, "set lisskins token failed", err)
+		return errx.FromError(err, "invalid token")
+	}
+	logger.Info("set lisskins token completed")
+	return nil
+}
+
+func (a *App) HasLisSkinsToken() (presenterskins.LisSkinsTokenStatusResponse, error) {
+	logger := logx.WithComponent(a.logger, "route")
+	logger.Info("check lisskins token status requested")
+	response, err := a.skinsEndpoints.GetLisSkinsTokenStatus()
+	if err != nil {
+		logRouteError(logger, "check lisskins token status failed", err)
+		return presenterskins.LisSkinsTokenStatusResponse{}, errx.FromError(err, "failed to check token status")
+	}
+	logger.Info("check lisskins token status completed", slog.Bool("has_token", response.HasToken))
+	return response, nil
+}
+
+func (a *App) ClearLisSkinsToken() error {
+	logger := logx.WithComponent(a.logger, "route")
+	logger.Info("clear lisskins token requested")
+	err := a.skinsEndpoints.ClearLisSkinsToken()
+	if err != nil {
+		logRouteError(logger, "clear lisskins token failed", err)
+		return errx.FromError(err, "failed to clear token")
+	}
+	logger.Info("clear lisskins token completed")
+	return nil
 }
 
 func (a *App) UpdateSavedSkinPrice(payload presenterskins.UpdateSavedSkinPriceRequest) (presenterskins.UpdateSavedSkinPriceResponse, error) {
@@ -63,7 +127,6 @@ func (a *App) UpdateAllSavedSkinsPrices(payload presenterskins.UpdateAllSavedSki
 func (a *App) SearchNewSkins(filter presenterskins.SearchNewSkinsFilter) (presenterskins.NewSkinsResponse, error) {
 	logger := logx.WithComponent(a.logger, "route")
 	logger.Info("search new skins requested",
-		slog.String("source", filter.Source),
 		slog.Int("limit", filter.Limit),
 		slog.Int("offset", filter.Offset),
 		slog.Bool("has_query", filter.MarketHashName != nil && *filter.MarketHashName != ""),
@@ -74,7 +137,6 @@ func (a *App) SearchNewSkins(filter presenterskins.SearchNewSkinsFilter) (presen
 		return presenterskins.NewSkinsResponse{}, errx.FromError(err, "failed to search skins")
 	}
 	logger.Info("search new skins completed",
-		slog.String("source", filter.Source),
 		slog.Int("items", len(response.Items)),
 		slog.Int("total_count", response.TotalCount),
 	)

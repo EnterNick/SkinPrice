@@ -258,6 +258,18 @@ func (_q *SkinQuery) Clone() *SkinQuery {
 
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		MarketHashName string `json:"market_hash_name,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.Skin.Query().
+//		GroupBy(skin.FieldMarketHashName).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
 func (_q *SkinQuery) GroupBy(field string, fields ...string) *SkinGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
 	grbuild := &SkinGroupBy{build: _q}
@@ -269,6 +281,16 @@ func (_q *SkinQuery) GroupBy(field string, fields ...string) *SkinGroupBy {
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		MarketHashName string `json:"market_hash_name,omitempty"`
+//	}
+//
+//	client.Skin.Query().
+//		Select(skin.FieldMarketHashName).
+//		Scan(ctx, &v)
 func (_q *SkinQuery) Select(fields ...string) *SkinSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
 	sbuild := &SkinSelect{SkinQuery: _q}

@@ -35,12 +35,22 @@ var (
 	// SourceStatesColumns holds the columns for the "source_states" table.
 	SourceStatesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "source", Type: field.TypeString},
+		{Name: "api_token_encrypted", Type: field.TypeString},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
 	}
 	// SourceStatesTable holds the schema information for the "source_states" table.
 	SourceStatesTable = &schema.Table{
 		Name:       "source_states",
 		Columns:    SourceStatesColumns,
 		PrimaryKey: []*schema.Column{SourceStatesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "sourcestate_source",
+				Unique:  true,
+				Columns: []*schema.Column{SourceStatesColumns[1]},
+			},
+		},
 	}
 	// WatchlistItemsColumns holds the columns for the "watchlist_items" table.
 	WatchlistItemsColumns = []*schema.Column{
