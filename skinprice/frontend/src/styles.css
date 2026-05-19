@@ -321,24 +321,34 @@ body {
 .toolbar-select,
 .table-action-button,
 .table-link-button {
-  min-height: 44px;
-  border-radius: 12px;
+  height: 40px;
+  border-radius: 10px;
   border: 1px solid color-mix(in srgb, var(--color-border) 60%, white 40%);
   background: var(--color-background-elevated);
   color: var(--color-text-primary);
-  padding: 0 16px;
+  padding: 0 18px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+  transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
   -webkit-app-region: no-drag;
 }
 
 .toolbar-button:hover,
+.toolbar-select:hover,
 .table-action-button:hover,
 .table-link-button:hover {
   border-color: rgba(251, 146, 60, 0.55);
   transform: translateY(-1px);
+}
+
+.toolbar-button:focus-visible,
+.toolbar-select:focus-visible,
+.table-action-button:focus-visible,
+.table-link-button:focus-visible {
+  outline: none;
+  border-color: rgba(251, 146, 60, 0.7);
+  box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.22);
 }
 
 .table-link-button-icon {
@@ -362,10 +372,13 @@ body {
 }
 
 .toolbar-button:disabled,
-.table-action-button:disabled {
+.toolbar-select:disabled,
+.table-action-button:disabled,
+.table-link-button:disabled {
   opacity: 0.6;
-  cursor: wait;
+  cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
 .toolbar-select {
@@ -784,13 +797,23 @@ body {
   color: #fcd34d;
 }
 
-.toolbar-button-danger {
+.toolbar-button-danger,
+.danger-outline {
+  background: transparent;
   border-color: color-mix(in srgb, var(--color-danger) 35%, transparent);
   color: #fecaca;
 }
 
-.toolbar-button-danger:hover {
+.toolbar-button-danger:hover,
+.danger-outline:hover {
   border-color: color-mix(in srgb, var(--color-danger) 60%, transparent);
+  background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+}
+
+.toolbar-button-danger:focus-visible,
+.danger-outline:focus-visible {
+  border-color: color-mix(in srgb, var(--color-danger) 60%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 24%, transparent);
 }
 
 @media (max-width: 900px) {
