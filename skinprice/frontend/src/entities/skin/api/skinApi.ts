@@ -1,4 +1,4 @@
-import { DeleteSavedSkin, GetSavedSkins, SaveSkin, SearchNewSkins, UpdateAllSavedSkinsPrices, UpdateSavedSkinPrice } from "../../../wailsjs/go/main/App";
+import { DeleteSavedSkin, GetSavedSkins, HasLisSkinsToken, SaveSkin, SearchNewSkins, SetLisSkinsToken, UpdateAllSavedSkinsPrices, UpdateSavedSkinPrice } from "../../../wailsjs/go/main/App";
 import type { skins } from "../../../wailsjs/go/models";
 import { toApiError } from "../../../shared/api/errors";
 import { logClientEvent } from "../../../shared/lib/logging/logger";
@@ -119,6 +119,31 @@ export const getNewSkins = async (
       operation: "getNewSkins",
       source,
       query: query ?? "",
+      error: err instanceof Error ? err.message : String(err ?? ""),
+    });
+    throw toApiError(err);
+  }
+};
+
+export const hasLisSkinsToken = async (): Promise<boolean> => {
+  try {
+    const response = await HasLisSkinsToken();
+    return Boolean(response?.hasToken);
+  } catch (err) {
+    logClientEvent("error", "hasLisSkinsToken failed", "skinApi", {
+      operation: "hasLisSkinsToken",
+      error: err instanceof Error ? err.message : String(err ?? ""),
+    });
+    throw toApiError(err);
+  }
+};
+
+export const setLisSkinsToken = async (token: string): Promise<void> => {
+  try {
+    await SetLisSkinsToken({ token });
+  } catch (err) {
+    logClientEvent("error", "setLisSkinsToken failed", "skinApi", {
+      operation: "setLisSkinsToken",
       error: err instanceof Error ? err.message : String(err ?? ""),
     });
     throw toApiError(err);

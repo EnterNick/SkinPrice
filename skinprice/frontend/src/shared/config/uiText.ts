@@ -46,4 +46,12 @@ export const UI_TEXT = {
   sourceTabsAriaLabel: "Источник поиска",
   sourceSteam: "Steam",
   sourceLisSkins: "LisSkins",
+  lisSkinsTokenRequired: "Для поиска в LisSkins сначала сохраните API-токен.",
+  lisSkinsTokenHelp: "Сгенерируйте токен в личном кабинете LisSkins и вставьте его сюда.",
+  lisSkinsTokenLink: "Открыть страницу генерации токена",
+  lisSkinsTokenPlaceholder: "Введите токен LisSkins",
+  lisSkinsTokenSave: "Сохранить токен",
+  lisSkinsTokenSaving: "Сохраняем токен...",
+  lisSkinsTokenSaved: "Токен LisSkins сохранён. Повторяем поиск...",
+  errLisSkinsTokenSave: "Не удалось сохранить токен LisSkins.",
 } as const;
