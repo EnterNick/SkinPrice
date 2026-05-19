@@ -1,0 +1,121 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - 'v*'
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  GO_VERSION_FILE: go.mod
+  WAILS_VERSION: v2.12.0
+
+jobs:
+  checks:
+    name: Checks
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: ${{ env.GO_VERSION_FILE }}
+          cache-dependency-path: go.sum
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: skinprice/frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: skinprice/frontend
+        run: npm ci
+
+      - name: Run Go tests
+        run: go test ./...
+
+      - name: Run frontend typecheck
+        working-directory: skinprice/frontend
+        run: npm run lint
+
+      - name: Build frontend
+        working-directory: skinprice/frontend
+        run: npm run build
+
+  desktop-build:
+    name: Desktop build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    needs: checks
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            artifact_name: skinprice-linux
+            build_flags: -platform linux/amd64 -tags webkit2_41
+          - os: windows-2022
+            artifact_name: skinprice-windows
+            build_flags: -platform windows/amd64
+          - os: macos-14
+            artifact_name: skinprice-macos
+            build_flags: -platform darwin/universal
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: ${{ env.GO_VERSION_FILE }}
+          cache-dependency-path: go.sum
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: skinprice/frontend/package-lock.json
+
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libgtk-3-dev libwebkit2gtk-4.1-dev
+
+      - name: Install frontend dependencies
+        working-directory: skinprice/frontend
+        run: npm ci
+
+      - name: Install Wails CLI
+        shell: bash
+        run: |
+          go install github.com/wailsapp/wails/v2/cmd/wails@${WAILS_VERSION}
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Build desktop application
+        working-directory: skinprice
+        shell: bash
+        run: wails build -clean ${{ matrix.build_flags }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: skinprice/build/bin/**
+          if-no-files-found: error

@@ -8,7 +8,6 @@
 
 /build/
 bin/
-dist/
 
 vendor/
 
@@ -37,7 +36,6 @@ node_modules/
 /coverage
 
 /build
-/dist
 
 .DS_Store
 npm-debug.log*
@@ -62,7 +60,6 @@ build/linux/
 wails.exe
 
 frontend/node_modules/
-frontend/dist/
 frontend/dist-ssr/
 frontend/*.local
 frontend/.env*
