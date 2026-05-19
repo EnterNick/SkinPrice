@@ -2,8 +2,39 @@
 
 package ent
 
+import (
+	"SkinPrice/skinprice/internal/adapters/database/ent/schema"
+	"SkinPrice/skinprice/internal/adapters/database/ent/skin"
+	"SkinPrice/skinprice/internal/adapters/database/ent/sourcestate"
+	"time"
+)
+
 // The init function reads all schema descriptors with runtime code
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	skinFields := schema.Skin{}.Fields()
+	_ = skinFields
+	// skinDescMarketHashName is the schema descriptor for market_hash_name field.
+	skinDescMarketHashName := skinFields[0].Descriptor()
+	// skin.MarketHashNameValidator is a validator for the "market_hash_name" field. It is called by the builders before save.
+	skin.MarketHashNameValidator = skinDescMarketHashName.Validators[0].(func(string) error)
+	// skinDescDisplayName is the schema descriptor for display_name field.
+	skinDescDisplayName := skinFields[1].Descriptor()
+	// skin.DisplayNameValidator is a validator for the "display_name" field. It is called by the builders before save.
+	skin.DisplayNameValidator = skinDescDisplayName.Validators[0].(func(string) error)
+	sourcestateFields := schema.SourceState{}.Fields()
+	_ = sourcestateFields
+	// sourcestateDescSource is the schema descriptor for source field.
+	sourcestateDescSource := sourcestateFields[0].Descriptor()
+	// sourcestate.SourceValidator is a validator for the "source" field. It is called by the builders before save.
+	sourcestate.SourceValidator = sourcestateDescSource.Validators[0].(func(string) error)
+	// sourcestateDescAPITokenEncrypted is the schema descriptor for api_token_encrypted field.
+	sourcestateDescAPITokenEncrypted := sourcestateFields[1].Descriptor()
+	// sourcestate.APITokenEncryptedValidator is a validator for the "api_token_encrypted" field. It is called by the builders before save.
+	sourcestate.APITokenEncryptedValidator = sourcestateDescAPITokenEncrypted.Validators[0].(func(string) error)
+	// sourcestateDescUpdatedAt is the schema descriptor for updated_at field.
+	sourcestateDescUpdatedAt := sourcestateFields[2].Descriptor()
+	// sourcestate.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	sourcestate.DefaultUpdatedAt = sourcestateDescUpdatedAt.Default.(func() time.Time)
 }

@@ -3,6 +3,8 @@
 package sourcestate
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
 )
 
@@ -11,6 +13,12 @@ const (
 	Label = "source_state"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldSource holds the string denoting the source field in the database.
+	FieldSource = "source"
+	// FieldAPITokenEncrypted holds the string denoting the api_token_encrypted field in the database.
+	FieldAPITokenEncrypted = "api_token_encrypted"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
 	// Table holds the table name of the sourcestate in the database.
 	Table = "source_states"
 )
@@ -18,6 +26,9 @@ const (
 // Columns holds all SQL columns for sourcestate fields.
 var Columns = []string{
 	FieldID,
+	FieldSource,
+	FieldAPITokenEncrypted,
+	FieldUpdatedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -30,10 +41,34 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+var (
+	// SourceValidator is a validator for the "source" field. It is called by the builders before save.
+	SourceValidator func(string) error
+	// APITokenEncryptedValidator is a validator for the "api_token_encrypted" field. It is called by the builders before save.
+	APITokenEncryptedValidator func(string) error
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+)
+
 // OrderOption defines the ordering options for the SourceState queries.
 type OrderOption func(*sql.Selector)
 
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// BySource orders the results by the source field.
+func BySource(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSource, opts...).ToFunc()
+}
+
+// ByAPITokenEncrypted orders the results by the api_token_encrypted field.
+func ByAPITokenEncrypted(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAPITokenEncrypted, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
 }

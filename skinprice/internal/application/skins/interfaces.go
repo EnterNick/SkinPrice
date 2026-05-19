@@ -26,3 +26,9 @@ type SavedSkinPriceUpdater interface {
 type SavedSkinDeleter interface {
 	DeleteSavedSkin(params DeleteSavedSkinParams) error
 }
+
+type LisSkinsTokenStorage interface {
+	UpsertLisSkinsToken(encrypted string) error
+	GetLisSkinsToken() (string, error)
+	DeleteLisSkinsToken() error
+}

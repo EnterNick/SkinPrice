@@ -4,6 +4,7 @@ package sourcestate
 
 import (
 	"SkinPrice/skinprice/internal/adapters/database/ent/predicate"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 )
@@ -51,6 +52,201 @@ func IDLT(id int) predicate.SourceState {
 // IDLTE applies the LTE predicate on the ID field.
 func IDLTE(id int) predicate.SourceState {
 	return predicate.SourceState(sql.FieldLTE(FieldID, id))
+}
+
+// Source applies equality check predicate on the "source" field. It's identical to SourceEQ.
+func Source(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldEQ(FieldSource, v))
+}
+
+// APITokenEncrypted applies equality check predicate on the "api_token_encrypted" field. It's identical to APITokenEncryptedEQ.
+func APITokenEncrypted(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldEQ(FieldAPITokenEncrypted, v))
+}
+
+// UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
+func UpdatedAt(v time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// SourceEQ applies the EQ predicate on the "source" field.
+func SourceEQ(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldEQ(FieldSource, v))
+}
+
+// SourceNEQ applies the NEQ predicate on the "source" field.
+func SourceNEQ(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldNEQ(FieldSource, v))
+}
+
+// SourceIn applies the In predicate on the "source" field.
+func SourceIn(vs ...string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldIn(FieldSource, vs...))
+}
+
+// SourceNotIn applies the NotIn predicate on the "source" field.
+func SourceNotIn(vs ...string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldNotIn(FieldSource, vs...))
+}
+
+// SourceGT applies the GT predicate on the "source" field.
+func SourceGT(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldGT(FieldSource, v))
+}
+
+// SourceGTE applies the GTE predicate on the "source" field.
+func SourceGTE(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldGTE(FieldSource, v))
+}
+
+// SourceLT applies the LT predicate on the "source" field.
+func SourceLT(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldLT(FieldSource, v))
+}
+
+// SourceLTE applies the LTE predicate on the "source" field.
+func SourceLTE(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldLTE(FieldSource, v))
+}
+
+// SourceContains applies the Contains predicate on the "source" field.
+func SourceContains(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldContains(FieldSource, v))
+}
+
+// SourceHasPrefix applies the HasPrefix predicate on the "source" field.
+func SourceHasPrefix(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldHasPrefix(FieldSource, v))
+}
+
+// SourceHasSuffix applies the HasSuffix predicate on the "source" field.
+func SourceHasSuffix(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldHasSuffix(FieldSource, v))
+}
+
+// SourceEqualFold applies the EqualFold predicate on the "source" field.
+func SourceEqualFold(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldEqualFold(FieldSource, v))
+}
+
+// SourceContainsFold applies the ContainsFold predicate on the "source" field.
+func SourceContainsFold(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldContainsFold(FieldSource, v))
+}
+
+// APITokenEncryptedEQ applies the EQ predicate on the "api_token_encrypted" field.
+func APITokenEncryptedEQ(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldEQ(FieldAPITokenEncrypted, v))
+}
+
+// APITokenEncryptedNEQ applies the NEQ predicate on the "api_token_encrypted" field.
+func APITokenEncryptedNEQ(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldNEQ(FieldAPITokenEncrypted, v))
+}
+
+// APITokenEncryptedIn applies the In predicate on the "api_token_encrypted" field.
+func APITokenEncryptedIn(vs ...string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldIn(FieldAPITokenEncrypted, vs...))
+}
+
+// APITokenEncryptedNotIn applies the NotIn predicate on the "api_token_encrypted" field.
+func APITokenEncryptedNotIn(vs ...string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldNotIn(FieldAPITokenEncrypted, vs...))
+}
+
+// APITokenEncryptedGT applies the GT predicate on the "api_token_encrypted" field.
+func APITokenEncryptedGT(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldGT(FieldAPITokenEncrypted, v))
+}
+
+// APITokenEncryptedGTE applies the GTE predicate on the "api_token_encrypted" field.
+func APITokenEncryptedGTE(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldGTE(FieldAPITokenEncrypted, v))
+}
+
+// APITokenEncryptedLT applies the LT predicate on the "api_token_encrypted" field.
+func APITokenEncryptedLT(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldLT(FieldAPITokenEncrypted, v))
+}
+
+// APITokenEncryptedLTE applies the LTE predicate on the "api_token_encrypted" field.
+func APITokenEncryptedLTE(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldLTE(FieldAPITokenEncrypted, v))
+}
+
+// APITokenEncryptedContains applies the Contains predicate on the "api_token_encrypted" field.
+func APITokenEncryptedContains(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldContains(FieldAPITokenEncrypted, v))
+}
+
+// APITokenEncryptedHasPrefix applies the HasPrefix predicate on the "api_token_encrypted" field.
+func APITokenEncryptedHasPrefix(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldHasPrefix(FieldAPITokenEncrypted, v))
+}
+
+// APITokenEncryptedHasSuffix applies the HasSuffix predicate on the "api_token_encrypted" field.
+func APITokenEncryptedHasSuffix(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldHasSuffix(FieldAPITokenEncrypted, v))
+}
+
+// APITokenEncryptedEqualFold applies the EqualFold predicate on the "api_token_encrypted" field.
+func APITokenEncryptedEqualFold(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldEqualFold(FieldAPITokenEncrypted, v))
+}
+
+// APITokenEncryptedContainsFold applies the ContainsFold predicate on the "api_token_encrypted" field.
+func APITokenEncryptedContainsFold(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldContainsFold(FieldAPITokenEncrypted, v))
+}
+
+// UpdatedAtEQ applies the EQ predicate on the "updated_at" field.
+func UpdatedAtEQ(v time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtNEQ applies the NEQ predicate on the "updated_at" field.
+func UpdatedAtNEQ(v time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldNEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtIn applies the In predicate on the "updated_at" field.
+func UpdatedAtIn(vs ...time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtNotIn applies the NotIn predicate on the "updated_at" field.
+func UpdatedAtNotIn(vs ...time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldNotIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtGT applies the GT predicate on the "updated_at" field.
+func UpdatedAtGT(v time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldGT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtGTE applies the GTE predicate on the "updated_at" field.
+func UpdatedAtGTE(v time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldGTE(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLT applies the LT predicate on the "updated_at" field.
+func UpdatedAtLT(v time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldLT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
+func UpdatedAtLTE(v time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// UpdatedAtIsNil applies the IsNil predicate on the "updated_at" field.
+func UpdatedAtIsNil() predicate.SourceState {
+	return predicate.SourceState(sql.FieldIsNull(FieldUpdatedAt))
+}
+
+// UpdatedAtNotNil applies the NotNil predicate on the "updated_at" field.
+func UpdatedAtNotNil() predicate.SourceState {
+	return predicate.SourceState(sql.FieldNotNull(FieldUpdatedAt))
 }
 
 // And groups predicates with the AND operator between them.

@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -24,6 +25,54 @@ type SourceStateUpdate struct {
 // Where appends a list predicates to the SourceStateUpdate builder.
 func (_u *SourceStateUpdate) Where(ps ...predicate.SourceState) *SourceStateUpdate {
 	_u.mutation.Where(ps...)
+	return _u
+}
+
+// SetSource sets the "source" field.
+func (_u *SourceStateUpdate) SetSource(v string) *SourceStateUpdate {
+	_u.mutation.SetSource(v)
+	return _u
+}
+
+// SetNillableSource sets the "source" field if the given value is not nil.
+func (_u *SourceStateUpdate) SetNillableSource(v *string) *SourceStateUpdate {
+	if v != nil {
+		_u.SetSource(*v)
+	}
+	return _u
+}
+
+// SetAPITokenEncrypted sets the "api_token_encrypted" field.
+func (_u *SourceStateUpdate) SetAPITokenEncrypted(v string) *SourceStateUpdate {
+	_u.mutation.SetAPITokenEncrypted(v)
+	return _u
+}
+
+// SetNillableAPITokenEncrypted sets the "api_token_encrypted" field if the given value is not nil.
+func (_u *SourceStateUpdate) SetNillableAPITokenEncrypted(v *string) *SourceStateUpdate {
+	if v != nil {
+		_u.SetAPITokenEncrypted(*v)
+	}
+	return _u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *SourceStateUpdate) SetUpdatedAt(v time.Time) *SourceStateUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_u *SourceStateUpdate) SetNillableUpdatedAt(v *time.Time) *SourceStateUpdate {
+	if v != nil {
+		_u.SetUpdatedAt(*v)
+	}
+	return _u
+}
+
+// ClearUpdatedAt clears the value of the "updated_at" field.
+func (_u *SourceStateUpdate) ClearUpdatedAt() *SourceStateUpdate {
+	_u.mutation.ClearUpdatedAt()
 	return _u
 }
 
@@ -59,7 +108,25 @@ func (_u *SourceStateUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *SourceStateUpdate) check() error {
+	if v, ok := _u.mutation.Source(); ok {
+		if err := sourcestate.SourceValidator(v); err != nil {
+			return &ValidationError{Name: "source", err: fmt.Errorf(`ent: validator failed for field "SourceState.source": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.APITokenEncrypted(); ok {
+		if err := sourcestate.APITokenEncryptedValidator(v); err != nil {
+			return &ValidationError{Name: "api_token_encrypted", err: fmt.Errorf(`ent: validator failed for field "SourceState.api_token_encrypted": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *SourceStateUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(sourcestate.Table, sourcestate.Columns, sqlgraph.NewFieldSpec(sourcestate.FieldID, field.TypeInt))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -67,6 +134,18 @@ func (_u *SourceStateUpdate) sqlSave(ctx context.Context) (_node int, err error)
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.Source(); ok {
+		_spec.SetField(sourcestate.FieldSource, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.APITokenEncrypted(); ok {
+		_spec.SetField(sourcestate.FieldAPITokenEncrypted, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(sourcestate.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if _u.mutation.UpdatedAtCleared() {
+		_spec.ClearField(sourcestate.FieldUpdatedAt, field.TypeTime)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -86,6 +165,54 @@ type SourceStateUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *SourceStateMutation
+}
+
+// SetSource sets the "source" field.
+func (_u *SourceStateUpdateOne) SetSource(v string) *SourceStateUpdateOne {
+	_u.mutation.SetSource(v)
+	return _u
+}
+
+// SetNillableSource sets the "source" field if the given value is not nil.
+func (_u *SourceStateUpdateOne) SetNillableSource(v *string) *SourceStateUpdateOne {
+	if v != nil {
+		_u.SetSource(*v)
+	}
+	return _u
+}
+
+// SetAPITokenEncrypted sets the "api_token_encrypted" field.
+func (_u *SourceStateUpdateOne) SetAPITokenEncrypted(v string) *SourceStateUpdateOne {
+	_u.mutation.SetAPITokenEncrypted(v)
+	return _u
+}
+
+// SetNillableAPITokenEncrypted sets the "api_token_encrypted" field if the given value is not nil.
+func (_u *SourceStateUpdateOne) SetNillableAPITokenEncrypted(v *string) *SourceStateUpdateOne {
+	if v != nil {
+		_u.SetAPITokenEncrypted(*v)
+	}
+	return _u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *SourceStateUpdateOne) SetUpdatedAt(v time.Time) *SourceStateUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_u *SourceStateUpdateOne) SetNillableUpdatedAt(v *time.Time) *SourceStateUpdateOne {
+	if v != nil {
+		_u.SetUpdatedAt(*v)
+	}
+	return _u
+}
+
+// ClearUpdatedAt clears the value of the "updated_at" field.
+func (_u *SourceStateUpdateOne) ClearUpdatedAt() *SourceStateUpdateOne {
+	_u.mutation.ClearUpdatedAt()
+	return _u
 }
 
 // Mutation returns the SourceStateMutation object of the builder.
@@ -133,7 +260,25 @@ func (_u *SourceStateUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *SourceStateUpdateOne) check() error {
+	if v, ok := _u.mutation.Source(); ok {
+		if err := sourcestate.SourceValidator(v); err != nil {
+			return &ValidationError{Name: "source", err: fmt.Errorf(`ent: validator failed for field "SourceState.source": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.APITokenEncrypted(); ok {
+		if err := sourcestate.APITokenEncryptedValidator(v); err != nil {
+			return &ValidationError{Name: "api_token_encrypted", err: fmt.Errorf(`ent: validator failed for field "SourceState.api_token_encrypted": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *SourceStateUpdateOne) sqlSave(ctx context.Context) (_node *SourceState, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(sourcestate.Table, sourcestate.Columns, sqlgraph.NewFieldSpec(sourcestate.FieldID, field.TypeInt))
 	id, ok := _u.mutation.ID()
 	if !ok {
@@ -158,6 +303,18 @@ func (_u *SourceStateUpdateOne) sqlSave(ctx context.Context) (_node *SourceState
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.Source(); ok {
+		_spec.SetField(sourcestate.FieldSource, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.APITokenEncrypted(); ok {
+		_spec.SetField(sourcestate.FieldAPITokenEncrypted, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(sourcestate.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if _u.mutation.UpdatedAtCleared() {
+		_spec.ClearField(sourcestate.FieldUpdatedAt, field.TypeTime)
 	}
 	_node = &SourceState{config: _u.config}
 	_spec.Assign = _node.assignValues
