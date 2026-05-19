@@ -6,6 +6,8 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -36,6 +38,10 @@ func LoadConfig() *Config {
 	if dbName == "" {
 		dbName = os.Getenv("APP_DB_PATH")
 	}
+	driver := utils.GetStrWDefault("APP_DB_DRIVER", "sqlite3")
+	if dbName == "" && (driver == "sqlite3" || driver == "sqlite") {
+		dbName = defaultSQLiteDBPath()
+	}
 	return &Config{
 		Host:            os.Getenv("APP_DB_HOST"),
 		Port:            port,
@@ -46,9 +52,31 @@ func LoadConfig() *Config {
 		Debug:           os.Getenv("APP_DB_DEBUG") == "true",
 		MaxOpenConns:    maxOpenConns,
 		MaxIdleConns:    maxIdleConns,
-		Driver:          utils.GetStrWDefault("APP_DB_DRIVER", "sqlite3"),
+		Driver:          driver,
 		ConnMaxLifetime: time.Duration(connMaxLifeTimeSeconds) * time.Second,
 	}
+}
+
+func defaultSQLiteDBPath() string {
+	switch runtime.GOOS {
+	case "windows":
+		localAppData := strings.TrimSpace(os.Getenv("LOCALAPPDATA"))
+		if localAppData != "" {
+			return filepath.Join(localAppData, "SkinPrice", "skinprice.db")
+		}
+	case "darwin":
+		homeDir, err := os.UserHomeDir()
+		if err == nil && homeDir != "" {
+			return filepath.Join(homeDir, "Library", "Application Support", "SkinPrice", "skinprice.db")
+		}
+	default:
+		homeDir, err := os.UserHomeDir()
+		if err == nil && homeDir != "" {
+			return filepath.Join(homeDir, ".local", "share", "SkinPrice", "skinprice.db")
+		}
+	}
+
+	return "skinprice.db"
 }
 
 func (c Config) DSN() string {
