@@ -5,6 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
+	"os"
+	"path/filepath"
+	"strings"
 
 	_ "github.com/jackc/pgx/v5/stdlib" // need to load db driver
 	_ "github.com/mattn/go-sqlite3"
@@ -47,6 +50,10 @@ func New(cfg *Config, logger ...*slog.Logger) (*Connection, error) {
 		slog.String("dialect", cfg.EntDialect()),
 		slog.Bool("debug", cfg.Debug),
 	)
+	if err := ensureSQLiteDirectory(cfg); err != nil {
+		baseLogger.Error("sqlite directory preparation failed", logx.ErrAttrs(err)...)
+		return nil, err
+	}
 	db, err := sql.Open(cfg.Driver, cfg.DSN())
 	if err != nil {
 		baseLogger.Error("sql open failed", logx.ErrAttrs(err)...)
@@ -79,6 +86,25 @@ func New(cfg *Config, logger ...*slog.Logger) (*Connection, error) {
 	)
 	baseLogger.Info("database connection ready")
 	return connection, nil
+}
+
+func ensureSQLiteDirectory(cfg *Config) error {
+	if cfg == nil || (cfg.Driver != "sqlite3" && cfg.Driver != "sqlite") {
+		return nil
+	}
+	dbName := cfg.DBName
+	if dbName == "" || dbName == ":memory:" || strings.HasPrefix(dbName, "file:") {
+		return nil
+	}
+	dbPath := strings.SplitN(dbName, "?", 2)[0]
+	dir := filepath.Dir(dbPath)
+	if dir == "." || dir == "" {
+		return nil
+	}
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return fmt.Errorf("mkdir db dir %q: %w", dir, err)
+	}
+	return nil
 }
 
 func (a *Connection) Client() *ent.Client { return a.client }
