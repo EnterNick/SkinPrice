@@ -131,17 +131,12 @@ body {
 
 /* КОМПАКТНЫЙ ЗАГОЛОВОК */
 .title {
+  color: var(--color-text-primary);
   font-size: 16px;
-  font-weight: 700;
-
-  margin-bottom: 8px;
-
+  font-weight: 600;
   line-height: 1.2;
-
-  background: linear-gradient(90deg, #ff5757, #ff9966);
-
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  min-height: 38px;
+  margin: 0;
 }
 
 .stats-list {
@@ -673,11 +668,23 @@ body {
   text-align: left;
   cursor: pointer;
   -webkit-app-region: no-drag;
+  min-height: 38px;
+}
+
+.card-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card-price {
+  margin: 0;
 }
 
 .card-save-button {
   width: 100%;
-  margin-top: auto;
+  margin-top: 0;
 }
 
 .skin-cell {

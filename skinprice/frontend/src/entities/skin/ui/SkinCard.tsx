@@ -19,17 +19,19 @@ export const SkinCard: React.FC<SkinCardProps> = ({ skin, saving, saved, onSave 
       <button className="card-link-button" type="button" onClick={() => openExternal(skin.steamPageUrl)}>
         <h2 className="title">{skin.title}</h2>
       </button>
-      <p className="text">
-        {UI_TEXT.priceLabel}: {skin.priceText || "-"}
-      </p>
-      <button
-        className="toolbar-button toolbar-button-primary card-save-button"
+      <div className="card-footer">
+        <p className="text card-price">
+          {UI_TEXT.priceLabel}: {skin.priceText || "-"}
+        </p>
+        <button
+          className="toolbar-button toolbar-button-primary card-save-button"
         type="button"
         disabled={saving || saved}
         onClick={() => void onSave(skin)}
-      >
-        {saving ? UI_TEXT.saveSkinPending : saved ? UI_TEXT.saveSkinDone : UI_TEXT.saveSkin}
-      </button>
+        >
+          {saving ? UI_TEXT.saveSkinPending : saved ? UI_TEXT.saveSkinDone : UI_TEXT.saveSkin}
+        </button>
+      </div>
     </div>
   </div>
 );
