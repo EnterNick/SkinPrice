@@ -11,6 +11,14 @@ const (
 	Label = "skin"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldMarketHashName holds the string denoting the market_hash_name field in the database.
+	FieldMarketHashName = "market_hash_name"
+	// FieldDisplayName holds the string denoting the display_name field in the database.
+	FieldDisplayName = "display_name"
+	// FieldIconURL holds the string denoting the icon_url field in the database.
+	FieldIconURL = "icon_url"
+	// FieldPageURL holds the string denoting the page_url field in the database.
+	FieldPageURL = "page_url"
 	// Table holds the table name of the skin in the database.
 	Table = "skins"
 )
@@ -18,6 +26,10 @@ const (
 // Columns holds all SQL columns for skin fields.
 var Columns = []string{
 	FieldID,
+	FieldMarketHashName,
+	FieldDisplayName,
+	FieldIconURL,
+	FieldPageURL,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -30,10 +42,37 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+var (
+	// MarketHashNameValidator is a validator for the "market_hash_name" field. It is called by the builders before save.
+	MarketHashNameValidator func(string) error
+	// DisplayNameValidator is a validator for the "display_name" field. It is called by the builders before save.
+	DisplayNameValidator func(string) error
+)
+
 // OrderOption defines the ordering options for the Skin queries.
 type OrderOption func(*sql.Selector)
 
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByMarketHashName orders the results by the market_hash_name field.
+func ByMarketHashName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMarketHashName, opts...).ToFunc()
+}
+
+// ByDisplayName orders the results by the display_name field.
+func ByDisplayName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDisplayName, opts...).ToFunc()
+}
+
+// ByIconURL orders the results by the icon_url field.
+func ByIconURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIconURL, opts...).ToFunc()
+}
+
+// ByPageURL orders the results by the page_url field.
+func ByPageURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPageURL, opts...).ToFunc()
 }

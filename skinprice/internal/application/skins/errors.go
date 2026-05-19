@@ -7,4 +7,5 @@ var (
 	ErrNewSkinsRequestBadStatus   = errors.New("new skins request returned bad status")
 	ErrNewSkinsResponseDecodeFail = errors.New("new skins response decode failed")
 	ErrNewSkinsResponseUnsuccess  = errors.New("new skins response unsuccessful")
+	ErrLisSkinsTokenMissing       = errors.New("lisskins token missing")
 )

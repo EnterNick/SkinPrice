@@ -53,6 +53,306 @@ func IDLTE(id int) predicate.Skin {
 	return predicate.Skin(sql.FieldLTE(FieldID, id))
 }
 
+// MarketHashName applies equality check predicate on the "market_hash_name" field. It's identical to MarketHashNameEQ.
+func MarketHashName(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldMarketHashName, v))
+}
+
+// DisplayName applies equality check predicate on the "display_name" field. It's identical to DisplayNameEQ.
+func DisplayName(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldDisplayName, v))
+}
+
+// IconURL applies equality check predicate on the "icon_url" field. It's identical to IconURLEQ.
+func IconURL(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldIconURL, v))
+}
+
+// PageURL applies equality check predicate on the "page_url" field. It's identical to PageURLEQ.
+func PageURL(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldPageURL, v))
+}
+
+// MarketHashNameEQ applies the EQ predicate on the "market_hash_name" field.
+func MarketHashNameEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldMarketHashName, v))
+}
+
+// MarketHashNameNEQ applies the NEQ predicate on the "market_hash_name" field.
+func MarketHashNameNEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldNEQ(FieldMarketHashName, v))
+}
+
+// MarketHashNameIn applies the In predicate on the "market_hash_name" field.
+func MarketHashNameIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldIn(FieldMarketHashName, vs...))
+}
+
+// MarketHashNameNotIn applies the NotIn predicate on the "market_hash_name" field.
+func MarketHashNameNotIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldNotIn(FieldMarketHashName, vs...))
+}
+
+// MarketHashNameGT applies the GT predicate on the "market_hash_name" field.
+func MarketHashNameGT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGT(FieldMarketHashName, v))
+}
+
+// MarketHashNameGTE applies the GTE predicate on the "market_hash_name" field.
+func MarketHashNameGTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGTE(FieldMarketHashName, v))
+}
+
+// MarketHashNameLT applies the LT predicate on the "market_hash_name" field.
+func MarketHashNameLT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLT(FieldMarketHashName, v))
+}
+
+// MarketHashNameLTE applies the LTE predicate on the "market_hash_name" field.
+func MarketHashNameLTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLTE(FieldMarketHashName, v))
+}
+
+// MarketHashNameContains applies the Contains predicate on the "market_hash_name" field.
+func MarketHashNameContains(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContains(FieldMarketHashName, v))
+}
+
+// MarketHashNameHasPrefix applies the HasPrefix predicate on the "market_hash_name" field.
+func MarketHashNameHasPrefix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasPrefix(FieldMarketHashName, v))
+}
+
+// MarketHashNameHasSuffix applies the HasSuffix predicate on the "market_hash_name" field.
+func MarketHashNameHasSuffix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasSuffix(FieldMarketHashName, v))
+}
+
+// MarketHashNameEqualFold applies the EqualFold predicate on the "market_hash_name" field.
+func MarketHashNameEqualFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEqualFold(FieldMarketHashName, v))
+}
+
+// MarketHashNameContainsFold applies the ContainsFold predicate on the "market_hash_name" field.
+func MarketHashNameContainsFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContainsFold(FieldMarketHashName, v))
+}
+
+// DisplayNameEQ applies the EQ predicate on the "display_name" field.
+func DisplayNameEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldDisplayName, v))
+}
+
+// DisplayNameNEQ applies the NEQ predicate on the "display_name" field.
+func DisplayNameNEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldNEQ(FieldDisplayName, v))
+}
+
+// DisplayNameIn applies the In predicate on the "display_name" field.
+func DisplayNameIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldIn(FieldDisplayName, vs...))
+}
+
+// DisplayNameNotIn applies the NotIn predicate on the "display_name" field.
+func DisplayNameNotIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldNotIn(FieldDisplayName, vs...))
+}
+
+// DisplayNameGT applies the GT predicate on the "display_name" field.
+func DisplayNameGT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGT(FieldDisplayName, v))
+}
+
+// DisplayNameGTE applies the GTE predicate on the "display_name" field.
+func DisplayNameGTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGTE(FieldDisplayName, v))
+}
+
+// DisplayNameLT applies the LT predicate on the "display_name" field.
+func DisplayNameLT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLT(FieldDisplayName, v))
+}
+
+// DisplayNameLTE applies the LTE predicate on the "display_name" field.
+func DisplayNameLTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLTE(FieldDisplayName, v))
+}
+
+// DisplayNameContains applies the Contains predicate on the "display_name" field.
+func DisplayNameContains(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContains(FieldDisplayName, v))
+}
+
+// DisplayNameHasPrefix applies the HasPrefix predicate on the "display_name" field.
+func DisplayNameHasPrefix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasPrefix(FieldDisplayName, v))
+}
+
+// DisplayNameHasSuffix applies the HasSuffix predicate on the "display_name" field.
+func DisplayNameHasSuffix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasSuffix(FieldDisplayName, v))
+}
+
+// DisplayNameEqualFold applies the EqualFold predicate on the "display_name" field.
+func DisplayNameEqualFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEqualFold(FieldDisplayName, v))
+}
+
+// DisplayNameContainsFold applies the ContainsFold predicate on the "display_name" field.
+func DisplayNameContainsFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContainsFold(FieldDisplayName, v))
+}
+
+// IconURLEQ applies the EQ predicate on the "icon_url" field.
+func IconURLEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldIconURL, v))
+}
+
+// IconURLNEQ applies the NEQ predicate on the "icon_url" field.
+func IconURLNEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldNEQ(FieldIconURL, v))
+}
+
+// IconURLIn applies the In predicate on the "icon_url" field.
+func IconURLIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldIn(FieldIconURL, vs...))
+}
+
+// IconURLNotIn applies the NotIn predicate on the "icon_url" field.
+func IconURLNotIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldNotIn(FieldIconURL, vs...))
+}
+
+// IconURLGT applies the GT predicate on the "icon_url" field.
+func IconURLGT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGT(FieldIconURL, v))
+}
+
+// IconURLGTE applies the GTE predicate on the "icon_url" field.
+func IconURLGTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGTE(FieldIconURL, v))
+}
+
+// IconURLLT applies the LT predicate on the "icon_url" field.
+func IconURLLT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLT(FieldIconURL, v))
+}
+
+// IconURLLTE applies the LTE predicate on the "icon_url" field.
+func IconURLLTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLTE(FieldIconURL, v))
+}
+
+// IconURLContains applies the Contains predicate on the "icon_url" field.
+func IconURLContains(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContains(FieldIconURL, v))
+}
+
+// IconURLHasPrefix applies the HasPrefix predicate on the "icon_url" field.
+func IconURLHasPrefix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasPrefix(FieldIconURL, v))
+}
+
+// IconURLHasSuffix applies the HasSuffix predicate on the "icon_url" field.
+func IconURLHasSuffix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasSuffix(FieldIconURL, v))
+}
+
+// IconURLIsNil applies the IsNil predicate on the "icon_url" field.
+func IconURLIsNil() predicate.Skin {
+	return predicate.Skin(sql.FieldIsNull(FieldIconURL))
+}
+
+// IconURLNotNil applies the NotNil predicate on the "icon_url" field.
+func IconURLNotNil() predicate.Skin {
+	return predicate.Skin(sql.FieldNotNull(FieldIconURL))
+}
+
+// IconURLEqualFold applies the EqualFold predicate on the "icon_url" field.
+func IconURLEqualFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEqualFold(FieldIconURL, v))
+}
+
+// IconURLContainsFold applies the ContainsFold predicate on the "icon_url" field.
+func IconURLContainsFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContainsFold(FieldIconURL, v))
+}
+
+// PageURLEQ applies the EQ predicate on the "page_url" field.
+func PageURLEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldPageURL, v))
+}
+
+// PageURLNEQ applies the NEQ predicate on the "page_url" field.
+func PageURLNEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldNEQ(FieldPageURL, v))
+}
+
+// PageURLIn applies the In predicate on the "page_url" field.
+func PageURLIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldIn(FieldPageURL, vs...))
+}
+
+// PageURLNotIn applies the NotIn predicate on the "page_url" field.
+func PageURLNotIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldNotIn(FieldPageURL, vs...))
+}
+
+// PageURLGT applies the GT predicate on the "page_url" field.
+func PageURLGT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGT(FieldPageURL, v))
+}
+
+// PageURLGTE applies the GTE predicate on the "page_url" field.
+func PageURLGTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGTE(FieldPageURL, v))
+}
+
+// PageURLLT applies the LT predicate on the "page_url" field.
+func PageURLLT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLT(FieldPageURL, v))
+}
+
+// PageURLLTE applies the LTE predicate on the "page_url" field.
+func PageURLLTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLTE(FieldPageURL, v))
+}
+
+// PageURLContains applies the Contains predicate on the "page_url" field.
+func PageURLContains(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContains(FieldPageURL, v))
+}
+
+// PageURLHasPrefix applies the HasPrefix predicate on the "page_url" field.
+func PageURLHasPrefix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasPrefix(FieldPageURL, v))
+}
+
+// PageURLHasSuffix applies the HasSuffix predicate on the "page_url" field.
+func PageURLHasSuffix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasSuffix(FieldPageURL, v))
+}
+
+// PageURLIsNil applies the IsNil predicate on the "page_url" field.
+func PageURLIsNil() predicate.Skin {
+	return predicate.Skin(sql.FieldIsNull(FieldPageURL))
+}
+
+// PageURLNotNil applies the NotNil predicate on the "page_url" field.
+func PageURLNotNil() predicate.Skin {
+	return predicate.Skin(sql.FieldNotNull(FieldPageURL))
+}
+
+// PageURLEqualFold applies the EqualFold predicate on the "page_url" field.
+func PageURLEqualFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEqualFold(FieldPageURL, v))
+}
+
+// PageURLContainsFold applies the ContainsFold predicate on the "page_url" field.
+func PageURLContainsFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContainsFold(FieldPageURL, v))
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Skin) predicate.Skin {
 	return predicate.Skin(sql.AndPredicates(predicates...))

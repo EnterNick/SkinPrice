@@ -4,10 +4,13 @@ package ent
 
 import (
 	"SkinPrice/skinprice/internal/adapters/database/ent/predicate"
+	"SkinPrice/skinprice/internal/adapters/database/ent/skin"
+	"SkinPrice/skinprice/internal/adapters/database/ent/sourcestate"
 	"context"
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -295,13 +298,17 @@ func (m *PriceSnapshotMutation) ResetEdge(name string) error {
 // SkinMutation represents an operation that mutates the Skin nodes in the graph.
 type SkinMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*Skin, error)
-	predicates    []predicate.Skin
+	op               Op
+	typ              string
+	id               *int
+	market_hash_name *string
+	display_name     *string
+	icon_url         *string
+	page_url         *string
+	clearedFields    map[string]struct{}
+	done             bool
+	oldValue         func(context.Context) (*Skin, error)
+	predicates       []predicate.Skin
 }
 
 var _ ent.Mutation = (*SkinMutation)(nil)
@@ -402,6 +409,176 @@ func (m *SkinMutation) IDs(ctx context.Context) ([]int, error) {
 	}
 }
 
+// SetMarketHashName sets the "market_hash_name" field.
+func (m *SkinMutation) SetMarketHashName(s string) {
+	m.market_hash_name = &s
+}
+
+// MarketHashName returns the value of the "market_hash_name" field in the mutation.
+func (m *SkinMutation) MarketHashName() (r string, exists bool) {
+	v := m.market_hash_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMarketHashName returns the old "market_hash_name" field's value of the Skin entity.
+// If the Skin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SkinMutation) OldMarketHashName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMarketHashName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMarketHashName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMarketHashName: %w", err)
+	}
+	return oldValue.MarketHashName, nil
+}
+
+// ResetMarketHashName resets all changes to the "market_hash_name" field.
+func (m *SkinMutation) ResetMarketHashName() {
+	m.market_hash_name = nil
+}
+
+// SetDisplayName sets the "display_name" field.
+func (m *SkinMutation) SetDisplayName(s string) {
+	m.display_name = &s
+}
+
+// DisplayName returns the value of the "display_name" field in the mutation.
+func (m *SkinMutation) DisplayName() (r string, exists bool) {
+	v := m.display_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDisplayName returns the old "display_name" field's value of the Skin entity.
+// If the Skin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SkinMutation) OldDisplayName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDisplayName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDisplayName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDisplayName: %w", err)
+	}
+	return oldValue.DisplayName, nil
+}
+
+// ResetDisplayName resets all changes to the "display_name" field.
+func (m *SkinMutation) ResetDisplayName() {
+	m.display_name = nil
+}
+
+// SetIconURL sets the "icon_url" field.
+func (m *SkinMutation) SetIconURL(s string) {
+	m.icon_url = &s
+}
+
+// IconURL returns the value of the "icon_url" field in the mutation.
+func (m *SkinMutation) IconURL() (r string, exists bool) {
+	v := m.icon_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIconURL returns the old "icon_url" field's value of the Skin entity.
+// If the Skin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SkinMutation) OldIconURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIconURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIconURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIconURL: %w", err)
+	}
+	return oldValue.IconURL, nil
+}
+
+// ClearIconURL clears the value of the "icon_url" field.
+func (m *SkinMutation) ClearIconURL() {
+	m.icon_url = nil
+	m.clearedFields[skin.FieldIconURL] = struct{}{}
+}
+
+// IconURLCleared returns if the "icon_url" field was cleared in this mutation.
+func (m *SkinMutation) IconURLCleared() bool {
+	_, ok := m.clearedFields[skin.FieldIconURL]
+	return ok
+}
+
+// ResetIconURL resets all changes to the "icon_url" field.
+func (m *SkinMutation) ResetIconURL() {
+	m.icon_url = nil
+	delete(m.clearedFields, skin.FieldIconURL)
+}
+
+// SetPageURL sets the "page_url" field.
+func (m *SkinMutation) SetPageURL(s string) {
+	m.page_url = &s
+}
+
+// PageURL returns the value of the "page_url" field in the mutation.
+func (m *SkinMutation) PageURL() (r string, exists bool) {
+	v := m.page_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPageURL returns the old "page_url" field's value of the Skin entity.
+// If the Skin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SkinMutation) OldPageURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPageURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPageURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPageURL: %w", err)
+	}
+	return oldValue.PageURL, nil
+}
+
+// ClearPageURL clears the value of the "page_url" field.
+func (m *SkinMutation) ClearPageURL() {
+	m.page_url = nil
+	m.clearedFields[skin.FieldPageURL] = struct{}{}
+}
+
+// PageURLCleared returns if the "page_url" field was cleared in this mutation.
+func (m *SkinMutation) PageURLCleared() bool {
+	_, ok := m.clearedFields[skin.FieldPageURL]
+	return ok
+}
+
+// ResetPageURL resets all changes to the "page_url" field.
+func (m *SkinMutation) ResetPageURL() {
+	m.page_url = nil
+	delete(m.clearedFields, skin.FieldPageURL)
+}
+
 // Where appends a list predicates to the SkinMutation builder.
 func (m *SkinMutation) Where(ps ...predicate.Skin) {
 	m.predicates = append(m.predicates, ps...)
@@ -436,7 +613,19 @@ func (m *SkinMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SkinMutation) Fields() []string {
-	fields := make([]string, 0, 0)
+	fields := make([]string, 0, 4)
+	if m.market_hash_name != nil {
+		fields = append(fields, skin.FieldMarketHashName)
+	}
+	if m.display_name != nil {
+		fields = append(fields, skin.FieldDisplayName)
+	}
+	if m.icon_url != nil {
+		fields = append(fields, skin.FieldIconURL)
+	}
+	if m.page_url != nil {
+		fields = append(fields, skin.FieldPageURL)
+	}
 	return fields
 }
 
@@ -444,6 +633,16 @@ func (m *SkinMutation) Fields() []string {
 // return value indicates that this field was not set, or was not defined in the
 // schema.
 func (m *SkinMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case skin.FieldMarketHashName:
+		return m.MarketHashName()
+	case skin.FieldDisplayName:
+		return m.DisplayName()
+	case skin.FieldIconURL:
+		return m.IconURL()
+	case skin.FieldPageURL:
+		return m.PageURL()
+	}
 	return nil, false
 }
 
@@ -451,6 +650,16 @@ func (m *SkinMutation) Field(name string) (ent.Value, bool) {
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
 func (m *SkinMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case skin.FieldMarketHashName:
+		return m.OldMarketHashName(ctx)
+	case skin.FieldDisplayName:
+		return m.OldDisplayName(ctx)
+	case skin.FieldIconURL:
+		return m.OldIconURL(ctx)
+	case skin.FieldPageURL:
+		return m.OldPageURL(ctx)
+	}
 	return nil, fmt.Errorf("unknown Skin field %s", name)
 }
 
@@ -459,6 +668,34 @@ func (m *SkinMutation) OldField(ctx context.Context, name string) (ent.Value, er
 // type.
 func (m *SkinMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case skin.FieldMarketHashName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMarketHashName(v)
+		return nil
+	case skin.FieldDisplayName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDisplayName(v)
+		return nil
+	case skin.FieldIconURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIconURL(v)
+		return nil
+	case skin.FieldPageURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPageURL(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Skin field %s", name)
 }
@@ -480,13 +717,22 @@ func (m *SkinMutation) AddedField(name string) (ent.Value, bool) {
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
 func (m *SkinMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown Skin numeric field %s", name)
 }
 
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *SkinMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(skin.FieldIconURL) {
+		fields = append(fields, skin.FieldIconURL)
+	}
+	if m.FieldCleared(skin.FieldPageURL) {
+		fields = append(fields, skin.FieldPageURL)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -499,12 +745,34 @@ func (m *SkinMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *SkinMutation) ClearField(name string) error {
+	switch name {
+	case skin.FieldIconURL:
+		m.ClearIconURL()
+		return nil
+	case skin.FieldPageURL:
+		m.ClearPageURL()
+		return nil
+	}
 	return fmt.Errorf("unknown Skin nullable field %s", name)
 }
 
 // ResetField resets all changes in the mutation for the field with the given name.
 // It returns an error if the field is not defined in the schema.
 func (m *SkinMutation) ResetField(name string) error {
+	switch name {
+	case skin.FieldMarketHashName:
+		m.ResetMarketHashName()
+		return nil
+	case skin.FieldDisplayName:
+		m.ResetDisplayName()
+		return nil
+	case skin.FieldIconURL:
+		m.ResetIconURL()
+		return nil
+	case skin.FieldPageURL:
+		m.ResetPageURL()
+		return nil
+	}
 	return fmt.Errorf("unknown Skin field %s", name)
 }
 
@@ -559,13 +827,16 @@ func (m *SkinMutation) ResetEdge(name string) error {
 // SourceStateMutation represents an operation that mutates the SourceState nodes in the graph.
 type SourceStateMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*SourceState, error)
-	predicates    []predicate.SourceState
+	op                  Op
+	typ                 string
+	id                  *int
+	source              *string
+	api_token_encrypted *string
+	updated_at          *time.Time
+	clearedFields       map[string]struct{}
+	done                bool
+	oldValue            func(context.Context) (*SourceState, error)
+	predicates          []predicate.SourceState
 }
 
 var _ ent.Mutation = (*SourceStateMutation)(nil)
@@ -666,6 +937,127 @@ func (m *SourceStateMutation) IDs(ctx context.Context) ([]int, error) {
 	}
 }
 
+// SetSource sets the "source" field.
+func (m *SourceStateMutation) SetSource(s string) {
+	m.source = &s
+}
+
+// Source returns the value of the "source" field in the mutation.
+func (m *SourceStateMutation) Source() (r string, exists bool) {
+	v := m.source
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSource returns the old "source" field's value of the SourceState entity.
+// If the SourceState object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SourceStateMutation) OldSource(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSource is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSource requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSource: %w", err)
+	}
+	return oldValue.Source, nil
+}
+
+// ResetSource resets all changes to the "source" field.
+func (m *SourceStateMutation) ResetSource() {
+	m.source = nil
+}
+
+// SetAPITokenEncrypted sets the "api_token_encrypted" field.
+func (m *SourceStateMutation) SetAPITokenEncrypted(s string) {
+	m.api_token_encrypted = &s
+}
+
+// APITokenEncrypted returns the value of the "api_token_encrypted" field in the mutation.
+func (m *SourceStateMutation) APITokenEncrypted() (r string, exists bool) {
+	v := m.api_token_encrypted
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAPITokenEncrypted returns the old "api_token_encrypted" field's value of the SourceState entity.
+// If the SourceState object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SourceStateMutation) OldAPITokenEncrypted(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAPITokenEncrypted is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAPITokenEncrypted requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAPITokenEncrypted: %w", err)
+	}
+	return oldValue.APITokenEncrypted, nil
+}
+
+// ResetAPITokenEncrypted resets all changes to the "api_token_encrypted" field.
+func (m *SourceStateMutation) ResetAPITokenEncrypted() {
+	m.api_token_encrypted = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *SourceStateMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *SourceStateMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the SourceState entity.
+// If the SourceState object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SourceStateMutation) OldUpdatedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ClearUpdatedAt clears the value of the "updated_at" field.
+func (m *SourceStateMutation) ClearUpdatedAt() {
+	m.updated_at = nil
+	m.clearedFields[sourcestate.FieldUpdatedAt] = struct{}{}
+}
+
+// UpdatedAtCleared returns if the "updated_at" field was cleared in this mutation.
+func (m *SourceStateMutation) UpdatedAtCleared() bool {
+	_, ok := m.clearedFields[sourcestate.FieldUpdatedAt]
+	return ok
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *SourceStateMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+	delete(m.clearedFields, sourcestate.FieldUpdatedAt)
+}
+
 // Where appends a list predicates to the SourceStateMutation builder.
 func (m *SourceStateMutation) Where(ps ...predicate.SourceState) {
 	m.predicates = append(m.predicates, ps...)
@@ -700,7 +1092,16 @@ func (m *SourceStateMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SourceStateMutation) Fields() []string {
-	fields := make([]string, 0, 0)
+	fields := make([]string, 0, 3)
+	if m.source != nil {
+		fields = append(fields, sourcestate.FieldSource)
+	}
+	if m.api_token_encrypted != nil {
+		fields = append(fields, sourcestate.FieldAPITokenEncrypted)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, sourcestate.FieldUpdatedAt)
+	}
 	return fields
 }
 
@@ -708,6 +1109,14 @@ func (m *SourceStateMutation) Fields() []string {
 // return value indicates that this field was not set, or was not defined in the
 // schema.
 func (m *SourceStateMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case sourcestate.FieldSource:
+		return m.Source()
+	case sourcestate.FieldAPITokenEncrypted:
+		return m.APITokenEncrypted()
+	case sourcestate.FieldUpdatedAt:
+		return m.UpdatedAt()
+	}
 	return nil, false
 }
 
@@ -715,6 +1124,14 @@ func (m *SourceStateMutation) Field(name string) (ent.Value, bool) {
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
 func (m *SourceStateMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case sourcestate.FieldSource:
+		return m.OldSource(ctx)
+	case sourcestate.FieldAPITokenEncrypted:
+		return m.OldAPITokenEncrypted(ctx)
+	case sourcestate.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	}
 	return nil, fmt.Errorf("unknown SourceState field %s", name)
 }
 
@@ -723,6 +1140,27 @@ func (m *SourceStateMutation) OldField(ctx context.Context, name string) (ent.Va
 // type.
 func (m *SourceStateMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case sourcestate.FieldSource:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSource(v)
+		return nil
+	case sourcestate.FieldAPITokenEncrypted:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAPITokenEncrypted(v)
+		return nil
+	case sourcestate.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
 	}
 	return fmt.Errorf("unknown SourceState field %s", name)
 }
@@ -744,13 +1182,19 @@ func (m *SourceStateMutation) AddedField(name string) (ent.Value, bool) {
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
 func (m *SourceStateMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown SourceState numeric field %s", name)
 }
 
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *SourceStateMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(sourcestate.FieldUpdatedAt) {
+		fields = append(fields, sourcestate.FieldUpdatedAt)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -763,12 +1207,28 @@ func (m *SourceStateMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *SourceStateMutation) ClearField(name string) error {
+	switch name {
+	case sourcestate.FieldUpdatedAt:
+		m.ClearUpdatedAt()
+		return nil
+	}
 	return fmt.Errorf("unknown SourceState nullable field %s", name)
 }
 
 // ResetField resets all changes in the mutation for the field with the given name.
 // It returns an error if the field is not defined in the schema.
 func (m *SourceStateMutation) ResetField(name string) error {
+	switch name {
+	case sourcestate.FieldSource:
+		m.ResetSource()
+		return nil
+	case sourcestate.FieldAPITokenEncrypted:
+		m.ResetAPITokenEncrypted()
+		return nil
+	case sourcestate.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	}
 	return fmt.Errorf("unknown SourceState field %s", name)
 }
 

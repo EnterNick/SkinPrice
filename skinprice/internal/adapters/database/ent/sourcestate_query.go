@@ -258,6 +258,18 @@ func (_q *SourceStateQuery) Clone() *SourceStateQuery {
 
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		Source string `json:"source,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.SourceState.Query().
+//		GroupBy(sourcestate.FieldSource).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
 func (_q *SourceStateQuery) GroupBy(field string, fields ...string) *SourceStateGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
 	grbuild := &SourceStateGroupBy{build: _q}
@@ -269,6 +281,16 @@ func (_q *SourceStateQuery) GroupBy(field string, fields ...string) *SourceState
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		Source string `json:"source,omitempty"`
+//	}
+//
+//	client.SourceState.Query().
+//		Select(sourcestate.FieldSource).
+//		Scan(ctx, &v)
 func (_q *SourceStateQuery) Select(fields ...string) *SourceStateSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
 	sbuild := &SourceStateSelect{SourceStateQuery: _q}

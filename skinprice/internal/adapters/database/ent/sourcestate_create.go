@@ -5,7 +5,9 @@ package ent
 import (
 	"SkinPrice/skinprice/internal/adapters/database/ent/sourcestate"
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -18,6 +20,32 @@ type SourceStateCreate struct {
 	hooks    []Hook
 }
 
+// SetSource sets the "source" field.
+func (_c *SourceStateCreate) SetSource(v string) *SourceStateCreate {
+	_c.mutation.SetSource(v)
+	return _c
+}
+
+// SetAPITokenEncrypted sets the "api_token_encrypted" field.
+func (_c *SourceStateCreate) SetAPITokenEncrypted(v string) *SourceStateCreate {
+	_c.mutation.SetAPITokenEncrypted(v)
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *SourceStateCreate) SetUpdatedAt(v time.Time) *SourceStateCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *SourceStateCreate) SetNillableUpdatedAt(v *time.Time) *SourceStateCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
 // Mutation returns the SourceStateMutation object of the builder.
 func (_c *SourceStateCreate) Mutation() *SourceStateMutation {
 	return _c.mutation
@@ -25,6 +53,7 @@ func (_c *SourceStateCreate) Mutation() *SourceStateMutation {
 
 // Save creates the SourceState in the database.
 func (_c *SourceStateCreate) Save(ctx context.Context) (*SourceState, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -50,8 +79,32 @@ func (_c *SourceStateCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *SourceStateCreate) defaults() {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := sourcestate.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *SourceStateCreate) check() error {
+	if _, ok := _c.mutation.Source(); !ok {
+		return &ValidationError{Name: "source", err: errors.New(`ent: missing required field "SourceState.source"`)}
+	}
+	if v, ok := _c.mutation.Source(); ok {
+		if err := sourcestate.SourceValidator(v); err != nil {
+			return &ValidationError{Name: "source", err: fmt.Errorf(`ent: validator failed for field "SourceState.source": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.APITokenEncrypted(); !ok {
+		return &ValidationError{Name: "api_token_encrypted", err: errors.New(`ent: missing required field "SourceState.api_token_encrypted"`)}
+	}
+	if v, ok := _c.mutation.APITokenEncrypted(); ok {
+		if err := sourcestate.APITokenEncryptedValidator(v); err != nil {
+			return &ValidationError{Name: "api_token_encrypted", err: fmt.Errorf(`ent: validator failed for field "SourceState.api_token_encrypted": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -78,6 +131,18 @@ func (_c *SourceStateCreate) createSpec() (*SourceState, *sqlgraph.CreateSpec) {
 		_node = &SourceState{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(sourcestate.Table, sqlgraph.NewFieldSpec(sourcestate.FieldID, field.TypeInt))
 	)
+	if value, ok := _c.mutation.Source(); ok {
+		_spec.SetField(sourcestate.FieldSource, field.TypeString, value)
+		_node.Source = value
+	}
+	if value, ok := _c.mutation.APITokenEncrypted(); ok {
+		_spec.SetField(sourcestate.FieldAPITokenEncrypted, field.TypeString, value)
+		_node.APITokenEncrypted = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(sourcestate.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = &value
+	}
 	return _node, _spec
 }
 
@@ -99,6 +164,7 @@ func (_c *SourceStateCreateBulk) Save(ctx context.Context) ([]*SourceState, erro
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*SourceStateMutation)
 				if !ok {

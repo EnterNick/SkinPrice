@@ -27,6 +27,74 @@ func (_u *SkinUpdate) Where(ps ...predicate.Skin) *SkinUpdate {
 	return _u
 }
 
+// SetMarketHashName sets the "market_hash_name" field.
+func (_u *SkinUpdate) SetMarketHashName(v string) *SkinUpdate {
+	_u.mutation.SetMarketHashName(v)
+	return _u
+}
+
+// SetNillableMarketHashName sets the "market_hash_name" field if the given value is not nil.
+func (_u *SkinUpdate) SetNillableMarketHashName(v *string) *SkinUpdate {
+	if v != nil {
+		_u.SetMarketHashName(*v)
+	}
+	return _u
+}
+
+// SetDisplayName sets the "display_name" field.
+func (_u *SkinUpdate) SetDisplayName(v string) *SkinUpdate {
+	_u.mutation.SetDisplayName(v)
+	return _u
+}
+
+// SetNillableDisplayName sets the "display_name" field if the given value is not nil.
+func (_u *SkinUpdate) SetNillableDisplayName(v *string) *SkinUpdate {
+	if v != nil {
+		_u.SetDisplayName(*v)
+	}
+	return _u
+}
+
+// SetIconURL sets the "icon_url" field.
+func (_u *SkinUpdate) SetIconURL(v string) *SkinUpdate {
+	_u.mutation.SetIconURL(v)
+	return _u
+}
+
+// SetNillableIconURL sets the "icon_url" field if the given value is not nil.
+func (_u *SkinUpdate) SetNillableIconURL(v *string) *SkinUpdate {
+	if v != nil {
+		_u.SetIconURL(*v)
+	}
+	return _u
+}
+
+// ClearIconURL clears the value of the "icon_url" field.
+func (_u *SkinUpdate) ClearIconURL() *SkinUpdate {
+	_u.mutation.ClearIconURL()
+	return _u
+}
+
+// SetPageURL sets the "page_url" field.
+func (_u *SkinUpdate) SetPageURL(v string) *SkinUpdate {
+	_u.mutation.SetPageURL(v)
+	return _u
+}
+
+// SetNillablePageURL sets the "page_url" field if the given value is not nil.
+func (_u *SkinUpdate) SetNillablePageURL(v *string) *SkinUpdate {
+	if v != nil {
+		_u.SetPageURL(*v)
+	}
+	return _u
+}
+
+// ClearPageURL clears the value of the "page_url" field.
+func (_u *SkinUpdate) ClearPageURL() *SkinUpdate {
+	_u.mutation.ClearPageURL()
+	return _u
+}
+
 // Mutation returns the SkinMutation object of the builder.
 func (_u *SkinUpdate) Mutation() *SkinMutation {
 	return _u.mutation
@@ -59,7 +127,25 @@ func (_u *SkinUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *SkinUpdate) check() error {
+	if v, ok := _u.mutation.MarketHashName(); ok {
+		if err := skin.MarketHashNameValidator(v); err != nil {
+			return &ValidationError{Name: "market_hash_name", err: fmt.Errorf(`ent: validator failed for field "Skin.market_hash_name": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.DisplayName(); ok {
+		if err := skin.DisplayNameValidator(v); err != nil {
+			return &ValidationError{Name: "display_name", err: fmt.Errorf(`ent: validator failed for field "Skin.display_name": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *SkinUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(skin.Table, skin.Columns, sqlgraph.NewFieldSpec(skin.FieldID, field.TypeInt))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -67,6 +153,24 @@ func (_u *SkinUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.MarketHashName(); ok {
+		_spec.SetField(skin.FieldMarketHashName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.DisplayName(); ok {
+		_spec.SetField(skin.FieldDisplayName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.IconURL(); ok {
+		_spec.SetField(skin.FieldIconURL, field.TypeString, value)
+	}
+	if _u.mutation.IconURLCleared() {
+		_spec.ClearField(skin.FieldIconURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.PageURL(); ok {
+		_spec.SetField(skin.FieldPageURL, field.TypeString, value)
+	}
+	if _u.mutation.PageURLCleared() {
+		_spec.ClearField(skin.FieldPageURL, field.TypeString)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -86,6 +190,74 @@ type SkinUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *SkinMutation
+}
+
+// SetMarketHashName sets the "market_hash_name" field.
+func (_u *SkinUpdateOne) SetMarketHashName(v string) *SkinUpdateOne {
+	_u.mutation.SetMarketHashName(v)
+	return _u
+}
+
+// SetNillableMarketHashName sets the "market_hash_name" field if the given value is not nil.
+func (_u *SkinUpdateOne) SetNillableMarketHashName(v *string) *SkinUpdateOne {
+	if v != nil {
+		_u.SetMarketHashName(*v)
+	}
+	return _u
+}
+
+// SetDisplayName sets the "display_name" field.
+func (_u *SkinUpdateOne) SetDisplayName(v string) *SkinUpdateOne {
+	_u.mutation.SetDisplayName(v)
+	return _u
+}
+
+// SetNillableDisplayName sets the "display_name" field if the given value is not nil.
+func (_u *SkinUpdateOne) SetNillableDisplayName(v *string) *SkinUpdateOne {
+	if v != nil {
+		_u.SetDisplayName(*v)
+	}
+	return _u
+}
+
+// SetIconURL sets the "icon_url" field.
+func (_u *SkinUpdateOne) SetIconURL(v string) *SkinUpdateOne {
+	_u.mutation.SetIconURL(v)
+	return _u
+}
+
+// SetNillableIconURL sets the "icon_url" field if the given value is not nil.
+func (_u *SkinUpdateOne) SetNillableIconURL(v *string) *SkinUpdateOne {
+	if v != nil {
+		_u.SetIconURL(*v)
+	}
+	return _u
+}
+
+// ClearIconURL clears the value of the "icon_url" field.
+func (_u *SkinUpdateOne) ClearIconURL() *SkinUpdateOne {
+	_u.mutation.ClearIconURL()
+	return _u
+}
+
+// SetPageURL sets the "page_url" field.
+func (_u *SkinUpdateOne) SetPageURL(v string) *SkinUpdateOne {
+	_u.mutation.SetPageURL(v)
+	return _u
+}
+
+// SetNillablePageURL sets the "page_url" field if the given value is not nil.
+func (_u *SkinUpdateOne) SetNillablePageURL(v *string) *SkinUpdateOne {
+	if v != nil {
+		_u.SetPageURL(*v)
+	}
+	return _u
+}
+
+// ClearPageURL clears the value of the "page_url" field.
+func (_u *SkinUpdateOne) ClearPageURL() *SkinUpdateOne {
+	_u.mutation.ClearPageURL()
+	return _u
 }
 
 // Mutation returns the SkinMutation object of the builder.
@@ -133,7 +305,25 @@ func (_u *SkinUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *SkinUpdateOne) check() error {
+	if v, ok := _u.mutation.MarketHashName(); ok {
+		if err := skin.MarketHashNameValidator(v); err != nil {
+			return &ValidationError{Name: "market_hash_name", err: fmt.Errorf(`ent: validator failed for field "Skin.market_hash_name": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.DisplayName(); ok {
+		if err := skin.DisplayNameValidator(v); err != nil {
+			return &ValidationError{Name: "display_name", err: fmt.Errorf(`ent: validator failed for field "Skin.display_name": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *SkinUpdateOne) sqlSave(ctx context.Context) (_node *Skin, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(skin.Table, skin.Columns, sqlgraph.NewFieldSpec(skin.FieldID, field.TypeInt))
 	id, ok := _u.mutation.ID()
 	if !ok {
@@ -158,6 +348,24 @@ func (_u *SkinUpdateOne) sqlSave(ctx context.Context) (_node *Skin, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.MarketHashName(); ok {
+		_spec.SetField(skin.FieldMarketHashName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.DisplayName(); ok {
+		_spec.SetField(skin.FieldDisplayName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.IconURL(); ok {
+		_spec.SetField(skin.FieldIconURL, field.TypeString, value)
+	}
+	if _u.mutation.IconURLCleared() {
+		_spec.ClearField(skin.FieldIconURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.PageURL(); ok {
+		_spec.SetField(skin.FieldPageURL, field.TypeString, value)
+	}
+	if _u.mutation.PageURLCleared() {
+		_spec.ClearField(skin.FieldPageURL, field.TypeString)
 	}
 	_node = &Skin{config: _u.config}
 	_spec.Assign = _node.assignValues

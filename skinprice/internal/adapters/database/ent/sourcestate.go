@@ -6,6 +6,7 @@ import (
 	"SkinPrice/skinprice/internal/adapters/database/ent/sourcestate"
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -13,9 +14,15 @@ import (
 
 // SourceState is the model entity for the SourceState schema.
 type SourceState struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
-	ID           int `json:"id,omitempty"`
+	ID int `json:"id,omitempty"`
+	// Source holds the value of the "source" field.
+	Source string `json:"source,omitempty"`
+	// APITokenEncrypted holds the value of the "api_token_encrypted" field.
+	APITokenEncrypted string `json:"api_token_encrypted,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt    *time.Time `json:"updated_at,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -26,6 +33,10 @@ func (*SourceState) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case sourcestate.FieldID:
 			values[i] = new(sql.NullInt64)
+		case sourcestate.FieldSource, sourcestate.FieldAPITokenEncrypted:
+			values[i] = new(sql.NullString)
+		case sourcestate.FieldUpdatedAt:
+			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -47,6 +58,25 @@ func (_m *SourceState) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			_m.ID = int(value.Int64)
+		case sourcestate.FieldSource:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field source", values[i])
+			} else if value.Valid {
+				_m.Source = value.String
+			}
+		case sourcestate.FieldAPITokenEncrypted:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field api_token_encrypted", values[i])
+			} else if value.Valid {
+				_m.APITokenEncrypted = value.String
+			}
+		case sourcestate.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				_m.UpdatedAt = new(time.Time)
+				*_m.UpdatedAt = value.Time
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -82,7 +112,17 @@ func (_m *SourceState) Unwrap() *SourceState {
 func (_m *SourceState) String() string {
 	var builder strings.Builder
 	builder.WriteString("SourceState(")
-	builder.WriteString(fmt.Sprintf("id=%v", _m.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("source=")
+	builder.WriteString(_m.Source)
+	builder.WriteString(", ")
+	builder.WriteString("api_token_encrypted=")
+	builder.WriteString(_m.APITokenEncrypted)
+	builder.WriteString(", ")
+	if v := _m.UpdatedAt; v != nil {
+		builder.WriteString("updated_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }
