@@ -38,6 +38,8 @@ func (a *App) registerRoutes() {
 		panic(err)
 	}
 	sourceStateStorage := &adapterdbsourcestate.Storage{Conn: a.backend.Factory.DBConnection()}
+	getLisSkinsTokenUC := skins.GetLisSkinsToken{Storage: sourceStateStorage, Cipher: tokenCipher}
+	lisSkinsStorage.TokenProvider = getLisSkinsTokenUC
 	saveLisSkinsTokenUC := skins.SaveLisSkinsToken{Storage: sourceStateStorage, Cipher: tokenCipher}
 	hasLisSkinsTokenUC := skins.HasLisSkinsToken{Storage: sourceStateStorage}
 	clearLisSkinsTokenUC := skins.ClearLisSkinsToken{Storage: sourceStateStorage}

@@ -16,9 +16,20 @@ import (
 )
 
 type Storage struct {
-	Client  *http.Client
-	BaseURL string
-	Logger  *slog.Logger
+	Client        *http.Client
+	BaseURL       string
+	Logger        *slog.Logger
+	TokenProvider LisSkinsTokenProvider
+}
+
+type LisSkinsTokenProvider interface {
+	Execute() (string, error)
+}
+
+const lisSkinsAuthHeader = "Authorization"
+
+func buildLisSkinsAuthHeaderValue(token string) string {
+	return "Bearer " + token
 }
 
 type marketSearchResponse struct {
@@ -142,6 +153,14 @@ func (s *Storage) GetByMarketHashName(marketHashName, currency string) (*skins.N
 }
 
 func (s *Storage) fetch(endpoint string) (_ marketSearchResponse, err error) {
+	token, err := s.TokenProvider.Execute()
+	if err != nil {
+		return marketSearchResponse{}, err
+	}
+	if token == "" {
+		return marketSearchResponse{}, skins.ErrLisSkinsTokenMissing
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
 
@@ -149,7 +168,7 @@ func (s *Storage) fetch(endpoint string) (_ marketSearchResponse, err error) {
 	if err != nil {
 		return marketSearchResponse{}, fmt.Errorf("%w: %w", skins.ErrNewSkinsRequestFailed, err)
 	}
-	setLisSkinsHeaders(req)
+	setLisSkinsHeaders(req, token)
 
 	resp, err := s.Client.Do(req)
 	if err != nil {
@@ -161,6 +180,9 @@ func (s *Storage) fetch(endpoint string) (_ marketSearchResponse, err error) {
 		}
 	}()
 
+	if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
+		return marketSearchResponse{}, skins.ErrLisSkinsTokenInvalid
+	}
 	if resp.StatusCode != http.StatusOK {
 		return marketSearchResponse{}, fmt.Errorf("%w: %d", skins.ErrNewSkinsRequestBadStatus, resp.StatusCode)
 	}
@@ -175,11 +197,12 @@ func (s *Storage) fetch(endpoint string) (_ marketSearchResponse, err error) {
 	return payload, nil
 }
 
-func setLisSkinsHeaders(req *http.Request) {
+func setLisSkinsHeaders(req *http.Request, token string) {
 	req.Header.Set("Accept", "application/json, text/plain, */*")
 	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
 	req.Header.Set("Referer", "https://lis-skins.ru/")
 	req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36")
+	req.Header.Set(lisSkinsAuthHeader, buildLisSkinsAuthHeaderValue(token))
 }
 
 func buildLisSkinsMarketSearchParams(criteria skins.SearchCriteria, params *application.Pagination, currency string) url.Values {
