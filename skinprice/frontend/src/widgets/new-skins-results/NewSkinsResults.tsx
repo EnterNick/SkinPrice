@@ -7,6 +7,7 @@ import type { NewSkin } from "../../entities/skin/model/types";
 
 type NewSkinsResultsProps = {
   items: NewSkin[];
+  loading: boolean;
   loadingMore: boolean;
   hasMore: boolean;
   savingIds: Record<string, boolean>;
@@ -17,6 +18,7 @@ type NewSkinsResultsProps = {
 
 export const NewSkinsResults: React.FC<NewSkinsResultsProps> = ({
   items,
+  loading,
   loadingMore,
   hasMore,
   savingIds,
@@ -25,6 +27,23 @@ export const NewSkinsResults: React.FC<NewSkinsResultsProps> = ({
   onSave,
 }) => (
   <>
+    {loading && (
+      <CardGrid
+        className="search-results"
+        items={Array.from({ length: 8 }, (_, idx) => idx)}
+        renderItem={(idx) => (
+          <div key={idx} className="card card-skeleton" aria-hidden="true">
+            <div className="skeleton-image" />
+            <div className="card-body">
+              <div className="skeleton-line skeleton-line-title" />
+              <div className="skeleton-line" />
+              <div className="skeleton-line" />
+              <div className="skeleton-line skeleton-line-short" />
+            </div>
+          </div>
+        )}
+      />
+    )}
     <CardGrid
       className="search-results"
       items={items}
@@ -38,14 +57,14 @@ export const NewSkinsResults: React.FC<NewSkinsResultsProps> = ({
         />
       )}
     />
-    {hasMore && !loadingMore && (
+    {!loading && hasMore && !loadingMore && (
       <div className="load-more-wrap">
         <button className="toolbar-button toolbar-button-primary" type="button" onClick={() => void onLoadMore()}>
           {UI_TEXT.loadMore}
         </button>
       </div>
     )}
-    {loadingMore && <LoadingState text={UI_TEXT.loadingMore} />}
-    {!hasMore && <StatusBox text={UI_TEXT.listFullyLoaded} />}
+    {!loading && loadingMore && <LoadingState text={UI_TEXT.loadingMore} />}
+    {!loading && !hasMore && items.length > 0 && <StatusBox text={UI_TEXT.listFullyLoaded} />}
   </>
 );
