@@ -839,6 +839,11 @@ body {
   z-index: 5;
 }
 
+.skins-table tbody tr:nth-last-child(-n + 3) .row-actions-dropdown {
+  top: auto;
+  bottom: calc(100% + 8px);
+}
+
 .row-actions-item {
   width: 100%;
   border: 1px solid transparent;
