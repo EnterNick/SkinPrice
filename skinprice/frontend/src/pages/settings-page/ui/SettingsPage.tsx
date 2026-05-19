@@ -130,10 +130,10 @@ export const SettingsPage: React.FC = () => {
   return (
     <div className="settings-page">
       <PageHeader
-        eyebrow={UI_TEXT.settingsEyebrow}
+        sectionLabel={UI_TEXT.settingsEyebrow}
         title={UI_TEXT.settingsTitle}
         actions={
-          <div className="new-skins-toolbar">
+          <div className="toolbar-group">
             <button className="toolbar-button" type="button" onClick={() => navigate(ROUTES.home)}>
               {UI_TEXT.ctaToHome}
             </button>

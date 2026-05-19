@@ -71,10 +71,10 @@ export const NewSkinsPage: React.FC = () => {
   return (
     <div className="new-skins-page">
       <PageHeader
-        eyebrow={UI_TEXT.searchEyebrow}
+        sectionLabel={UI_TEXT.searchEyebrow}
         title={UI_TEXT.newSkinsTitle}
         actions={
-          <div className="new-skins-toolbar">
+          <div className="toolbar-group">
             <button className="toolbar-button" type="button" onClick={() => navigate(ROUTES.home)}>
               {UI_TEXT.ctaToHome}
             </button>

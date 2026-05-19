@@ -263,10 +263,11 @@ body {
   gap: 16px;
 }
 
-.saved-skins-toolbar {
+.toolbar-group {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  justify-content: flex-end;
   -webkit-app-region: no-drag;
 }
 
@@ -278,7 +279,16 @@ body {
   flex-wrap: wrap;
 }
 
-.eyebrow {
+.page-header-content {
+  min-width: 0;
+}
+
+.page-header-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.section-label {
   color: #f59e0b;
   font-size: 12px;
   letter-spacing: 0.18em;
@@ -409,11 +419,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  -webkit-app-region: no-drag;
-}
-
-.new-skins-toolbar {
-  display: flex;
   -webkit-app-region: no-drag;
 }
 
