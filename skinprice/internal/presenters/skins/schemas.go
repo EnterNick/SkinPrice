@@ -89,3 +89,11 @@ type UpdateAllSavedSkinsPricesResponse struct {
 type DeleteSavedSkinRequest struct {
 	MarketHashName string `json:"market_hash_name"`
 }
+
+type SetLisSkinsTokenRequest struct {
+	Token string `json:"token"`
+}
+
+type LisSkinsTokenStatusResponse struct {
+	HasToken bool `json:"hasToken"`
+}

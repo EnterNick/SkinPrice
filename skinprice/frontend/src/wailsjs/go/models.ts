@@ -218,6 +218,31 @@ export namespace skins {
 		    return a;
 		}
 	}
+
+	export class LisSkinsTokenStatusResponse {
+	    hasToken: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new LisSkinsTokenStatusResponse(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.hasToken = source["hasToken"];
+	    }
+	}
+	export class SetLisSkinsTokenRequest {
+	    token: string;
+
+	    static createFrom(source: any = {}) {
+	        return new SetLisSkinsTokenRequest(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.token = source["token"];
+	    }
+	}
 	export class SearchNewSkinsFilter {
 	    market_hash_name?: string;
 	    source: string;

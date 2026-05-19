@@ -2,6 +2,7 @@ package main
 
 import (
 	adapterdbskins "SkinPrice/skinprice/internal/adapters/database/skins"
+	adapterdbsourcestate "SkinPrice/skinprice/internal/adapters/database/sourcestate"
 	adapterlisskins "SkinPrice/skinprice/internal/adapters/http/lisskins"
 	adaptersteam "SkinPrice/skinprice/internal/adapters/http/steam"
 	"SkinPrice/skinprice/internal/application/skins"
@@ -9,6 +10,7 @@ import (
 	presenterskins "SkinPrice/skinprice/internal/presenters/skins"
 	"SkinPrice/skinprice/internal/shared/errx"
 	"SkinPrice/skinprice/internal/shared/logx"
+	sharedcrypto "SkinPrice/skinprice/internal/shared/utils/crypto"
 	"log/slog"
 )
 
@@ -31,8 +33,52 @@ func (a *App) registerRoutes() {
 	updateSavedSkinPriceUC := skins.UpdateSavedSkinPrice{Updater: saveSkinStorage}
 	updateAllSavedSkinsPricesUC := skins.UpdateAllSavedSkinsPrices{Updater: saveSkinStorage}
 	deleteSavedSkinUC := skins.DeleteSavedSkin{Deleter: saveSkinStorage}
-	a.skinsEndpoints = presenterskins.NewEndpoints(searchNewSkinsUC, saveSkinUC, getSavedSkinsUC, updateSavedSkinPriceUC, updateAllSavedSkinsPricesUC, deleteSavedSkinUC)
+	tokenCipher, err := sharedcrypto.NewTokenCipher(cfg.TokenEncryptionKey)
+	if err != nil {
+		panic(err)
+	}
+	sourceStateStorage := &adapterdbsourcestate.Storage{Conn: a.backend.Factory.DBConnection()}
+	saveLisSkinsTokenUC := skins.SaveLisSkinsToken{Storage: sourceStateStorage, Cipher: tokenCipher}
+	hasLisSkinsTokenUC := skins.HasLisSkinsToken{Storage: sourceStateStorage}
+	clearLisSkinsTokenUC := skins.ClearLisSkinsToken{Storage: sourceStateStorage}
+	a.skinsEndpoints = presenterskins.NewEndpoints(searchNewSkinsUC, saveSkinUC, getSavedSkinsUC, updateSavedSkinPriceUC, updateAllSavedSkinsPricesUC, deleteSavedSkinUC, saveLisSkinsTokenUC, hasLisSkinsTokenUC, clearLisSkinsTokenUC)
 	a.logger.Info("routes registered")
+}
+
+func (a *App) SetLisSkinsToken(payload presenterskins.SetLisSkinsTokenRequest) error {
+	logger := logx.WithComponent(a.logger, "route")
+	logger.Info("set lisskins token requested")
+	err := a.skinsEndpoints.SetLisSkinsToken(payload)
+	if err != nil {
+		logRouteError(logger, "set lisskins token failed", err)
+		return errx.FromError(err, "invalid token")
+	}
+	logger.Info("set lisskins token completed")
+	return nil
+}
+
+func (a *App) HasLisSkinsToken() (presenterskins.LisSkinsTokenStatusResponse, error) {
+	logger := logx.WithComponent(a.logger, "route")
+	logger.Info("check lisskins token status requested")
+	response, err := a.skinsEndpoints.GetLisSkinsTokenStatus()
+	if err != nil {
+		logRouteError(logger, "check lisskins token status failed", err)
+		return presenterskins.LisSkinsTokenStatusResponse{}, errx.FromError(err, "failed to check token status")
+	}
+	logger.Info("check lisskins token status completed", slog.Bool("has_token", response.HasToken))
+	return response, nil
+}
+
+func (a *App) ClearLisSkinsToken() error {
+	logger := logx.WithComponent(a.logger, "route")
+	logger.Info("clear lisskins token requested")
+	err := a.skinsEndpoints.ClearLisSkinsToken()
+	if err != nil {
+		logRouteError(logger, "clear lisskins token failed", err)
+		return errx.FromError(err, "failed to clear token")
+	}
+	logger.Info("clear lisskins token completed")
+	return nil
 }
 
 func (a *App) UpdateSavedSkinPrice(payload presenterskins.UpdateSavedSkinPriceRequest) (presenterskins.UpdateSavedSkinPriceResponse, error) {
