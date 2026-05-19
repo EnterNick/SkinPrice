@@ -1,5 +1,40 @@
+export namespace main {
+	
+	export class ClientLogEvent {
+	    level: string;
+	    message: string;
+	    component: string;
+	    context: Record<string, any>;
+	
+	    static createFrom(source: any = {}) {
+	        return new ClientLogEvent(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.level = source["level"];
+	        this.message = source["message"];
+	        this.component = source["component"];
+	        this.context = source["context"];
+	    }
+	}
+
+}
+
 export namespace skins {
 	
+	export class DeleteSavedSkinRequest {
+	    market_hash_name: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new DeleteSavedSkinRequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.market_hash_name = source["market_hash_name"];
+	    }
+	}
 	export class GetSavedSkinsFilter {
 	    limit: number;
 	    offset: number;
@@ -92,6 +127,18 @@ export namespace skins {
 	        this.page_url = source["page_url"];
 	    }
 	}
+	export class SaveSkinResponse {
+	    created: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new SaveSkinResponse(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.created = source["created"];
+	    }
+	}
 	export class SavedSkinItem {
 	    market_hash_name: string;
 	    display_name: string;
@@ -173,6 +220,7 @@ export namespace skins {
 	}
 	export class SearchNewSkinsFilter {
 	    market_hash_name?: string;
+	    source: string;
 	    limit: number;
 	    offset: number;
 	
@@ -183,6 +231,7 @@ export namespace skins {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.market_hash_name = source["market_hash_name"];
+	        this.source = source["source"];
 	        this.limit = source["limit"];
 	        this.offset = source["offset"];
 	    }
@@ -199,6 +248,55 @@ export namespace skins {
 	        this.currency = source["currency"];
 	    }
 	}
+	export class UpdateSavedSkinPriceFailure {
+	    market_hash_name: string;
+	    message: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new UpdateSavedSkinPriceFailure(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.market_hash_name = source["market_hash_name"];
+	        this.message = source["message"];
+	    }
+	}
+	export class UpdateAllSavedSkinsPricesResponse {
+	    updated_count: number;
+	    failed_count: number;
+	    failures: UpdateSavedSkinPriceFailure[];
+	
+	    static createFrom(source: any = {}) {
+	        return new UpdateAllSavedSkinsPricesResponse(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.updated_count = source["updated_count"];
+	        this.failed_count = source["failed_count"];
+	        this.failures = this.convertValues(source["failures"], UpdateSavedSkinPriceFailure);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	
 	export class UpdateSavedSkinPriceRequest {
 	    market_hash_name: string;
 	    currency: string;
@@ -212,6 +310,43 @@ export namespace skins {
 	        this.market_hash_name = source["market_hash_name"];
 	        this.currency = source["currency"];
 	    }
+	}
+	export class UpdateSavedSkinPriceResponse {
+	    market_hash_name: string;
+	    price_text: string;
+	    currency: string;
+	    // Go type: time
+	    updated_at: any;
+	
+	    static createFrom(source: any = {}) {
+	        return new UpdateSavedSkinPriceResponse(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.market_hash_name = source["market_hash_name"];
+	        this.price_text = source["price_text"];
+	        this.currency = source["currency"];
+	        this.updated_at = this.convertValues(source["updated_at"], null);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 
 }

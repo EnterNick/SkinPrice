@@ -459,6 +459,10 @@ body {
   cursor: text;
 }
 
+.search-query-label-error {
+  color: #fca5a5;
+}
+
 .search-input:focus {
   outline: none;
   border-color: rgba(249, 115, 22, 0.7);
@@ -489,7 +493,7 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-width: 260px;
+  min-width: 240px;
 }
 
 .skin-thumb,
@@ -519,18 +523,75 @@ body {
 .skin-title {
   color: #f8fafc;
   font-weight: 700;
-  margin-bottom: 4px;
+  word-break: break-word;
 }
 
-.skin-subtitle {
+.price-cell-button {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 140px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  -webkit-app-region: no-drag;
+}
+
+.price-cell-button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.price-cell-value {
+  color: #f8fafc;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.price-cell-meta {
   color: #94a3b8;
-  font-size: 13px;
-  word-break: break-word;
+  font-size: 12px;
+  line-height: 1.2;
+  transition: color 0.2s ease;
+}
+
+.price-cell-button:hover .price-cell-meta {
+  color: #fdba74;
+}
+
+.price-cell-meta-pending {
+  color: #f59e0b;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .load-more-wrap {
   display: flex;
   justify-content: center;
+}
+
+.empty-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.empty-hint {
+  color: #cbd5e1;
+  max-width: 480px;
+}
+
+.empty-action {
+  align-self: flex-start;
 }
 
 @media (max-width: 900px) {

@@ -3,6 +3,7 @@ package utils
 import (
 	"os"
 	"strconv"
+	"strings"
 )
 
 func GetStrWDefault(name string, def string) string {
@@ -23,4 +24,20 @@ func GetIntWDefault(name string, def int) int {
 		return def
 	}
 	return valueInt
+}
+
+func GetBoolWDefault(name string, def bool) bool {
+	value := strings.TrimSpace(strings.ToLower(os.Getenv(name)))
+	if value == "" {
+		return def
+	}
+
+	switch value {
+	case "1", "true", "yes", "on":
+		return true
+	case "0", "false", "no", "off":
+		return false
+	default:
+		return def
+	}
 }

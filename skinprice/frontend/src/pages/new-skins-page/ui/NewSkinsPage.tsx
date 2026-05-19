@@ -14,48 +14,43 @@ import { NewSkinsSearchPanel } from "../../../widgets/new-skins-search-panel/New
 
 export const NewSkinsPage: React.FC = () => {
   const navigate = useNavigate();
-  const { items, loading, loadingMore, error, hasMore, hasSearched, currentQuery, loadNewSkins, loadNextPage } = useNewSkinsSearch();
+  const { items, loading, loadingMore, error, hasMore, hasSearched, currentQuery, currentSource, loadNewSkins, loadNextPage } = useNewSkinsSearch();
   const [savingIds, setSavingIds] = useState<Record<string, boolean>>({});
   const [savedIds, setSavedIds] = useState<Record<string, boolean>>({});
   const [notice, setNotice] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const [searchLabel, setSearchLabel] = useState("");
+  const [query, setQuery] = useState("");
   const [activeSource, setActiveSource] = useState<"steam" | "lisskins">("steam");
 
   const minSearchMessage = `Введите минимум ${MIN_SEARCH_LENGTH} символа для поиска.`;
 
   const onSearch = async () => {
-    const rawValue = window.prompt(UI_TEXT.searchPrompt, currentQuery || searchLabel);
-    if (rawValue === null) return;
-
-    const value = rawValue.trim();
+    const value = query.trim();
     if (value.length < MIN_SEARCH_LENGTH) {
       setNotice({ type: "error", text: minSearchMessage });
       return;
     }
 
     setNotice(null);
-    setSearchLabel(value);
-    await loadNewSkins(value);
-  };
-
-  const onChangeSource = (source: "steam" | "lisskins") => {
-    setActiveSource(source);
-    setNotice(null);
+    await loadNewSkins(value, activeSource);
   };
 
   const onSave = async (skin: NewSkin) => {
     setSavingIds((prev) => ({ ...prev, [skin.id]: true }));
     setNotice(null);
     try {
-      await saveSkin(skin);
+      const result = await saveSkin(skin);
       setSavedIds((prev) => ({ ...prev, [skin.id]: true }));
-      setNotice({ type: "success", text: UI_TEXT.saveDoneShort });
-      await loadNewSkins(currentQuery);
+      setNotice({ type: "success", text: result.created ? UI_TEXT.saveDoneShort : UI_TEXT.saveSkinAlready });
     } catch (err: unknown) {
       setNotice({ type: "error", text: formatErrorMessage(UI_TEXT.errSave, err) });
     } finally {
       setSavingIds((prev) => ({ ...prev, [skin.id]: false }));
     }
+  };
+
+  const onChangeSource = (source: "steam" | "lisskins") => {
+    setActiveSource(source);
+    setNotice(null);
   };
 
   return (
@@ -72,9 +67,12 @@ export const NewSkinsPage: React.FC = () => {
         }
       />
       <NewSkinsSearchPanel
-        searchLabel={searchLabel}
-        fallbackLabel={`Минимум ${MIN_SEARCH_LENGTH} символа`}
+        value={query}
         activeSource={activeSource}
+        errorText={notice?.type === "error" ? notice.text : null}
+        helperText={hasSearched ? `Текущий запрос: ${currentQuery} • Источник: ${currentSource}` : UI_TEXT.searchHelper}
+        disabled={loading}
+        onChange={setQuery}
         onChangeSource={onChangeSource}
         onSearch={onSearch}
       />

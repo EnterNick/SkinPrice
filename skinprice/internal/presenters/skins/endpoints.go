@@ -10,17 +10,21 @@ type SearchNewSkinsUseCase interface {
 }
 
 type SaveSkinUseCase interface {
-	Execute(params appskins.SaveSkinParams) error
+	Execute(params appskins.SaveSkinParams) (appskins.SaveSkinResult, error)
 }
 
 type GetSavedSkinsUseCase interface {
 	Execute(params app.Pagination) (appskins.SavedSkinsList, error)
 }
 type UpdateSavedSkinPriceUseCase interface {
-	Execute(params appskins.UpdateSavedSkinPriceParams) error
+	Execute(params appskins.UpdateSavedSkinPriceParams) (appskins.UpdateSavedSkinPriceResult, error)
 }
 type UpdateAllSavedSkinsPricesUseCase interface {
-	Execute(params appskins.UpdateAllSavedSkinsPricesParams) error
+	Execute(params appskins.UpdateAllSavedSkinsPricesParams) (appskins.UpdateAllSavedSkinsPricesResult, error)
+}
+
+type DeleteSavedSkinUseCase interface {
+	Execute(params appskins.DeleteSavedSkinParams) error
 }
 
 type Endpoints struct {
@@ -29,14 +33,25 @@ type Endpoints struct {
 	getSavedSkinsUC             GetSavedSkinsUseCase
 	updateSavedSkinPriceUC      UpdateSavedSkinPriceUseCase
 	updateAllSavedSkinsPricesUC UpdateAllSavedSkinsPricesUseCase
+	deleteSavedSkinUC           DeleteSavedSkinUseCase
 }
 
-func NewEndpoints(searchNewSkinsUC SearchNewSkinsUseCase, saveSkinUC SaveSkinUseCase, getSavedSkinsUC GetSavedSkinsUseCase, updateSavedSkinPriceUC UpdateSavedSkinPriceUseCase, updateAllSavedSkinsPricesUC UpdateAllSavedSkinsPricesUseCase) *Endpoints {
-	return &Endpoints{searchNewSkinsUC: searchNewSkinsUC, saveSkinUC: saveSkinUC, getSavedSkinsUC: getSavedSkinsUC, updateSavedSkinPriceUC: updateSavedSkinPriceUC, updateAllSavedSkinsPricesUC: updateAllSavedSkinsPricesUC}
+func NewEndpoints(searchNewSkinsUC SearchNewSkinsUseCase, saveSkinUC SaveSkinUseCase, getSavedSkinsUC GetSavedSkinsUseCase, updateSavedSkinPriceUC UpdateSavedSkinPriceUseCase, updateAllSavedSkinsPricesUC UpdateAllSavedSkinsPricesUseCase, deleteSavedSkinUC DeleteSavedSkinUseCase) *Endpoints {
+	return &Endpoints{
+		searchNewSkinsUC:            searchNewSkinsUC,
+		saveSkinUC:                  saveSkinUC,
+		getSavedSkinsUC:             getSavedSkinsUC,
+		updateSavedSkinPriceUC:      updateSavedSkinPriceUC,
+		updateAllSavedSkinsPricesUC: updateAllSavedSkinsPricesUC,
+		deleteSavedSkinUC:           deleteSavedSkinUC,
+	}
 }
 
 func (e *Endpoints) SearchNewSkins(filter SearchNewSkinsFilter) (NewSkinsResponse, error) {
-	result, err := e.searchNewSkinsUC.Execute(appskins.SearchCriteria{MarketHashName: filter.MarketHashName}, app.Pagination{Limit: filter.Limit, Offset: filter.Offset})
+	result, err := e.searchNewSkinsUC.Execute(appskins.SearchCriteria{
+		MarketHashName: filter.MarketHashName,
+		Source:         filter.Source,
+	}, app.Pagination{Limit: filter.Limit, Offset: filter.Offset})
 	if err != nil {
 		return NewSkinsResponse{}, err
 	}
@@ -57,13 +72,17 @@ func (e *Endpoints) SearchNewSkins(filter SearchNewSkinsFilter) (NewSkinsRespons
 	return NewSkinsResponse{Items: items, TotalCount: result.TotalCount, Limit: result.Limit, Offset: result.Offset}, nil
 }
 
-func (e *Endpoints) SaveSkin(payload SaveSkinRequest) error {
-	return e.saveSkinUC.Execute(appskins.SaveSkinParams{
+func (e *Endpoints) SaveSkin(payload SaveSkinRequest) (SaveSkinResponse, error) {
+	result, err := e.saveSkinUC.Execute(appskins.SaveSkinParams{
 		MarketHashName: payload.MarketHashName,
 		DisplayName:    payload.DisplayName,
 		IconURL:        payload.IconURL,
 		PageURL:        payload.PageURL,
 	})
+	if err != nil {
+		return SaveSkinResponse{}, err
+	}
+	return SaveSkinResponse{Created: result.Created}, nil
 }
 
 func (e *Endpoints) GetSavedSkins(filter GetSavedSkinsFilter) (SavedSkinsResponse, error) {
@@ -88,10 +107,40 @@ func (e *Endpoints) GetSavedSkins(filter GetSavedSkinsFilter) (SavedSkinsRespons
 	return SavedSkinsResponse{Items: items, TotalCount: result.TotalCount, Limit: result.Limit, Offset: result.Offset}, nil
 }
 
-func (e *Endpoints) UpdateSavedSkinPrice(payload UpdateSavedSkinPriceRequest) error {
-	return e.updateSavedSkinPriceUC.Execute(appskins.UpdateSavedSkinPriceParams{MarketHashName: payload.MarketHashName, Currency: payload.Currency})
+func (e *Endpoints) UpdateSavedSkinPrice(payload UpdateSavedSkinPriceRequest) (UpdateSavedSkinPriceResponse, error) {
+	result, err := e.updateSavedSkinPriceUC.Execute(appskins.UpdateSavedSkinPriceParams{MarketHashName: payload.MarketHashName, Currency: payload.Currency})
+	if err != nil {
+		return UpdateSavedSkinPriceResponse{}, err
+	}
+	return UpdateSavedSkinPriceResponse{
+		MarketHashName: result.MarketHashName,
+		PriceText:      result.PriceText,
+		Currency:       result.Currency,
+		UpdatedAt:      result.UpdatedAt,
+	}, nil
 }
 
-func (e *Endpoints) UpdateAllSavedSkinsPrices(payload UpdateAllSavedSkinsPricesRequest) error {
-	return e.updateAllSavedSkinsPricesUC.Execute(appskins.UpdateAllSavedSkinsPricesParams{Currency: payload.Currency})
+func (e *Endpoints) UpdateAllSavedSkinsPrices(payload UpdateAllSavedSkinsPricesRequest) (UpdateAllSavedSkinsPricesResponse, error) {
+	result, err := e.updateAllSavedSkinsPricesUC.Execute(appskins.UpdateAllSavedSkinsPricesParams{Currency: payload.Currency})
+	if err != nil {
+		return UpdateAllSavedSkinsPricesResponse{}, err
+	}
+
+	failures := make([]UpdateSavedSkinPriceFailure, 0, len(result.Failures))
+	for _, failure := range result.Failures {
+		failures = append(failures, UpdateSavedSkinPriceFailure{
+			MarketHashName: failure.MarketHashName,
+			Message:        failure.Message,
+		})
+	}
+
+	return UpdateAllSavedSkinsPricesResponse{
+		UpdatedCount: result.UpdatedCount,
+		FailedCount:  result.FailedCount,
+		Failures:     failures,
+	}, nil
+}
+
+func (e *Endpoints) DeleteSavedSkin(payload DeleteSavedSkinRequest) error {
+	return e.deleteSavedSkinUC.Execute(appskins.DeleteSavedSkinParams{MarketHashName: payload.MarketHashName})
 }

@@ -46,7 +46,7 @@ func LoadConfig() *Config {
 		Debug:           os.Getenv("APP_DB_DEBUG") == "true",
 		MaxOpenConns:    maxOpenConns,
 		MaxIdleConns:    maxIdleConns,
-		Driver:          utils.GetStrWDefault("APP_DB_DRIVER", "pgx"),
+		Driver:          utils.GetStrWDefault("APP_DB_DRIVER", "sqlite3"),
 		ConnMaxLifetime: time.Duration(connMaxLifeTimeSeconds) * time.Second,
 	}
 }

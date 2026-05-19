@@ -6,18 +6,26 @@ import type { NewSkin } from "../../../entities/skin/model/types";
 
 const PAGE_SIZE = 20;
 
+const allowPaint = async () =>
+  new Promise<void>((resolve) => {
+    window.requestAnimationFrame(() => {
+      window.setTimeout(resolve, 0);
+    });
+  });
+
 export const useNewSkinsSearch = () => {
   const [items, setItems] = useState<NewSkin[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentQuery, setCurrentQuery] = useState("");
+  const [currentSource, setCurrentSource] = useState<"steam" | "lisskins">("steam");
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const requestIdRef = useRef(0);
 
-  const loadNewSkins = async (searchValue: string, nextOffset = 0, append = false) => {
+  const loadNewSkins = async (searchValue: string, source: "steam" | "lisskins", nextOffset = 0, append = false) => {
     const normalizedSearch = searchValue.trim();
     if (!normalizedSearch) {
       requestIdRef.current += 1;
@@ -35,6 +43,7 @@ export const useNewSkinsSearch = () => {
     requestIdRef.current = requestId;
     setHasSearched(true);
     setCurrentQuery(normalizedSearch);
+    setCurrentSource(source);
     if (append) {
       setLoadingMore(true);
     } else {
@@ -44,7 +53,8 @@ export const useNewSkinsSearch = () => {
     }
 
     try {
-      const response = await getNewSkins(normalizedSearch, PAGE_SIZE, nextOffset);
+      await allowPaint();
+      const response = await getNewSkins(normalizedSearch, PAGE_SIZE, nextOffset, source);
       if (requestId !== requestIdRef.current) return;
 
       const normalizedQuery = normalizedSearch.toLowerCase();
@@ -72,8 +82,8 @@ export const useNewSkinsSearch = () => {
 
   const loadNextPage = async () => {
     if (loading || loadingMore || !hasMore) return;
-    await loadNewSkins(currentQuery, offset, true);
+    await loadNewSkins(currentQuery, currentSource, offset, true);
   };
 
-  return { items, loading, loadingMore, error, hasMore, hasSearched, currentQuery, loadNewSkins, loadNextPage };
+  return { items, loading, loadingMore, error, hasMore, hasSearched, currentQuery, currentSource, loadNewSkins, loadNextPage };
 };
