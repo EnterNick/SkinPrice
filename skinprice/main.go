@@ -20,7 +20,11 @@ var assets embed.FS
 
 func main() {
 	utils.LoadDotEnv()
-	cfg := config.Load()
+	cfg, err := config.Load()
+	if err != nil {
+		_, _ = os.Stderr.WriteString("invalid configuration: " + err.Error() + "\n")
+		os.Exit(1)
+	}
 	logger, closer, err := logx.New(logx.Config{
 		Level:       cfg.LogLevel,
 		Format:      cfg.LogFormat,
