@@ -30,6 +30,7 @@ func (e *Endpoints) GetAppSettings() (AppSettingsResponse, error) {
 	return AppSettingsResponse{
 		Currency:                   settings.Currency,
 		AutoRefreshIntervalSeconds: settings.AutoRefreshIntervalSeconds,
+		SavedSkinsViewMode:         settings.SavedSkinsViewMode,
 	}, nil
 }
 
@@ -37,5 +38,6 @@ func (e *Endpoints) SaveAppSettings(payload SaveAppSettingsRequest) error {
 	return e.saveAppSettingsUC.Execute(appsettings.AppSettings{
 		Currency:                   payload.Currency,
 		AutoRefreshIntervalSeconds: payload.AutoRefreshIntervalSeconds,
+		SavedSkinsViewMode:         payload.SavedSkinsViewMode,
 	})
 }

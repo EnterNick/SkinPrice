@@ -131,7 +131,7 @@ body {
 
 /* КОМПАКТНЫЙ ЗАГОЛОВОК */
 .title {
-  color: var(--color-text-primary);
+  color: var(--skin-name-color, var(--color-text-primary));
   font-size: 16px;
   font-weight: 600;
   line-height: 1.2;
@@ -324,6 +324,7 @@ body {
   gap: 8px;
   flex-wrap: wrap;
   justify-content: flex-end;
+  align-items: center;
   -webkit-app-region: no-drag;
 }
 
@@ -342,6 +343,7 @@ body {
 .page-header-actions {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
 }
 
 .section-label {
@@ -437,7 +439,14 @@ body {
 }
 
 .table-shell {
+  padding: 0 16px 8px;
+  overflow-y: visible;
+  overflow-x: visible;
+}
+
+.table-scroll {
   overflow-x: auto;
+  overflow-y: visible;
   border-radius: 16px;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.28);
 }
@@ -459,6 +468,33 @@ body {
   color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.08em;
+}
+
+.table-sort-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+  -webkit-app-region: no-drag;
+}
+
+.table-sort-button:hover,
+.table-sort-button:focus-visible {
+  color: var(--color-text-primary);
+  outline: none;
+}
+
+.table-sort-arrow {
+  color: #fdba74;
+  font-size: 12px;
+  line-height: 1;
 }
 
 .skins-table a {
@@ -725,30 +761,63 @@ body {
   word-break: break-word;
 }
 
+.skin-title-button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--skin-name-color, var(--color-text-primary));
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  word-break: break-word;
+  cursor: copy;
+  -webkit-app-region: no-drag;
+  transition: color 0.2s ease;
+}
+
+.skin-title-button:hover,
+.skin-title-button:focus-visible {
+  color: #fdba74;
+  outline: none;
+}
+
+.skin-title-button-copied {
+  color: #f59e0b;
+}
+
 .price-cell-button {
   display: inline-flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 2px;
-  min-width: 140px;
+  width: fit-content;
+  min-width: 0;
+  max-width: 100%;
   border: 0;
   padding: 0;
   background: transparent;
-  color: inherit;
+  color: var(--color-text-primary);
   cursor: pointer;
   text-align: left;
   -webkit-app-region: no-drag;
+  transition: opacity 0.2s ease;
 }
 
 .price-cell-button:disabled {
-  cursor: wait;
-  opacity: 0.72;
+  cursor: not-allowed;
+  opacity: 0.64;
+}
+
+.price-cell-button:not(:disabled):hover .price-cell-value,
+.price-cell-button:not(:disabled):focus-visible .price-cell-value {
+  color: #fdba74;
 }
 
 .price-cell-value {
   color: var(--color-text-primary);
   font-size: 16px;
   font-weight: 700;
+  transition: color 0.2s ease;
 }
 
 .price-cell-meta {
@@ -796,10 +865,10 @@ body {
 
 .row-actions-menu {
   position: relative;
+  display: inline-flex;
 }
 
 .row-actions-toggle {
-  list-style: none;
   cursor: pointer;
   width: 36px;
   height: 36px;
@@ -813,11 +882,7 @@ body {
   -webkit-app-region: no-drag;
 }
 
-.row-actions-toggle::-webkit-details-marker {
-  display: none;
-}
-
-.row-actions-menu[open] .row-actions-toggle,
+.row-actions-toggle[aria-expanded="true"],
 .row-actions-toggle:hover {
   color: var(--color-text-primary);
   background: rgba(148, 163, 184, 0.2);
@@ -839,9 +904,11 @@ body {
   z-index: 5;
 }
 
-.skins-table tbody tr:nth-last-child(-n + 3) .row-actions-dropdown {
-  top: auto;
-  bottom: calc(100% + 8px);
+.row-actions-dropdown-portal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
 }
 
 .row-actions-item {
@@ -876,10 +943,209 @@ body {
   display: flex;
   gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
+}
+
+.saved-skins-control-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.view-mode-icon-button {
+  width: 40px;
+  min-width: 40px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.view-mode-icon {
+  position: relative;
+  display: block;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.view-mode-icon-table {
+  border: 1.5px solid currentColor;
+  border-radius: 3px;
+  background:
+    linear-gradient(currentColor, currentColor) 33% 0 / 1px 100% no-repeat,
+    linear-gradient(currentColor, currentColor) 66% 0 / 1px 100% no-repeat,
+    linear-gradient(currentColor, currentColor) 0 33% / 100% 1px no-repeat,
+    linear-gradient(currentColor, currentColor) 0 66% / 100% 1px no-repeat;
+}
+
+.view-mode-icon-cards {
+  border: 1.5px solid currentColor;
+  border-radius: 4px;
+}
+
+@media (max-width: 600px) {
+  .table-shell {
+    padding: 0 8px 8px;
+  }
 }
 
 .saved-skins-controls .search-input {
-  flex: 1;
+  flex: 1 1 280px;
+}
+
+.saved-skins-sort-dropdown {
+  position: relative;
+}
+
+.view-mode-button-active {
+  color: var(--color-text-primary);
+  background: rgba(148, 163, 184, 0.24);
+  border-color: rgba(251, 146, 60, 0.45);
+}
+
+.saved-skins-sort-trigger {
+  min-width: 220px;
+  height: 48px;
+  justify-content: space-between;
+}
+
+.saved-skins-sort-chevron {
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+.saved-skins-sort-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 240px;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--color-border) 70%, white 30%);
+  background: var(--color-background-elevated);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 20;
+}
+
+.saved-skins-sort-item {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--color-text-secondary);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  -webkit-app-region: no-drag;
+}
+
+.saved-skins-sort-item:hover,
+.saved-skins-sort-item:focus-visible {
+  color: var(--color-text-primary);
+  background: rgba(148, 163, 184, 0.12);
+  outline: none;
+}
+
+.saved-skins-sort-state {
+  color: #fdba74;
+  font-size: 12px;
+}
+
+.saved-skins-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.saved-skin-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding: 18px;
+  border-radius: 18px;
+  background: var(--color-background-elevated);
+  border: 1px solid color-mix(in srgb, var(--color-border) 70%, white 30%);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.2);
+}
+
+.saved-skin-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.saved-skin-card-title {
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.saved-skin-card-prices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.saved-skin-price-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--color-border) 72%, white 28%);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+  -webkit-app-region: no-drag;
+}
+
+.saved-skin-price-card:hover:not(:disabled),
+.saved-skin-price-card:focus-visible {
+  border-color: rgba(251, 146, 60, 0.42);
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.saved-skin-price-card:disabled {
+  opacity: 0.64;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.saved-skin-price-source,
+.saved-skin-price-updated {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.saved-skin-price-value {
+  font-size: 18px;
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.saved-skin-card-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+
+.saved-skin-card-actions .toolbar-button {
+  flex: 1 1 160px;
 }
 
 .empty-title {
@@ -984,6 +1250,17 @@ body {
 
   .skins-table {
     min-width: 760px;
+  }
+
+  .saved-skins-sort-trigger {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+@media (max-width: 680px) {
+  .saved-skin-card-prices {
+    grid-template-columns: 1fr;
   }
 }
 

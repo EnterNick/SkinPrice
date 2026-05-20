@@ -21,6 +21,7 @@ export interface GetSavedSkinsFilter {
 export interface AppSettingsResponse {
   currency: string;
   auto_refresh_interval_seconds: number;
+  saved_skins_view_mode: string;
 }
 
 export interface SearchNewSkinsFilter {
@@ -113,6 +114,7 @@ export interface SetLisSkinsTokenRequest {
 export interface SaveAppSettingsRequest {
   currency: string;
   auto_refresh_interval_seconds: number;
+  saved_skins_view_mode: string;
 }
 
 export interface LisSkinsTokenStatusResponse {

@@ -78,6 +78,7 @@ func (e *Endpoints) SearchNewSkins(filter SearchNewSkinsFilter) (NewSkinsRespons
 		items = append(items, NewSkinItem{
 			MarketHashName: item.MarketHashName,
 			DisplayName:    item.DisplayName,
+			NameColor:      item.NameColor,
 			SellListings:   item.SellListings,
 			PriceCents:     item.PriceCents,
 			PriceText:      item.PriceText,
@@ -99,6 +100,7 @@ func (e *Endpoints) SaveSkin(payload SaveSkinRequest) (SaveSkinResponse, error) 
 	result, err := e.saveSkinUC.Execute(appskins.SaveSkinParams{
 		MarketHashName: payload.MarketHashName,
 		DisplayName:    payload.DisplayName,
+		NameColor:      payload.NameColor,
 		IconURL:        payload.IconURL,
 		PageURL:        payload.PageURL,
 	})
@@ -119,6 +121,7 @@ func (e *Endpoints) GetSavedSkins(filter GetSavedSkinsFilter) (SavedSkinsRespons
 		items = append(items, SavedSkinItem{
 			MarketHashName:    item.MarketHashName,
 			DisplayName:       item.DisplayName,
+			NameColor:         item.NameColor,
 			IconURL:           item.IconURL,
 			SteamPageURL:      item.SteamPageURL,
 			SteamPriceText:    item.SteamPriceText,

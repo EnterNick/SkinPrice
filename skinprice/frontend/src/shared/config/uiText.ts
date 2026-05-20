@@ -83,4 +83,13 @@ export const UI_TEXT = {
   settingsRefreshHelp: "Интервал задаётся в секундах. Пока открыта главная страница, приложение обновляет сохранённые цены автоматически.",
   settingsRefreshLabel: "Интервал в секундах",
   settingsRefreshHint: "Минимум 5 секунд, значение по умолчанию 30.",
+  savedSkinsViewTable: "Таблица",
+  savedSkinsViewCards: "Карточки",
+  savedSkinsViewToggleToTable: "Переключить на таблицу",
+  savedSkinsViewToggleToCards: "Переключить на карточки",
+  savedSkinsSortMenu: "Сортировка карточек",
+  savedSkinsSortTitle: "Сортировать по названию",
+  savedSkinsSortSteam: "Сортировать по Steam",
+  savedSkinsSortLisSkins: "Сортировать по LisSkins",
+  savedSkinsSortReset: "Сбросить сортировку",
 } as const;

@@ -1,9 +1,10 @@
 import { ClearLisSkinsToken, DeleteSavedSkin, GetAppSettings, GetSavedSkins, HasLisSkinsToken, SaveAppSettings, SaveSkin, SearchNewSkins, SetLisSkinsToken, UpdateAllSavedSkinsPrices, UpdateSavedSkinPrice } from "../../../wailsjs/go/main/App";
 import type { skins } from "../../../wailsjs/go/models";
 import { toApiError } from "../../../shared/api/errors";
-import { normalizeAutoRefreshIntervalSeconds, normalizeCurrency } from "../../../shared/config/settings";
+import { normalizeAutoRefreshIntervalSeconds, normalizeCurrency, normalizeSavedSkinsViewMode } from "../../../shared/config/settings";
 import { logClientEvent } from "../../../shared/lib/logging/logger";
-import type { BulkPriceUpdateResult, NewSkin, PaginatedResult, PriceUpdateResult, SaveSkinResult, SavedSkin, SavedSkinCurrency } from "../model/types";
+import { toSkinNameColor } from "../../../shared/lib/skinNameColor";
+import type { BulkPriceUpdateResult, NewSkin, PaginatedResult, PriceUpdateResult, SaveSkinResult, SavedSkin, SavedSkinCurrency, SavedSkinsViewMode } from "../model/types";
 
 const DEFAULT_LIMIT = 20;
 const DEFAULT_OFFSET = 0;
@@ -30,6 +31,7 @@ const mapSavedSkin = (item: skins.SavedSkinItem): SavedSkin => {
     id: item.market_hash_name,
     name: item.market_hash_name,
     title: item.display_name,
+    nameColor: toSkinNameColor(item.name_color),
     imageUrl: normalizeImageUrl(item.icon_url, steamPageUrl),
     steamPageUrl,
     lisSkinsPageUrl,
@@ -47,6 +49,7 @@ const mapNewSkin = (item: skins.NewSkinItem): NewSkin => ({
   id: item.market_hash_name,
   name: item.market_hash_name,
   title: item.display_name,
+  nameColor: toSkinNameColor(item.name_color),
   imageUrl: normalizeImageUrl(item.icon_url, item.page_url),
   steamPageUrl: item.page_url,
   lisSkinsPageUrl: "",
@@ -166,11 +169,12 @@ export const updateAllSkinPrices = async (currency: SavedSkinCurrency): Promise<
   }
 };
 
-export const saveSkin = async (skin: Pick<NewSkin, "id" | "title" | "imageUrl" | "steamPageUrl">): Promise<SaveSkinResult> => {
+export const saveSkin = async (skin: Pick<NewSkin, "id" | "title" | "nameColor" | "imageUrl" | "steamPageUrl">): Promise<SaveSkinResult> => {
   try {
     const response = await SaveSkin({
       market_hash_name: skin.id,
       display_name: skin.title,
+      name_color: skin.nameColor?.slice(1) ?? "",
       icon_url: skin.imageUrl,
       page_url: skin.steamPageUrl,
     });
@@ -238,6 +242,7 @@ export const clearLisSkinsToken = async (): Promise<void> => {
 export type AppSettings = {
   currency: SavedSkinCurrency;
   autoRefreshIntervalSeconds: number;
+  savedSkinsViewMode: SavedSkinsViewMode;
 };
 
 export const getAppSettings = async (): Promise<AppSettings> => {
@@ -246,6 +251,7 @@ export const getAppSettings = async (): Promise<AppSettings> => {
     return {
       currency: normalizeCurrency(response.currency),
       autoRefreshIntervalSeconds: normalizeAutoRefreshIntervalSeconds(response.auto_refresh_interval_seconds),
+      savedSkinsViewMode: normalizeSavedSkinsViewMode(response.saved_skins_view_mode),
     };
   } catch (err) {
     logClientEvent("error", "getAppSettings failed", "skinApi", {
@@ -261,10 +267,12 @@ export const saveAppSettings = async (settings: AppSettings): Promise<AppSetting
     const normalized = {
       currency: normalizeCurrency(settings.currency),
       autoRefreshIntervalSeconds: normalizeAutoRefreshIntervalSeconds(settings.autoRefreshIntervalSeconds),
+      savedSkinsViewMode: normalizeSavedSkinsViewMode(settings.savedSkinsViewMode),
     };
     await SaveAppSettings({
       currency: normalized.currency,
       auto_refresh_interval_seconds: normalized.autoRefreshIntervalSeconds,
+      saved_skins_view_mode: normalized.savedSkinsViewMode,
     });
     return normalized;
   } catch (err) {

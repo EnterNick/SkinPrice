@@ -35,6 +35,9 @@ func TestEnsureSchemaCreatesAppSettingsTable(t *testing.T) {
 	if _, err := connection.DB().ExecContext(context.Background(), `INSERT INTO app_settings (key, value) VALUES (?, ?)`, "saved_skins.currency", "1"); err != nil {
 		t.Fatalf("insert into app_settings: %v", err)
 	}
+	if _, err := connection.DB().ExecContext(context.Background(), `INSERT INTO app_settings (key, value) VALUES (?, ?)`, "saved_skins.view_mode", "cards"); err != nil {
+		t.Fatalf("insert view mode into app_settings: %v", err)
+	}
 }
 
 func TestEnsureSchemaCreatesExtendedSkinsColumns(t *testing.T) {
@@ -50,10 +53,10 @@ func TestEnsureSchemaCreatesExtendedSkinsColumns(t *testing.T) {
 
 	if _, err := connection.DB().ExecContext(context.Background(), `
 INSERT INTO skins (
-	market_hash_name, display_name, icon_url, page_url, price_text,
+	market_hash_name, display_name, name_color, icon_url, page_url, price_text,
 	steam_page_url, steam_price_text, lisskins_page_url, lisskins_price_text, currency
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		"AK-47 | Redline", "AK-47 | Redline", "icon", "steam-url", "$10.00",
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		"AK-47 | Redline", "AK-47 | Redline", "8847ff", "icon", "steam-url", "$10.00",
 		"steam-url", "$10.00", "lis-url", "$9.50", "1",
 	); err != nil {
 		t.Fatalf("insert into skins with extended columns: %v", err)
@@ -112,10 +115,10 @@ CREATE TABLE skins (
 
 	if _, err := connection.DB().ExecContext(context.Background(), `
 INSERT INTO skins (
-	market_hash_name, display_name, icon_url, page_url, price_text,
+	market_hash_name, display_name, name_color, icon_url, page_url, price_text,
 	steam_page_url, steam_price_text, lisskins_page_url, lisskins_price_text, currency
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		"AK-47 | Redline", "AK-47 | Redline", "icon", "steam-url", "$10.00",
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		"AK-47 | Redline", "AK-47 | Redline", "8847ff", "icon", "steam-url", "$10.00",
 		"steam-url", "$10.00", "lis-url", "$9.50", "1",
 	); err != nil {
 		t.Fatalf("insert migrated skins row: %v", err)

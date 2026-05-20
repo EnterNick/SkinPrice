@@ -17,6 +17,7 @@ type NewSkinsList struct {
 type NewSkin struct {
 	MarketHashName string
 	DisplayName    string
+	NameColor      string
 
 	SellListings int64
 
@@ -30,6 +31,7 @@ type NewSkin struct {
 type SaveSkinParams struct {
 	MarketHashName string
 	DisplayName    string
+	NameColor      string
 	IconURL        string
 	PageURL        string
 }
@@ -48,6 +50,7 @@ type SavedSkinsList struct {
 type SavedSkin struct {
 	MarketHashName    string
 	DisplayName       string
+	NameColor         string
 	IconURL           string
 	SteamPageURL      string
 	SteamPriceText    string

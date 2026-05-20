@@ -1,4 +1,11 @@
 export type SavedSkinCurrency = "1" | "3" | "5";
+export type SavedSkinsViewMode = "table" | "cards";
+export type SavedSkinsSortColumn = "title" | "steamPrice" | "lisSkinsPrice";
+export type SavedSkinsSortDirection = "desc" | "asc";
+export type SavedSkinsSortState = {
+  column: SavedSkinsSortColumn;
+  direction: SavedSkinsSortDirection;
+} | null;
 
 export type CurrencyOption = {
   value: SavedSkinCurrency;
@@ -9,6 +16,7 @@ export type Skin = {
   id: string;
   name: string;
   title: string;
+  nameColor?: string;
   imageUrl: string;
   steamPageUrl: string;
   lisSkinsPageUrl: string;

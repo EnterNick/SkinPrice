@@ -20,6 +20,7 @@ type NewSkinsResponse struct {
 type NewSkinItem struct {
 	MarketHashName string `json:"market_hash_name"`
 	DisplayName    string `json:"display_name"`
+	NameColor      string `json:"name_color"`
 	SellListings   int64  `json:"sell_listings"`
 	PriceCents     *int64 `json:"price_cents"`
 	PriceText      string `json:"price_text"`
@@ -30,6 +31,7 @@ type NewSkinItem struct {
 type SaveSkinRequest struct {
 	MarketHashName string `json:"market_hash_name"`
 	DisplayName    string `json:"display_name"`
+	NameColor      string `json:"name_color"`
 	IconURL        string `json:"icon_url"`
 	PageURL        string `json:"page_url"`
 }
@@ -53,6 +55,7 @@ type SavedSkinsResponse struct {
 type SavedSkinItem struct {
 	MarketHashName    string    `json:"market_hash_name"`
 	DisplayName       string    `json:"display_name"`
+	NameColor         string    `json:"name_color"`
 	IconURL           string    `json:"icon_url"`
 	SteamPageURL      string    `json:"steam_page_url"`
 	SteamPriceText    string    `json:"steam_price_text"`

@@ -1,8 +1,9 @@
-import type { CurrencyOption, SavedSkinCurrency } from "../../entities/skin/model/types";
+import type { CurrencyOption, SavedSkinCurrency, SavedSkinsViewMode } from "../../entities/skin/model/types";
 
 export const DEFAULT_CURRENCY: SavedSkinCurrency = "1";
 export const DEFAULT_AUTO_REFRESH_INTERVAL_SECONDS = 30;
 export const MIN_AUTO_REFRESH_INTERVAL_SECONDS = 5;
+export const DEFAULT_SAVED_SKINS_VIEW_MODE: SavedSkinsViewMode = "table";
 
 export const CURRENCY_OPTIONS: CurrencyOption[] = [
   { value: "1", label: "USD" },
@@ -37,4 +38,14 @@ export const normalizeAutoRefreshIntervalSeconds = (value?: string | number | nu
   }
 
   return Math.round(numericValue);
+};
+
+export const normalizeSavedSkinsViewMode = (value?: string | null): SavedSkinsViewMode => {
+  switch (value) {
+    case "table":
+    case "cards":
+      return value;
+    default:
+      return DEFAULT_SAVED_SKINS_VIEW_MODE;
+  }
 };

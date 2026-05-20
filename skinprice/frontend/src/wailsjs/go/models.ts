@@ -26,6 +26,7 @@ export namespace settings {
 	export class AppSettingsResponse {
 	    currency: string;
 	    auto_refresh_interval_seconds: number;
+	    saved_skins_view_mode: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new AppSettingsResponse(source);
@@ -35,11 +36,13 @@ export namespace settings {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.currency = source["currency"];
 	        this.auto_refresh_interval_seconds = source["auto_refresh_interval_seconds"];
+	        this.saved_skins_view_mode = source["saved_skins_view_mode"];
 	    }
 	}
 	export class SaveAppSettingsRequest {
 	    currency: string;
 	    auto_refresh_interval_seconds: number;
+	    saved_skins_view_mode: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new SaveAppSettingsRequest(source);
@@ -49,6 +52,7 @@ export namespace settings {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.currency = source["currency"];
 	        this.auto_refresh_interval_seconds = source["auto_refresh_interval_seconds"];
+	        this.saved_skins_view_mode = source["saved_skins_view_mode"];
 	    }
 	}
 
@@ -97,6 +101,7 @@ export namespace skins {
 	export class NewSkinItem {
 	    market_hash_name: string;
 	    display_name: string;
+	    name_color: string;
 	    sell_listings: number;
 	    price_cents?: number;
 	    price_text: string;
@@ -111,6 +116,7 @@ export namespace skins {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.market_hash_name = source["market_hash_name"];
 	        this.display_name = source["display_name"];
+	        this.name_color = source["name_color"];
 	        this.sell_listings = source["sell_listings"];
 	        this.price_cents = source["price_cents"];
 	        this.price_text = source["price_text"];
@@ -159,6 +165,7 @@ export namespace skins {
 	export class SaveSkinRequest {
 	    market_hash_name: string;
 	    display_name: string;
+	    name_color: string;
 	    icon_url: string;
 	    page_url: string;
 	
@@ -170,6 +177,7 @@ export namespace skins {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.market_hash_name = source["market_hash_name"];
 	        this.display_name = source["display_name"];
+	        this.name_color = source["name_color"];
 	        this.icon_url = source["icon_url"];
 	        this.page_url = source["page_url"];
 	    }
@@ -189,6 +197,7 @@ export namespace skins {
 	export class SavedSkinItem {
 	    market_hash_name: string;
 	    display_name: string;
+	    name_color: string;
 	    icon_url: string;
 	    steam_page_url: string;
 	    steam_price_text: string;
@@ -208,6 +217,7 @@ export namespace skins {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.market_hash_name = source["market_hash_name"];
 	        this.display_name = source["display_name"];
+	        this.name_color = source["name_color"];
 	        this.icon_url = source["icon_url"];
 	        this.steam_page_url = source["steam_page_url"];
 	        this.steam_price_text = source["steam_price_text"];

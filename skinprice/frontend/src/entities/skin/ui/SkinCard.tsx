@@ -10,6 +10,9 @@ type SkinCardProps = {
   onSave: (skin: NewSkin) => Promise<void> | void;
 };
 
+const buildSkinNameStyle = (nameColor?: string): React.CSSProperties | undefined =>
+  nameColor ? { "--skin-name-color": nameColor } as React.CSSProperties : undefined;
+
 export const SkinCard: React.FC<SkinCardProps> = ({ skin, saving, saved, onSave }) => (
   <div className="card">
     <div className="image-wrapper">
@@ -17,7 +20,7 @@ export const SkinCard: React.FC<SkinCardProps> = ({ skin, saving, saved, onSave 
     </div>
     <div className="card-body">
       <button className="card-link-button" type="button" onClick={() => openExternal(skin.steamPageUrl)}>
-        <h2 className="title">{skin.title}</h2>
+        <h2 className="title" style={buildSkinNameStyle(skin.nameColor)}>{skin.title}</h2>
       </button>
       <div className="card-footer">
         <p className="text card-price">

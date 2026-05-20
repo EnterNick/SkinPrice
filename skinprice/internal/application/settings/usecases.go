@@ -4,6 +4,7 @@ const (
 	DefaultCurrency                   = "1"
 	DefaultAutoRefreshIntervalSeconds = 30
 	MinAutoRefreshIntervalSeconds     = 5
+	DefaultSavedSkinsViewMode         = "table"
 )
 
 type GetAppSettings struct {
@@ -17,6 +18,7 @@ func (uc GetAppSettings) Execute() (AppSettings, error) {
 	}
 	settings.Currency = normalizeCurrency(settings.Currency)
 	settings.AutoRefreshIntervalSeconds = normalizeAutoRefreshIntervalSeconds(settings.AutoRefreshIntervalSeconds)
+	settings.SavedSkinsViewMode = normalizeSavedSkinsViewMode(settings.SavedSkinsViewMode)
 	return settings, nil
 }
 
@@ -27,6 +29,7 @@ type SaveAppSettings struct {
 func (uc SaveAppSettings) Execute(settings AppSettings) error {
 	settings.Currency = normalizeCurrency(settings.Currency)
 	settings.AutoRefreshIntervalSeconds = normalizeAutoRefreshIntervalSeconds(settings.AutoRefreshIntervalSeconds)
+	settings.SavedSkinsViewMode = normalizeSavedSkinsViewMode(settings.SavedSkinsViewMode)
 	return uc.Storage.SaveAppSettings(settings)
 }
 
@@ -48,4 +51,13 @@ func normalizeAutoRefreshIntervalSeconds(value int) int {
 		return DefaultAutoRefreshIntervalSeconds
 	}
 	return value
+}
+
+func normalizeSavedSkinsViewMode(value string) string {
+	switch value {
+	case "table", "cards":
+		return value
+	default:
+		return DefaultSavedSkinsViewMode
+	}
 }

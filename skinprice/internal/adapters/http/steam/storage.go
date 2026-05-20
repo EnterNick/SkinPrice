@@ -45,7 +45,8 @@ type steamMarketSearchItem struct {
 	SellPrice     *int64 `json:"sell_price"`
 	SellPriceText string `json:"sell_price_text"`
 	AssetDesc     struct {
-		IconURL string `json:"icon_url"`
+		IconURL   string `json:"icon_url"`
+		NameColor string `json:"name_color"`
 	} `json:"asset_description"`
 }
 
@@ -122,6 +123,7 @@ func (s *Storage) GetList(criteria skins.SearchCriteria, params *application.Pag
 		items = append(items, skins.NewSkin{
 			MarketHashName: item.HashName,
 			DisplayName:    item.Name,
+			NameColor:      item.AssetDesc.NameColor,
 			SellListings:   item.SellListings,
 			PriceCents:     item.SellPrice,
 			PriceText:      item.SellPriceText,

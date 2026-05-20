@@ -1,58 +1,107 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../app/router/routes";
-import { deleteSavedSkin, getAppSettings, updateAllSkinPrices, updateSkinPrice } from "../../../entities/skin/api/skinApi";
-import type { SavedSkin, SavedSkinCurrency } from "../../../entities/skin/model/types";
+import { deleteSavedSkin, getAppSettings, saveAppSettings, updateAllSkinPrices, updateSkinPrice } from "../../../entities/skin/api/skinApi";
+import type { SavedSkinCurrency, SavedSkinsSortColumn, SavedSkinsSortState, SavedSkinsViewMode } from "../../../entities/skin/model/types";
 import { useSavedSkins } from "../../../entities/skin/model/useSavedSkins";
-import { DEFAULT_AUTO_REFRESH_INTERVAL_SECONDS, DEFAULT_CURRENCY } from "../../../shared/config/settings";
+import { DEFAULT_AUTO_REFRESH_INTERVAL_SECONDS, DEFAULT_CURRENCY, DEFAULT_SAVED_SKINS_VIEW_MODE } from "../../../shared/config/settings";
 import { UI_TEXT } from "../../../shared/config/uiText";
 import { formatErrorMessage } from "../../../shared/lib/error/formatErrorMessage";
 import { EmptyState, ErrorState, LoadingState, ToastAlert } from "../../../shared/ui/states/States";
 import { PageHeader } from "../../../shared/ui/page-header/PageHeader";
+import { SavedSkinsCards } from "../../../widgets/saved-skins-cards/SavedSkinsCards";
 import { SavedSkinsTable } from "../../../widgets/saved-skins-table/SavedSkinsTable";
 
-type SortMode = "price" | "title" | "source";
-
-const parsePriceValue = (skin: SavedSkin): number => {
-  const preferred = skin.lisSkinsPriceText || skin.steamPriceText || skin.priceText || "";
-  const normalized = preferred.replace(/\s/g, "").replace(",", ".");
+const parsePriceValue = (priceText?: string): number => {
+  const normalized = (priceText || "").replace(/\s/g, "").replace(",", ".");
   const matched = normalized.match(/\d+(?:\.\d+)?/);
   if (!matched) return Number.POSITIVE_INFINITY;
   const value = Number.parseFloat(matched[0]);
   return Number.isFinite(value) ? value : Number.POSITIVE_INFINITY;
 };
 
-const getSourceLabel = (skin: SavedSkin): string => (skin.lisSkinsPageUrl ? UI_TEXT.sourceLisSkinsShort : UI_TEXT.sourceSteamShort);
-
 export const SavedSkinsPage: React.FC = () => {
   const navigate = useNavigate();
   const { items, loading, error, loadSkins } = useSavedSkins();
   const [currency, setCurrency] = useState<SavedSkinCurrency>(DEFAULT_CURRENCY);
   const [autoRefreshMs, setAutoRefreshMs] = useState(DEFAULT_AUTO_REFRESH_INTERVAL_SECONDS * 1000);
+  const [viewMode, setViewMode] = useState<SavedSkinsViewMode>(DEFAULT_SAVED_SKINS_VIEW_MODE);
   const [settingsLoading, setSettingsLoading] = useState(true);
   const [settingsError, setSettingsError] = useState<string | null>(null);
   const [updatingSkinIds, setUpdatingSkinIds] = useState<Record<string, boolean>>({});
   const [deletingSkinIds, setDeletingSkinIds] = useState<Record<string, boolean>>({});
   const [isUpdatingAll, setIsUpdatingAll] = useState(false);
+  const [isSavingViewMode, setIsSavingViewMode] = useState(false);
   const [notice, setNotice] = useState<{ type: "success" | "warning" | "error"; text: string } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortMode, setSortMode] = useState<SortMode>("title");
+  const [sortState, setSortState] = useState<SavedSkinsSortState>(null);
+  const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);
   const autoRefreshInFlightRef = useRef(false);
+  const sortMenuRef = useRef<HTMLDivElement | null>(null);
   const currencyDirty = useMemo(() => items.length > 0 && items.some((skin) => skin.currency !== currency), [currency, items]);
 
   const filteredItems = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     const base = query.length === 0 ? items : items.filter((skin) => skin.title.toLowerCase().includes(query));
+    if (!sortState) {
+      return base;
+    }
+
+    const directionFactor = sortState.direction === "asc" ? 1 : -1;
     return [...base].sort((a, b) => {
-      if (sortMode === "price") {
-        return parsePriceValue(a) - parsePriceValue(b) || a.title.localeCompare(b.title, "ru");
+      let result = 0;
+      if (sortState.column === "title") {
+        result = a.title.localeCompare(b.title, "ru");
+      } else if (sortState.column === "steamPrice") {
+        result = parsePriceValue(a.steamPriceText) - parsePriceValue(b.steamPriceText);
+      } else {
+        result = parsePriceValue(a.lisSkinsPriceText) - parsePriceValue(b.lisSkinsPriceText);
       }
-      if (sortMode === "source") {
-        return getSourceLabel(a).localeCompare(getSourceLabel(b), "ru") || a.title.localeCompare(b.title, "ru");
+
+      if (result === 0) {
+        result = a.title.localeCompare(b.title, "ru");
       }
-      return a.title.localeCompare(b.title, "ru");
+
+      return result * directionFactor;
     });
-  }, [items, searchQuery, sortMode]);
+  }, [items, searchQuery, sortState]);
+
+  const toggleSort = useCallback((column: SavedSkinsSortColumn) => {
+    setSortState((current) => {
+      if (!current || current.column !== column) {
+        return { column, direction: "desc" };
+      }
+      if (current.direction === "desc") {
+        return { column, direction: "asc" };
+      }
+      return null;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!isSortMenuOpen) return undefined;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (sortMenuRef.current?.contains(target)) return;
+      setIsSortMenuOpen(false);
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsSortMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isSortMenuOpen]);
 
   useEffect(() => {
     let active = true;
@@ -63,6 +112,7 @@ export const SavedSkinsPage: React.FC = () => {
         if (!active) return;
         setCurrency(settings.currency);
         setAutoRefreshMs(settings.autoRefreshIntervalSeconds * 1000);
+        setViewMode(settings.savedSkinsViewMode);
         setSettingsError(null);
       } catch (err: unknown) {
         if (!active) return;
@@ -138,6 +188,48 @@ export const SavedSkinsPage: React.FC = () => {
     }
   }, [loadSkins]);
 
+  const changeViewMode = useCallback(async (nextViewMode: SavedSkinsViewMode) => {
+    if (nextViewMode === viewMode) return;
+
+    setIsSavingViewMode(true);
+    setIsSortMenuOpen(false);
+    setNotice(null);
+    try {
+      const saved = await saveAppSettings({
+        currency,
+        autoRefreshIntervalSeconds: Math.round(autoRefreshMs / 1000),
+        savedSkinsViewMode: nextViewMode,
+      });
+      setViewMode(saved.savedSkinsViewMode);
+    } catch (err: unknown) {
+      setNotice({ type: "error", text: formatErrorMessage("Не удалось сохранить режим отображения.", err) });
+    } finally {
+      setIsSavingViewMode(false);
+    }
+  }, [autoRefreshMs, currency, viewMode]);
+
+  const toggleViewMode = useCallback(async () => {
+    await changeViewMode(viewMode === "table" ? "cards" : "table");
+  }, [changeViewMode, viewMode]);
+
+  const applySortOption = useCallback((column: SavedSkinsSortColumn) => {
+    toggleSort(column);
+    setIsSortMenuOpen(false);
+  }, [toggleSort]);
+
+  const getSortOptionLabel = useCallback((column: SavedSkinsSortColumn) => {
+    if (column === "title") return UI_TEXT.savedSkinsSortTitle;
+    if (column === "steamPrice") return UI_TEXT.savedSkinsSortSteam;
+    return UI_TEXT.savedSkinsSortLisSkins;
+  }, []);
+
+  const getSortButtonLabel = useCallback(() => {
+    if (!sortState) return UI_TEXT.savedSkinsSortMenu;
+
+    const suffix = sortState.direction === "desc" ? "↓" : "↑";
+    return `${getSortOptionLabel(sortState.column)} ${suffix}`;
+  }, [getSortOptionLabel, sortState]);
+
   useEffect(() => {
     if (loading || settingsLoading || items.length === 0 || !currencyDirty || isUpdatingAll) return;
     void refreshAll(currency, false);
@@ -174,6 +266,16 @@ export const SavedSkinsPage: React.FC = () => {
         title={UI_TEXT.savedSkinsTitle}
         actions={
           <div className="toolbar-group">
+            <button
+              className="toolbar-button toolbar-button-secondary view-mode-icon-button"
+              type="button"
+              disabled={isSavingViewMode}
+              title={viewMode === "table" ? UI_TEXT.savedSkinsViewToggleToCards : UI_TEXT.savedSkinsViewToggleToTable}
+              aria-label={viewMode === "table" ? UI_TEXT.savedSkinsViewToggleToCards : UI_TEXT.savedSkinsViewToggleToTable}
+              onClick={() => void toggleViewMode()}
+            >
+              <span className={`view-mode-icon${viewMode === "table" ? " view-mode-icon-table" : " view-mode-icon-cards"}`} aria-hidden="true" />
+            </button>
             <button className="toolbar-button" type="button" onClick={() => navigate(ROUTES.settings)}>
               {UI_TEXT.ctaToSettings}
             </button>
@@ -205,20 +307,60 @@ export const SavedSkinsPage: React.FC = () => {
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Поиск по названию"
             />
-            <select className="toolbar-select" value={sortMode} onChange={(event) => setSortMode(event.target.value as SortMode)}>
-              <option value="title">Сортировка: по названию</option>
-              <option value="price">Сортировка: по цене</option>
-              <option value="source">Сортировка: по источнику</option>
-            </select>
+            {viewMode === "cards" ? (
+              <div className="saved-skins-sort-dropdown" ref={sortMenuRef}>
+                <button
+                  className={`toolbar-button toolbar-button-secondary saved-skins-sort-trigger${isSortMenuOpen ? " view-mode-button-active" : ""}`}
+                  type="button"
+                  aria-haspopup="menu"
+                  aria-expanded={isSortMenuOpen}
+                  onClick={() => setIsSortMenuOpen((current) => !current)}
+                >
+                  <span>{getSortButtonLabel()}</span>
+                </button>
+                {isSortMenuOpen ? (
+                  <div className="saved-skins-sort-menu" role="menu" aria-label={UI_TEXT.savedSkinsSortMenu}>
+                    <button className="saved-skins-sort-item" type="button" role="menuitem" onClick={() => applySortOption("title")}>
+                      {getSortOptionLabel("title")}
+                      {sortState?.column === "title" ? <span className="saved-skins-sort-state">{sortState.direction === "desc" ? "↓" : "↑"}</span> : null}
+                    </button>
+                    <button className="saved-skins-sort-item" type="button" role="menuitem" onClick={() => applySortOption("steamPrice")}>
+                      {getSortOptionLabel("steamPrice")}
+                      {sortState?.column === "steamPrice" ? <span className="saved-skins-sort-state">{sortState.direction === "desc" ? "↓" : "↑"}</span> : null}
+                    </button>
+                    <button className="saved-skins-sort-item" type="button" role="menuitem" onClick={() => applySortOption("lisSkinsPrice")}>
+                      {getSortOptionLabel("lisSkinsPrice")}
+                      {sortState?.column === "lisSkinsPrice" ? <span className="saved-skins-sort-state">{sortState.direction === "desc" ? "↓" : "↑"}</span> : null}
+                    </button>
+                    <button className="saved-skins-sort-item" type="button" role="menuitem" onClick={() => { setSortState(null); setIsSortMenuOpen(false); }}>
+                      {UI_TEXT.savedSkinsSortReset}
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
           </div>
-          <SavedSkinsTable
-            items={filteredItems}
-            isUpdatingAll={isUpdatingAll}
-            updatingSkinIds={updatingSkinIds}
-            deletingSkinIds={deletingSkinIds}
-            onRefreshOne={refreshOne}
-            onDelete={removeSkin}
-          />
+          {viewMode === "table" ? (
+            <SavedSkinsTable
+              items={filteredItems}
+              isUpdatingAll={isUpdatingAll}
+              updatingSkinIds={updatingSkinIds}
+              deletingSkinIds={deletingSkinIds}
+              sortState={sortState}
+              onSortChange={toggleSort}
+              onRefreshOne={refreshOne}
+              onDelete={removeSkin}
+            />
+          ) : (
+            <SavedSkinsCards
+              items={filteredItems}
+              isUpdatingAll={isUpdatingAll}
+              updatingSkinIds={updatingSkinIds}
+              deletingSkinIds={deletingSkinIds}
+              onRefreshOne={refreshOne}
+              onDelete={removeSkin}
+            />
+          )}
           {filteredItems.length === 0 && <EmptyState text="По текущему поиску ничего не найдено" />}
         </>
       )}

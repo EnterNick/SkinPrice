@@ -12,6 +12,7 @@ import (
 const (
 	currencyKey                   = "saved_skins.currency"
 	autoRefreshIntervalSecondsKey = "saved_skins.auto_refresh_interval_seconds"
+	savedSkinsViewModeKey         = "saved_skins.view_mode"
 )
 
 type Storage struct {
@@ -45,6 +46,8 @@ func (s *Storage) GetAppSettings() (appsettings.AppSettings, error) {
 			if parseErr == nil {
 				settings.AutoRefreshIntervalSeconds = interval
 			}
+		case savedSkinsViewModeKey:
+			settings.SavedSkinsViewMode = value
 		}
 	}
 	if err := rows.Err(); err != nil {
@@ -59,6 +62,9 @@ func (s *Storage) SaveAppSettings(settings appsettings.AppSettings) error {
 		return err
 	}
 	if err := s.upsertValue(autoRefreshIntervalSecondsKey, strconv.Itoa(settings.AutoRefreshIntervalSeconds)); err != nil {
+		return err
+	}
+	if err := s.upsertValue(savedSkinsViewModeKey, settings.SavedSkinsViewMode); err != nil {
 		return err
 	}
 	return nil
