@@ -21,10 +21,24 @@ export interface GetSavedSkinsFilter {
 export interface AppSettingsResponse {
   currency: string;
   auto_refresh_interval_seconds: number;
+  saved_skins_view_mode: string;
 }
 
 export interface SearchNewSkinsFilter {
   market_hash_name?: string;
+  sort_column: string;
+  sort_dir: string;
+  price_min?: string;
+  price_max?: string;
+  search_descriptions: boolean;
+  type: string[];
+  weapon: string[];
+  rarity: string[];
+  exterior: string[];
+  item_set: string[];
+  pro_player: string[];
+  sticker_capsule: string[];
+  tournament_team: string[];
   limit: number;
   offset: number;
   cursor: string;
@@ -113,6 +127,7 @@ export interface SetLisSkinsTokenRequest {
 export interface SaveAppSettingsRequest {
   currency: string;
   auto_refresh_interval_seconds: number;
+  saved_skins_view_mode: string;
 }
 
 export interface LisSkinsTokenStatusResponse {

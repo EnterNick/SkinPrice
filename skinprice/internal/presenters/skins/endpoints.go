@@ -67,7 +67,20 @@ func NewEndpoints(searchNewSkinsUC SearchNewSkinsUseCase, saveSkinUC SaveSkinUse
 
 func (e *Endpoints) SearchNewSkins(filter SearchNewSkinsFilter) (NewSkinsResponse, error) {
 	result, err := e.searchNewSkinsUC.Execute(appskins.SearchCriteria{
-		MarketHashName: filter.MarketHashName,
+		MarketHashName:     filter.MarketHashName,
+		SortColumn:         filter.SortColumn,
+		SortDir:            filter.SortDir,
+		PriceMin:           filter.PriceMin,
+		PriceMax:           filter.PriceMax,
+		SearchDescriptions: filter.SearchDescriptions,
+		Types:              filter.Type,
+		Weapons:            filter.Weapon,
+		Rarities:           filter.Rarity,
+		Exteriors:          filter.Exterior,
+		ItemSets:           filter.ItemSet,
+		ProPlayers:         filter.ProPlayer,
+		StickerCapsules:    filter.StickerCapsule,
+		TournamentTeams:    filter.TournamentTeam,
 	}, app.Pagination{Limit: filter.Limit, Offset: filter.Offset, Cursor: filter.Cursor})
 	if err != nil {
 		return NewSkinsResponse{}, err
@@ -78,6 +91,7 @@ func (e *Endpoints) SearchNewSkins(filter SearchNewSkinsFilter) (NewSkinsRespons
 		items = append(items, NewSkinItem{
 			MarketHashName: item.MarketHashName,
 			DisplayName:    item.DisplayName,
+			NameColor:      item.NameColor,
 			SellListings:   item.SellListings,
 			PriceCents:     item.PriceCents,
 			PriceText:      item.PriceText,
@@ -99,6 +113,7 @@ func (e *Endpoints) SaveSkin(payload SaveSkinRequest) (SaveSkinResponse, error) 
 	result, err := e.saveSkinUC.Execute(appskins.SaveSkinParams{
 		MarketHashName: payload.MarketHashName,
 		DisplayName:    payload.DisplayName,
+		NameColor:      payload.NameColor,
 		IconURL:        payload.IconURL,
 		PageURL:        payload.PageURL,
 	})
@@ -119,6 +134,7 @@ func (e *Endpoints) GetSavedSkins(filter GetSavedSkinsFilter) (SavedSkinsRespons
 		items = append(items, SavedSkinItem{
 			MarketHashName:    item.MarketHashName,
 			DisplayName:       item.DisplayName,
+			NameColor:         item.NameColor,
 			IconURL:           item.IconURL,
 			SteamPageURL:      item.SteamPageURL,
 			SteamPriceText:    item.SteamPriceText,

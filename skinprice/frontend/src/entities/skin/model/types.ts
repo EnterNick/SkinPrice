@@ -1,14 +1,46 @@
 export type SavedSkinCurrency = "1" | "3" | "5";
+export type SavedSkinsViewMode = "table" | "cards";
+export type SavedSkinsSortColumn = "title" | "steamPrice" | "lisSkinsPrice";
+export type SavedSkinsSortDirection = "desc" | "asc";
+export type SavedSkinsSortState = {
+  column: SavedSkinsSortColumn;
+  direction: SavedSkinsSortDirection;
+} | null;
 
 export type CurrencyOption = {
   value: SavedSkinCurrency;
   label: "USD" | "EUR" | "RUB";
 };
 
+export type NewSkinsSearchSortColumn = "popular" | "price" | "name" | "quantity";
+export type NewSkinsSearchSortDir = "asc" | "desc";
+
+export type NewSkinsSearchFilters = {
+  priceMin: string;
+  priceMax: string;
+  searchDescriptions: boolean;
+  type: string[];
+  weapon: string[];
+  rarity: string[];
+  exterior: string[];
+  itemSet: string[];
+  proPlayer: string[];
+  stickerCapsule: string[];
+  tournamentTeam: string[];
+};
+
+export type NewSkinsSearchParams = {
+  query: string;
+  sortColumn: NewSkinsSearchSortColumn;
+  sortDir: NewSkinsSearchSortDir;
+  filters: NewSkinsSearchFilters;
+};
+
 export type Skin = {
   id: string;
   name: string;
   title: string;
+  nameColor?: string;
   imageUrl: string;
   steamPageUrl: string;
   lisSkinsPageUrl: string;

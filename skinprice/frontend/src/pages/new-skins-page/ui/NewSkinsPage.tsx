@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../app/router/routes";
 import { saveSkin } from "../../../entities/skin/api/skinApi";
-import type { NewSkin } from "../../../entities/skin/model/types";
+import type { NewSkin, NewSkinsSearchParams } from "../../../entities/skin/model/types";
 import { useNewSkinsSearch } from "../../../features/search-skins/model/useNewSkinsSearch";
+import { DEFAULT_NEW_SKINS_SEARCH_PARAMS } from "../../../shared/config/newSkinsSearch";
 import { MIN_SEARCH_LENGTH } from "../../../shared/config/search";
 import { UI_TEXT } from "../../../shared/config/uiText";
 import { formatErrorMessage } from "../../../shared/lib/error/formatErrorMessage";
@@ -28,7 +29,7 @@ export const NewSkinsPage: React.FC = () => {
   const [savingIds, setSavingIds] = useState<Record<string, boolean>>({});
   const [savedIds, setSavedIds] = useState<Record<string, boolean>>({});
   const [notice, setNotice] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const [query, setQuery] = useState("");
+  const [searchParams, setSearchParams] = useState<NewSkinsSearchParams>(DEFAULT_NEW_SKINS_SEARCH_PARAMS);
 
   const onSave = async (skin: NewSkin) => {
     setSavingIds((prev) => ({ ...prev, [skin.id]: true }));
@@ -45,10 +46,10 @@ export const NewSkinsPage: React.FC = () => {
   };
 
   useEffect(() => {
-    const value = query.trim();
+    const value = searchParams.query.trim();
     if (value.length === 0) {
       setNotice(null);
-      void loadNewSkins("");
+      void loadNewSkins(searchParams);
       return;
     }
 
@@ -60,13 +61,13 @@ export const NewSkinsPage: React.FC = () => {
 
     const timeoutId = window.setTimeout(() => {
       setNotice(null);
-      void loadNewSkins(value);
-    }, 1000);
+      void loadNewSkins(searchParams);
+    }, 450);
 
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [loadNewSkins, query, resetSearchState]);
+  }, [loadNewSkins, resetSearchState, searchParams]);
 
   return (
     <div className="new-skins-page">
@@ -82,10 +83,11 @@ export const NewSkinsPage: React.FC = () => {
         }
       />
       <NewSkinsSearchPanel
-        value={query}
+        value={searchParams}
         errorText={notice?.type === "error" ? notice.text : null}
         disabled={false}
-        onChange={setQuery}
+        onChange={setSearchParams}
+        onReset={() => setSearchParams(DEFAULT_NEW_SKINS_SEARCH_PARAMS)}
       />
       {notice && <ToastAlert type={notice.type} text={notice.text} />}
       {error && !loading && <ErrorState text={error} />}

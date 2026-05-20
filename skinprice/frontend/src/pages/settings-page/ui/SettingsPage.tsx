@@ -7,6 +7,7 @@ import {
   CURRENCY_OPTIONS,
   DEFAULT_AUTO_REFRESH_INTERVAL_SECONDS,
   DEFAULT_CURRENCY,
+  DEFAULT_SAVED_SKINS_VIEW_MODE,
   normalizeAutoRefreshIntervalSeconds,
 } from "../../../shared/config/settings";
 import { UI_TEXT } from "../../../shared/config/uiText";
@@ -21,6 +22,7 @@ export const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
   const [currency, setCurrency] = useState(DEFAULT_CURRENCY);
   const [autoRefreshInput, setAutoRefreshInput] = useState(String(DEFAULT_AUTO_REFRESH_INTERVAL_SECONDS));
+  const [savedSkinsViewMode, setSavedSkinsViewMode] = useState(DEFAULT_SAVED_SKINS_VIEW_MODE);
   const [isTokenConfigured, setIsTokenConfigured] = useState(false);
   const [tokenValue, setTokenValue] = useState("");
   const [tokenBaseline, setTokenBaseline] = useState("");
@@ -43,6 +45,7 @@ export const SettingsPage: React.FC = () => {
         if (!active) return;
         setCurrency(settings.currency);
         setAutoRefreshInput(String(settings.autoRefreshIntervalSeconds));
+        setSavedSkinsViewMode(settings.savedSkinsViewMode);
         setIsTokenConfigured(hasToken);
         setTokenStatus(hasToken ? "saved" : "missing");
         setPageError(null);
@@ -66,9 +69,14 @@ export const SettingsPage: React.FC = () => {
   }, [tokenBaseline, tokenValue]);
 
   const persistSettings = async (nextCurrency: SavedSkinCurrency, nextInterval: number) => {
-    const saved = await saveAppSettings({ currency: nextCurrency, autoRefreshIntervalSeconds: nextInterval });
+    const saved = await saveAppSettings({
+      currency: nextCurrency,
+      autoRefreshIntervalSeconds: nextInterval,
+      savedSkinsViewMode,
+    });
     setCurrency(saved.currency);
     setAutoRefreshInput(String(saved.autoRefreshIntervalSeconds));
+    setSavedSkinsViewMode(saved.savedSkinsViewMode);
     setNotice({ type: "success", text: UI_TEXT.settingsAutoSaved });
   };
 

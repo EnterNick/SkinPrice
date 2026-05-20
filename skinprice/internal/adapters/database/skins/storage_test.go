@@ -74,6 +74,7 @@ func saveFixtureSkin(t *testing.T, storage *Storage, hash string) {
 	if _, err := storage.Save(appskins.SaveSkinParams{
 		MarketHashName: hash,
 		DisplayName:    hash,
+		NameColor:      "8847ff",
 		IconURL:        "icon",
 		PageURL:        "page",
 	}); err != nil {
@@ -87,6 +88,7 @@ func TestSaveSkinIgnoresDuplicates(t *testing.T) {
 	first, err := storage.Save(appskins.SaveSkinParams{
 		MarketHashName: "AK-47 | Redline",
 		DisplayName:    "AK-47 | Redline",
+		NameColor:      "8847ff",
 		IconURL:        "icon",
 		PageURL:        "page",
 	})
@@ -100,6 +102,7 @@ func TestSaveSkinIgnoresDuplicates(t *testing.T) {
 	second, err := storage.Save(appskins.SaveSkinParams{
 		MarketHashName: "AK-47 | Redline",
 		DisplayName:    "AK-47 | Redline",
+		NameColor:      "ff0000",
 		IconURL:        "icon",
 		PageURL:        "page",
 	})
@@ -130,6 +133,9 @@ func TestGetSavedListReturnsSavedItems(t *testing.T) {
 	}
 	if list.Items[0].SteamPageURL != "page" {
 		t.Fatalf("expected steam page url fallback from saved page, got %q", list.Items[0].SteamPageURL)
+	}
+	if list.Items[0].NameColor != "8847ff" {
+		t.Fatalf("expected saved name color, got %q", list.Items[0].NameColor)
 	}
 	if list.Items[0].LisSkinsPageURL == "" {
 		t.Fatalf("expected lisskins page url to be initialized")
@@ -187,6 +193,9 @@ func TestUpdateSavedSkinPriceUpdatesStoredValue(t *testing.T) {
 	}
 	if list.Items[0].Currency != "1" {
 		t.Fatalf("expected saved canonical currency, got %q", list.Items[0].Currency)
+	}
+	if list.Items[0].NameColor != "8847ff" {
+		t.Fatalf("expected name color to remain unchanged on price update, got %q", list.Items[0].NameColor)
 	}
 }
 

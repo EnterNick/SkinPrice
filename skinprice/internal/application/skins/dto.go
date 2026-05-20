@@ -4,6 +4,21 @@ import "time"
 
 type SearchCriteria struct {
 	MarketHashName *string
+	SortColumn     string
+	SortDir        string
+	PriceMin       *string
+	PriceMax       *string
+
+	SearchDescriptions bool
+
+	Types           []string
+	Weapons         []string
+	Rarities        []string
+	Exteriors       []string
+	ItemSets        []string
+	ProPlayers      []string
+	StickerCapsules []string
+	TournamentTeams []string
 }
 
 type NewSkinsList struct {
@@ -17,6 +32,7 @@ type NewSkinsList struct {
 type NewSkin struct {
 	MarketHashName string
 	DisplayName    string
+	NameColor      string
 
 	SellListings int64
 
@@ -30,6 +46,7 @@ type NewSkin struct {
 type SaveSkinParams struct {
 	MarketHashName string
 	DisplayName    string
+	NameColor      string
 	IconURL        string
 	PageURL        string
 }
@@ -48,6 +65,7 @@ type SavedSkinsList struct {
 type SavedSkin struct {
 	MarketHashName    string
 	DisplayName       string
+	NameColor         string
 	IconURL           string
 	SteamPageURL      string
 	SteamPriceText    string

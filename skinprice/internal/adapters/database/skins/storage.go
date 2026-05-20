@@ -49,17 +49,17 @@ func (s *Storage) Save(params appskins.SaveSkinParams) (appskins.SaveSkinResult,
 	steamPageURL := params.PageURL
 	lisSkinsPageURL := adapterlisskins.BuildMarketPageURL(params.MarketHashName)
 	insertQuery := `INSERT INTO skins (
-		market_hash_name, display_name, icon_url, page_url, price_text,
+		market_hash_name, display_name, name_color, icon_url, page_url, price_text,
 		steam_page_url, steam_price_text, lisskins_page_url, lisskins_price_text, currency
-	) VALUES (?, ?, ?, ?, '', ?, '', ?, '', '1')`
+	) VALUES (?, ?, ?, ?, ?, '', ?, '', ?, '', '1')`
 	if s.Conn.Dialect() == "postgres" {
 		insertQuery = `INSERT INTO skins (
-			market_hash_name, display_name, icon_url, page_url, price_text,
+			market_hash_name, display_name, name_color, icon_url, page_url, price_text,
 			steam_page_url, steam_price_text, lisskins_page_url, lisskins_price_text, currency
-		) VALUES ($1, $2, $3, $4, '', $5, '', $6, '', '1')`
+		) VALUES ($1, $2, $3, $4, $5, '', $6, '', $7, '', '1')`
 	}
 
-	_, err := db.ExecContext(ctx, insertQuery, params.MarketHashName, params.DisplayName, params.IconURL, steamPageURL, steamPageURL, lisSkinsPageURL)
+	_, err := db.ExecContext(ctx, insertQuery, params.MarketHashName, params.DisplayName, params.NameColor, params.IconURL, steamPageURL, steamPageURL, lisSkinsPageURL)
 	if err != nil {
 		if isUniqueViolation(err) {
 			logger.Info("skin already exists", slog.String("market_hash_name", params.MarketHashName))
@@ -87,13 +87,13 @@ func (s *Storage) GetSavedList(params *application.Pagination) (_ appskins.Saved
 	}
 
 	query := `SELECT
-		market_hash_name, display_name, icon_url,
+		market_hash_name, display_name, name_color, icon_url,
 		page_url, price_text, steam_page_url, steam_price_text, steam_updated_at,
 		lisskins_page_url, lisskins_price_text, lisskins_updated_at, currency, updated_at
 	FROM skins ORDER BY id DESC LIMIT ? OFFSET ?`
 	if s.Conn.Dialect() == "postgres" {
 		query = `SELECT
-			market_hash_name, display_name, icon_url,
+			market_hash_name, display_name, name_color, icon_url,
 			page_url, price_text, steam_page_url, steam_price_text, steam_updated_at,
 			lisskins_page_url, lisskins_price_text, lisskins_updated_at, currency, updated_at
 		FROM skins ORDER BY id DESC LIMIT $1 OFFSET $2`
@@ -121,6 +121,7 @@ func (s *Storage) GetSavedList(params *application.Pagination) (_ appskins.Saved
 		if err := rows.Scan(
 			&item.MarketHashName,
 			&item.DisplayName,
+			&item.NameColor,
 			&item.IconURL,
 			&legacyPageURL,
 			&legacyPriceText,

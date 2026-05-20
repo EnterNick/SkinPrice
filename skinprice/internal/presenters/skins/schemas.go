@@ -3,10 +3,23 @@ package skins
 import "time"
 
 type SearchNewSkinsFilter struct {
-	MarketHashName *string `json:"market_hash_name"`
-	Limit          int     `json:"limit"`
-	Offset         int     `json:"offset"`
-	Cursor         string  `json:"cursor"`
+	MarketHashName     *string  `json:"market_hash_name"`
+	SortColumn         string   `json:"sort_column"`
+	SortDir            string   `json:"sort_dir"`
+	PriceMin           *string  `json:"price_min"`
+	PriceMax           *string  `json:"price_max"`
+	SearchDescriptions bool     `json:"search_descriptions"`
+	Type               []string `json:"type"`
+	Weapon             []string `json:"weapon"`
+	Rarity             []string `json:"rarity"`
+	Exterior           []string `json:"exterior"`
+	ItemSet            []string `json:"item_set"`
+	ProPlayer          []string `json:"pro_player"`
+	StickerCapsule     []string `json:"sticker_capsule"`
+	TournamentTeam     []string `json:"tournament_team"`
+	Limit              int      `json:"limit"`
+	Offset             int      `json:"offset"`
+	Cursor             string   `json:"cursor"`
 }
 
 type NewSkinsResponse struct {
@@ -20,6 +33,7 @@ type NewSkinsResponse struct {
 type NewSkinItem struct {
 	MarketHashName string `json:"market_hash_name"`
 	DisplayName    string `json:"display_name"`
+	NameColor      string `json:"name_color"`
 	SellListings   int64  `json:"sell_listings"`
 	PriceCents     *int64 `json:"price_cents"`
 	PriceText      string `json:"price_text"`
@@ -30,6 +44,7 @@ type NewSkinItem struct {
 type SaveSkinRequest struct {
 	MarketHashName string `json:"market_hash_name"`
 	DisplayName    string `json:"display_name"`
+	NameColor      string `json:"name_color"`
 	IconURL        string `json:"icon_url"`
 	PageURL        string `json:"page_url"`
 }
@@ -53,6 +68,7 @@ type SavedSkinsResponse struct {
 type SavedSkinItem struct {
 	MarketHashName    string    `json:"market_hash_name"`
 	DisplayName       string    `json:"display_name"`
+	NameColor         string    `json:"name_color"`
 	IconURL           string    `json:"icon_url"`
 	SteamPageURL      string    `json:"steam_page_url"`
 	SteamPriceText    string    `json:"steam_price_text"`

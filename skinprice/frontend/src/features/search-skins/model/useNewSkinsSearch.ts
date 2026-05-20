@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { getNewSkins } from "../../../entities/skin/api/skinApi";
-import type { NewSkin } from "../../../entities/skin/model/types";
+import type { NewSkin, NewSkinsSearchParams } from "../../../entities/skin/model/types";
 import { UI_TEXT } from "../../../shared/config/uiText";
 import { formatErrorMessage } from "../../../shared/lib/error/formatErrorMessage";
 
@@ -18,7 +18,7 @@ export const useNewSkinsSearch = () => {
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentQuery, setCurrentQuery] = useState("");
+  const [currentParams, setCurrentParams] = useState<NewSkinsSearchParams | null>(null);
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -30,17 +30,16 @@ export const useNewSkinsSearch = () => {
     setError(null);
     setHasMore(false);
     setHasSearched(false);
-    setCurrentQuery("");
+    setCurrentParams(null);
     setOffset(0);
   }, []);
 
-  const loadNewSkins = useCallback(async (searchValue: string, nextOffset = 0, append = false) => {
-    const normalizedSearch = searchValue.trim();
+  const loadNewSkins = useCallback(async (params: NewSkinsSearchParams, nextOffset = 0, append = false) => {
     const requestId = requestIdRef.current + 1;
     requestIdRef.current = requestId;
 
     setHasSearched(true);
-    setCurrentQuery(normalizedSearch);
+    setCurrentParams(params);
     if (append) {
       setLoadingMore(true);
     } else {
@@ -51,15 +50,10 @@ export const useNewSkinsSearch = () => {
 
     try {
       await allowPaint();
-      const response = await getNewSkins(normalizedSearch, PAGE_SIZE, nextOffset);
+      const response = await getNewSkins(params, PAGE_SIZE, nextOffset);
       if (requestId !== requestIdRef.current) return;
 
-      const normalizedQuery = normalizedSearch.toLowerCase();
-      const filteredItems = normalizedQuery
-        ? response.items.filter((item) => item.title.toLowerCase().includes(normalizedQuery) || item.name.toLowerCase().includes(normalizedQuery))
-        : response.items;
-
-      setItems((prev) => (append ? [...prev, ...filteredItems] : filteredItems));
+      setItems((prev) => (append ? [...prev, ...response.items] : response.items));
       setOffset(nextOffset + response.items.length);
       setHasMore(nextOffset + response.items.length < response.total);
       setLoading(false);
@@ -77,9 +71,9 @@ export const useNewSkinsSearch = () => {
   }, []);
 
   const loadNextPage = useCallback(async () => {
-    if (loading || loadingMore || !hasMore) return;
-    await loadNewSkins(currentQuery, offset, true);
-  }, [currentQuery, hasMore, loadNewSkins, loading, loadingMore, offset]);
+    if (loading || loadingMore || !hasMore || currentParams === null) return;
+    await loadNewSkins(currentParams, offset, true);
+  }, [currentParams, hasMore, loadNewSkins, loading, loadingMore, offset]);
 
   return {
     items,

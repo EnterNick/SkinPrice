@@ -32,6 +32,7 @@ func EnsureSchema(connection *Connection) error {
 func ensureSkinsSchema(ctx context.Context, connection *Connection) error {
 	if connection.Dialect() == "postgres" {
 		statements := []string{
+			`ALTER TABLE skins ADD COLUMN IF NOT EXISTS name_color TEXT NOT NULL DEFAULT ''`,
 			`ALTER TABLE skins ADD COLUMN IF NOT EXISTS steam_page_url TEXT NOT NULL DEFAULT ''`,
 			`ALTER TABLE skins ADD COLUMN IF NOT EXISTS steam_price_text TEXT NOT NULL DEFAULT ''`,
 			`ALTER TABLE skins ADD COLUMN IF NOT EXISTS steam_updated_at TIMESTAMPTZ`,
@@ -48,6 +49,7 @@ func ensureSkinsSchema(ctx context.Context, connection *Connection) error {
 	}
 
 	statements := []string{
+		`ALTER TABLE skins ADD COLUMN name_color TEXT NOT NULL DEFAULT ''`,
 		`ALTER TABLE skins ADD COLUMN steam_page_url TEXT NOT NULL DEFAULT ''`,
 		`ALTER TABLE skins ADD COLUMN steam_price_text TEXT NOT NULL DEFAULT ''`,
 		`ALTER TABLE skins ADD COLUMN steam_updated_at DATETIME`,
@@ -136,6 +138,7 @@ func isMissingColumnIgnored(err error) bool {
 	return strings.Contains(message, "duplicate column name: source") ||
 		strings.Contains(message, "duplicate column name: api_token_encrypted") ||
 		strings.Contains(message, "duplicate column name: updated_at") ||
+		strings.Contains(message, "duplicate column name: name_color") ||
 		strings.Contains(message, "duplicate column name: steam_page_url") ||
 		strings.Contains(message, "duplicate column name: steam_price_text") ||
 		strings.Contains(message, "duplicate column name: steam_updated_at") ||
@@ -149,6 +152,7 @@ CREATE TABLE IF NOT EXISTS skins (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	market_hash_name TEXT NOT NULL UNIQUE,
 	display_name TEXT NOT NULL,
+	name_color TEXT NOT NULL DEFAULT '',
 	icon_url TEXT NOT NULL DEFAULT '',
 	page_url TEXT NOT NULL DEFAULT '',
 	price_text TEXT NOT NULL DEFAULT '',
@@ -182,6 +186,7 @@ CREATE TABLE IF NOT EXISTS skins (
 	id BIGSERIAL PRIMARY KEY,
 	market_hash_name TEXT NOT NULL UNIQUE,
 	display_name TEXT NOT NULL,
+	name_color TEXT NOT NULL DEFAULT '',
 	icon_url TEXT NOT NULL DEFAULT '',
 	page_url TEXT NOT NULL DEFAULT '',
 	price_text TEXT NOT NULL DEFAULT '',

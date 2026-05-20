@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -45,15 +46,16 @@ type steamMarketSearchItem struct {
 	SellPrice     *int64 `json:"sell_price"`
 	SellPriceText string `json:"sell_price_text"`
 	AssetDesc     struct {
-		IconURL string `json:"icon_url"`
+		IconURL   string `json:"icon_url"`
+		NameColor string `json:"name_color"`
 	} `json:"asset_description"`
 }
 
-const requestTimeout = 8 * time.Second
+const requestTimeout = 15 * time.Second
 
 func (s *Storage) GetList(criteria skins.SearchCriteria, params *application.Pagination) (_ skins.NewSkinsList, err error) {
 	logger := logx.WithComponent(s.Logger, "steam_storage")
-	q := buildSteamMarketSearchParams(params)
+	q := buildSteamMarketSearchParams(criteria, params)
 	if criteria.MarketHashName != nil {
 		q.Set("query", *criteria.MarketHashName)
 	}
@@ -122,6 +124,7 @@ func (s *Storage) GetList(criteria skins.SearchCriteria, params *application.Pag
 		items = append(items, skins.NewSkin{
 			MarketHashName: item.HashName,
 			DisplayName:    item.Name,
+			NameColor:      item.AssetDesc.NameColor,
 			SellListings:   item.SellListings,
 			PriceCents:     item.SellPrice,
 			PriceText:      item.SellPriceText,
@@ -146,16 +149,52 @@ func (s *Storage) GetList(criteria skins.SearchCriteria, params *application.Pag
 	}, nil
 }
 
-func buildSteamMarketSearchParams(params *application.Pagination) url.Values {
+func buildSteamMarketSearchParams(criteria skins.SearchCriteria, params *application.Pagination) url.Values {
 	q := url.Values{}
 
 	q.Set("start", strconv.Itoa(params.Offset))
 	q.Set("count", strconv.Itoa(params.Limit))
-	q.Set("search_descriptions", "0")
 	q.Set("appid", "730")
 	q.Set("norender", "1")
+	if criteria.SearchDescriptions {
+		q.Set("search_descriptions", "1")
+	} else {
+		q.Set("search_descriptions", "0")
+	}
+	if value := strings.TrimSpace(criteria.SortColumn); value != "" {
+		q.Set("sort_column", value)
+	}
+	if value := strings.TrimSpace(criteria.SortDir); value != "" {
+		q.Set("sort_dir", value)
+	}
+	if criteria.PriceMin != nil {
+		if value := strings.TrimSpace(*criteria.PriceMin); value != "" {
+			q.Set("price_min", value)
+		}
+	}
+	if criteria.PriceMax != nil {
+		if value := strings.TrimSpace(*criteria.PriceMax); value != "" {
+			q.Set("price_max", value)
+		}
+	}
+	addSteamMarketFilterValues(q, "category_730_Type[]", criteria.Types)
+	addSteamMarketFilterValues(q, "category_730_Weapon[]", criteria.Weapons)
+	addSteamMarketFilterValues(q, "category_730_Rarity[]", criteria.Rarities)
+	addSteamMarketFilterValues(q, "category_730_Exterior[]", criteria.Exteriors)
+	addSteamMarketFilterValues(q, "category_730_ItemSet[]", criteria.ItemSets)
+	addSteamMarketFilterValues(q, "category_730_ProPlayer[]", criteria.ProPlayers)
+	addSteamMarketFilterValues(q, "category_730_StickerCapsule[]", criteria.StickerCapsules)
+	addSteamMarketFilterValues(q, "category_730_TournamentTeam[]", criteria.TournamentTeams)
 
 	return q
+}
+
+func addSteamMarketFilterValues(q url.Values, key string, values []string) {
+	for _, value := range values {
+		if normalized := strings.TrimSpace(value); normalized != "" {
+			q.Add(key, normalized)
+		}
+	}
 }
 
 func (s *Storage) GetByMarketHashName(marketHashName, currency string) (_ *skins.NewSkin, err error) {
