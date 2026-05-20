@@ -67,7 +67,20 @@ func NewEndpoints(searchNewSkinsUC SearchNewSkinsUseCase, saveSkinUC SaveSkinUse
 
 func (e *Endpoints) SearchNewSkins(filter SearchNewSkinsFilter) (NewSkinsResponse, error) {
 	result, err := e.searchNewSkinsUC.Execute(appskins.SearchCriteria{
-		MarketHashName: filter.MarketHashName,
+		MarketHashName:     filter.MarketHashName,
+		SortColumn:         filter.SortColumn,
+		SortDir:            filter.SortDir,
+		PriceMin:           filter.PriceMin,
+		PriceMax:           filter.PriceMax,
+		SearchDescriptions: filter.SearchDescriptions,
+		Types:              filter.Type,
+		Weapons:            filter.Weapon,
+		Rarities:           filter.Rarity,
+		Exteriors:          filter.Exterior,
+		ItemSets:           filter.ItemSet,
+		ProPlayers:         filter.ProPlayer,
+		StickerCapsules:    filter.StickerCapsule,
+		TournamentTeams:    filter.TournamentTeam,
 	}, app.Pagination{Limit: filter.Limit, Offset: filter.Offset, Cursor: filter.Cursor})
 	if err != nil {
 		return NewSkinsResponse{}, err

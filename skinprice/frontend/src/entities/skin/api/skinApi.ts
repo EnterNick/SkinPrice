@@ -4,11 +4,22 @@ import { toApiError } from "../../../shared/api/errors";
 import { normalizeAutoRefreshIntervalSeconds, normalizeCurrency, normalizeSavedSkinsViewMode } from "../../../shared/config/settings";
 import { logClientEvent } from "../../../shared/lib/logging/logger";
 import { toSkinNameColor } from "../../../shared/lib/skinNameColor";
-import type { BulkPriceUpdateResult, NewSkin, PaginatedResult, PriceUpdateResult, SaveSkinResult, SavedSkin, SavedSkinCurrency, SavedSkinsViewMode } from "../model/types";
+import type {
+  BulkPriceUpdateResult,
+  NewSkin,
+  NewSkinsSearchParams,
+  PaginatedResult,
+  PriceUpdateResult,
+  SaveSkinResult,
+  SavedSkin,
+  SavedSkinCurrency,
+  SavedSkinsViewMode,
+} from "../model/types";
 
 const DEFAULT_LIMIT = 20;
 const DEFAULT_OFFSET = 0;
-const SEARCH_TIMEOUT_MS = 8000;
+const SEARCH_TIMEOUT_MS = 15000;
+const inFlightNewSkinsRequests = new Map<string, Promise<PaginatedResult<NewSkin>>>();
 
 const normalizeImageUrl = (imageUrl?: string, pageUrl?: string): string => {
   if (!imageUrl) return "";
@@ -75,6 +86,22 @@ const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number, message: s
   }
 };
 
+const buildNewSkinsSearchKey = (
+  params: NewSkinsSearchParams,
+  limit: number,
+  offset: number,
+  cursor: string,
+): string =>
+  JSON.stringify({
+    query: params.query.trim(),
+    sortColumn: params.sortColumn,
+    sortDir: params.sortDir,
+    filters: params.filters,
+    limit,
+    offset,
+    cursor,
+  });
+
 export const getSavedSkins = async (): Promise<PaginatedResult<SavedSkin>> => {
   try {
     const response = await GetSavedSkins({ limit: DEFAULT_LIMIT, offset: DEFAULT_OFFSET });
@@ -94,33 +121,64 @@ export const getSavedSkins = async (): Promise<PaginatedResult<SavedSkin>> => {
 };
 
 export const getNewSkins = async (
-  query?: string,
+  params: NewSkinsSearchParams,
   limit = DEFAULT_LIMIT,
   offset = DEFAULT_OFFSET,
   cursor = "",
 ): Promise<PaginatedResult<NewSkin>> => {
-  try {
-    const response = await withTimeout(
-      SearchNewSkins({ market_hash_name: query, limit, offset, cursor }),
-      SEARCH_TIMEOUT_MS,
-      "search timeout",
-    );
-    return {
-      items: response.items.map(mapNewSkin),
-      total: response.total_count,
-      limit: response.limit,
-      offset: response.offset,
-      nextCursor: response.next_cursor,
-    };
-  } catch (err) {
-    logClientEvent("error", "getNewSkins failed", "skinApi", {
-      operation: "getNewSkins",
-      query: query ?? "",
-      cursor,
-      error: err instanceof Error ? err.message : String(err ?? ""),
-    });
-    throw toApiError(err);
+  const requestKey = buildNewSkinsSearchKey(params, limit, offset, cursor);
+  const activeRequest = inFlightNewSkinsRequests.get(requestKey);
+  if (activeRequest) {
+    return activeRequest;
   }
+
+  const requestPromise = (async () => {
+    try {
+      const response = await withTimeout(
+        SearchNewSkins({
+          market_hash_name: params.query.trim() || undefined,
+          sort_column: params.sortColumn,
+          sort_dir: params.sortDir,
+          price_min: params.filters.priceMin.trim() || undefined,
+          price_max: params.filters.priceMax.trim() || undefined,
+          search_descriptions: params.filters.searchDescriptions,
+          type: params.filters.type,
+          weapon: params.filters.weapon,
+          rarity: params.filters.rarity,
+          exterior: params.filters.exterior,
+          item_set: params.filters.itemSet,
+          pro_player: params.filters.proPlayer,
+          sticker_capsule: params.filters.stickerCapsule,
+          tournament_team: params.filters.tournamentTeam,
+          limit,
+          offset,
+          cursor,
+        }),
+        SEARCH_TIMEOUT_MS,
+        "search timeout",
+      );
+      return {
+        items: response.items.map(mapNewSkin),
+        total: response.total_count,
+        limit: response.limit,
+        offset: response.offset,
+        nextCursor: response.next_cursor,
+      };
+    } catch (err) {
+      logClientEvent("error", "getNewSkins failed", "skinApi", {
+        operation: "getNewSkins",
+        query: params.query,
+        cursor,
+        error: err instanceof Error ? err.message : String(err ?? ""),
+      });
+      throw toApiError(err);
+    } finally {
+    inFlightNewSkinsRequests.delete(requestKey);
+  }
+  })();
+
+  inFlightNewSkinsRequests.set(requestKey, requestPromise);
+  return requestPromise;
 };
 
 export const updateSkinPrice = async (skinId: string, currency: SavedSkinCurrency): Promise<PriceUpdateResult> => {

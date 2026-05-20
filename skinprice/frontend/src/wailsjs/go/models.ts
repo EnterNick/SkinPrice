@@ -284,6 +284,19 @@ export namespace skins {
 	}
 	export class SearchNewSkinsFilter {
 	    market_hash_name?: string;
+	    sort_column: string;
+	    sort_dir: string;
+	    price_min?: string;
+	    price_max?: string;
+	    search_descriptions: boolean;
+	    type: string[];
+	    weapon: string[];
+	    rarity: string[];
+	    exterior: string[];
+	    item_set: string[];
+	    pro_player: string[];
+	    sticker_capsule: string[];
+	    tournament_team: string[];
 	    limit: number;
 	    offset: number;
 	    cursor: string;
@@ -295,6 +308,19 @@ export namespace skins {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.market_hash_name = source["market_hash_name"];
+	        this.sort_column = source["sort_column"];
+	        this.sort_dir = source["sort_dir"];
+	        this.price_min = source["price_min"];
+	        this.price_max = source["price_max"];
+	        this.search_descriptions = source["search_descriptions"];
+	        this.type = source["type"];
+	        this.weapon = source["weapon"];
+	        this.rarity = source["rarity"];
+	        this.exterior = source["exterior"];
+	        this.item_set = source["item_set"];
+	        this.pro_player = source["pro_player"];
+	        this.sticker_capsule = source["sticker_capsule"];
+	        this.tournament_team = source["tournament_team"];
 	        this.limit = source["limit"];
 	        this.offset = source["offset"];
 	        this.cursor = source["cursor"];

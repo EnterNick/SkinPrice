@@ -12,6 +12,30 @@ export type CurrencyOption = {
   label: "USD" | "EUR" | "RUB";
 };
 
+export type NewSkinsSearchSortColumn = "popular" | "price" | "name" | "quantity";
+export type NewSkinsSearchSortDir = "asc" | "desc";
+
+export type NewSkinsSearchFilters = {
+  priceMin: string;
+  priceMax: string;
+  searchDescriptions: boolean;
+  type: string[];
+  weapon: string[];
+  rarity: string[];
+  exterior: string[];
+  itemSet: string[];
+  proPlayer: string[];
+  stickerCapsule: string[];
+  tournamentTeam: string[];
+};
+
+export type NewSkinsSearchParams = {
+  query: string;
+  sortColumn: NewSkinsSearchSortColumn;
+  sortDir: NewSkinsSearchSortDir;
+  filters: NewSkinsSearchFilters;
+};
+
 export type Skin = {
   id: string;
   name: string;

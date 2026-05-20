@@ -4,6 +4,21 @@ import "time"
 
 type SearchCriteria struct {
 	MarketHashName *string
+	SortColumn     string
+	SortDir        string
+	PriceMin       *string
+	PriceMax       *string
+
+	SearchDescriptions bool
+
+	Types           []string
+	Weapons         []string
+	Rarities        []string
+	Exteriors       []string
+	ItemSets        []string
+	ProPlayers      []string
+	StickerCapsules []string
+	TournamentTeams []string
 }
 
 type NewSkinsList struct {

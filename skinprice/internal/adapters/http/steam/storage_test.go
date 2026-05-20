@@ -54,6 +54,56 @@ func TestGetListParsesNameColor(t *testing.T) {
 	}
 }
 
+func TestBuildSteamMarketSearchParamsIncludesServerFilters(t *testing.T) {
+	priceMin := "100"
+	priceMax := "2500"
+
+	params := buildSteamMarketSearchParams(
+		skins.SearchCriteria{
+			SortColumn:         "price",
+			SortDir:            "asc",
+			PriceMin:           &priceMin,
+			PriceMax:           &priceMax,
+			SearchDescriptions: true,
+			Types:              []string{"tag_CSGO_Type_Rifle"},
+			Weapons:            []string{"tag_weapon_ak47", "tag_weapon_awp"},
+			Exteriors:          []string{"tag_WearCategory0"},
+		},
+		&application.Pagination{Limit: 20, Offset: 40},
+	)
+
+	if got := params.Get("start"); got != "40" {
+		t.Fatalf("expected start=40, got %q", got)
+	}
+	if got := params.Get("count"); got != "20" {
+		t.Fatalf("expected count=20, got %q", got)
+	}
+	if got := params.Get("sort_column"); got != "price" {
+		t.Fatalf("expected sort_column=price, got %q", got)
+	}
+	if got := params.Get("sort_dir"); got != "asc" {
+		t.Fatalf("expected sort_dir=asc, got %q", got)
+	}
+	if got := params.Get("price_min"); got != "100" {
+		t.Fatalf("expected price_min=100, got %q", got)
+	}
+	if got := params.Get("price_max"); got != "2500" {
+		t.Fatalf("expected price_max=2500, got %q", got)
+	}
+	if got := params.Get("search_descriptions"); got != "1" {
+		t.Fatalf("expected search_descriptions=1, got %q", got)
+	}
+	if got := params["category_730_Type[]"]; len(got) != 1 || got[0] != "tag_CSGO_Type_Rifle" {
+		t.Fatalf("unexpected type filters: %#v", got)
+	}
+	if got := params["category_730_Weapon[]"]; len(got) != 2 || got[0] != "tag_weapon_ak47" || got[1] != "tag_weapon_awp" {
+		t.Fatalf("unexpected weapon filters: %#v", got)
+	}
+	if got := params["category_730_Exterior[]"]; len(got) != 1 || got[0] != "tag_WearCategory0" {
+		t.Fatalf("unexpected exterior filters: %#v", got)
+	}
+}
+
 func TestGetByMarketHashNameUsesPriceOverviewText(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/priceoverview/" {

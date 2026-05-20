@@ -3,10 +3,23 @@ package skins
 import "time"
 
 type SearchNewSkinsFilter struct {
-	MarketHashName *string `json:"market_hash_name"`
-	Limit          int     `json:"limit"`
-	Offset         int     `json:"offset"`
-	Cursor         string  `json:"cursor"`
+	MarketHashName     *string  `json:"market_hash_name"`
+	SortColumn         string   `json:"sort_column"`
+	SortDir            string   `json:"sort_dir"`
+	PriceMin           *string  `json:"price_min"`
+	PriceMax           *string  `json:"price_max"`
+	SearchDescriptions bool     `json:"search_descriptions"`
+	Type               []string `json:"type"`
+	Weapon             []string `json:"weapon"`
+	Rarity             []string `json:"rarity"`
+	Exterior           []string `json:"exterior"`
+	ItemSet            []string `json:"item_set"`
+	ProPlayer          []string `json:"pro_player"`
+	StickerCapsule     []string `json:"sticker_capsule"`
+	TournamentTeam     []string `json:"tournament_team"`
+	Limit              int      `json:"limit"`
+	Offset             int      `json:"offset"`
+	Cursor             string   `json:"cursor"`
 }
 
 type NewSkinsResponse struct {

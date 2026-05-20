@@ -26,6 +26,19 @@ export interface AppSettingsResponse {
 
 export interface SearchNewSkinsFilter {
   market_hash_name?: string;
+  sort_column: string;
+  sort_dir: string;
+  price_min?: string;
+  price_max?: string;
+  search_descriptions: boolean;
+  type: string[];
+  weapon: string[];
+  rarity: string[];
+  exterior: string[];
+  item_set: string[];
+  pro_player: string[];
+  sticker_capsule: string[];
+  tournament_team: string[];
   limit: number;
   offset: number;
   cursor: string;

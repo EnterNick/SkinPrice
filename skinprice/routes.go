@@ -136,6 +136,8 @@ func (a *App) SearchNewSkins(filter presenterskins.SearchNewSkinsFilter) (presen
 	logger.Info("search new skins requested",
 		slog.Int("limit", filter.Limit),
 		slog.Int("offset", filter.Offset),
+		slog.String("sort_column", filter.SortColumn),
+		slog.String("sort_dir", filter.SortDir),
 		slog.Bool("has_query", filter.MarketHashName != nil && *filter.MarketHashName != ""),
 	)
 	response, err := a.skinsEndpoints.SearchNewSkins(filter)
