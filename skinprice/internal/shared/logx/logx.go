@@ -103,7 +103,17 @@ func ErrAttrs(err error) []any {
 
 func resolveLogPath(cfg Config) (string, error) {
 	if strings.TrimSpace(cfg.FilePath) != "" {
-		return filepath.Abs(cfg.FilePath)
+		resolved, err := filepath.Abs(cfg.FilePath)
+		if err != nil {
+			return "", err
+		}
+		if looksLikeDirectoryPath(cfg.FilePath) {
+			return filepath.Join(resolved, defaultLogFilename(cfg.AppName)), nil
+		}
+		if info, err := os.Stat(resolved); err == nil && info.IsDir() {
+			return filepath.Join(resolved, defaultLogFilename(cfg.AppName)), nil
+		}
+		return resolved, nil
 	}
 
 	baseDir, err := os.UserConfigDir()
@@ -116,7 +126,18 @@ func resolveLogPath(cfg Config) (string, error) {
 		appDir = "skinprice"
 	}
 
-	return filepath.Join(baseDir, appDir, "logs", "skinprice.log"), nil
+	return filepath.Join(baseDir, appDir, "logs", defaultLogFilename(cfg.AppName)), nil
+}
+
+func defaultLogFilename(appName string) string {
+	if strings.TrimSpace(appName) == "" {
+		return "skinprice.log"
+	}
+	return strings.ToLower(strings.TrimSpace(appName)) + ".log"
+}
+
+func looksLikeDirectoryPath(path string) bool {
+	return strings.HasSuffix(path, "/") || strings.HasSuffix(path, string(os.PathSeparator))
 }
 
 func parseLevel(value string) slog.Level {

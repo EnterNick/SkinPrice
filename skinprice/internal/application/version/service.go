@@ -290,6 +290,15 @@ func (s Service) installRelease(
 }
 
 func (s Service) launchCurrent(current CurrentVersionDTO, entrypoint string) (LaunchResult, error) {
+	if s.platformOS() != "windows" {
+		if err := s.FileStorage.Chmod(entrypoint, 0o755); err != nil {
+			return LaunchResult{}, err
+		}
+	}
+	s.logger().Info("launching current version",
+		slog.String("version", current.Version),
+		slog.String("entrypoint", entrypoint),
+	)
 	if err := s.AppRunner.Start(entrypoint); err != nil {
 		return LaunchResult{}, err
 	}

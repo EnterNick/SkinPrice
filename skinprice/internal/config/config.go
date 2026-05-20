@@ -38,7 +38,7 @@ func Load() (Config, error) {
 		LogLevel:             utils.GetStrWDefault("LOG_LEVEL", defaultLogLevel()),
 		LogFormat:            utils.GetStrWDefault("LOG_FORMAT", "text"),
 		LogToFile:            utils.GetBoolWDefault("LOG_TO_FILE", true),
-		LogFilePath:          utils.GetStrWDefault("LOG_FILE_PATH", "../../logs/"),
+		LogFilePath:          utils.GetStrWDefault("LOG_FILE_PATH", "../../logs/skinprice.log"),
 		LogMaxSizeMB:         utils.GetIntWDefault("LOG_MAX_SIZE_MB", 20),
 		LogMaxBackups:        utils.GetIntWDefault("LOG_MAX_BACKUPS", 5),
 		LogMaxAgeDays:        utils.GetIntWDefault("LOG_MAX_AGE_DAYS", 14),

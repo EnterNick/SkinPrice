@@ -51,7 +51,15 @@ func main() {
 	}()
 	slog.SetDefault(logger)
 
-	httpClient := &http.Client{Timeout: 30 * time.Second}
+	httpClient := &http.Client{
+		Timeout: 8 * time.Second,
+		Transport: &http.Transport{
+			TLSHandshakeTimeout: 5 * time.Second,
+		},
+	}
+	updateCtx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
+	defer cancel()
+
 	service := appversion.Service{
 		InstallRoot: installRoot,
 		Logger:      logger,
@@ -66,7 +74,7 @@ func main() {
 		Prompter:    prompt.Prompter{},
 	}
 
-	if _, err := service.Run(context.Background()); err != nil {
+	if _, err := service.Run(updateCtx); err != nil {
 		logger.Error("launcher failed", slog.String("error", err.Error()))
 		_, _ = os.Stderr.WriteString("launcher failed: " + err.Error() + "\n")
 		os.Exit(1)
