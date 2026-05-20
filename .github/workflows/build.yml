@@ -202,7 +202,81 @@ jobs:
 
       - name: Package release assets
         shell: bash
-        run: make -C "$GITHUB_WORKSPACE" release-package-assets RELEASE_VERSION="${GITHUB_REF_NAME#v}"
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME#v}"
+          mkdir -p release/assets
+
+          tar -C release/linux -czf release/assets/skinprice-linux-amd64.tar.gz skinprice
+          (
+            cd release/windows
+            zip -q "${GITHUB_WORKSPACE}/release/assets/skinprice-windows-amd64.zip" SkinPrice.exe
+          )
+
+          mkdir -p release/bootstrap/linux/versions/"${VERSION}" release/bootstrap/linux/logs
+          cp release/linux/launcher release/bootstrap/linux/launcher
+          cp release/linux/skinprice release/bootstrap/linux/versions/"${VERSION}"/skinprice
+          touch release/bootstrap/linux/logs/.keep
+          cat > release/bootstrap/linux/current.json <<JSON
+          {
+            "version": "${VERSION}",
+            "entrypoint": "versions/${VERSION}/skinprice",
+            "previous": "",
+            "updated_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          JSON
+          tar -C release/bootstrap/linux -czf release/assets/skinprice-bootstrap-linux-amd64.tar.gz .
+
+          mkdir -p release/bootstrap/windows/versions/"${VERSION}" release/bootstrap/windows/logs
+          cp release/windows/launcher.exe release/bootstrap/windows/launcher.exe
+          cp release/windows/SkinPrice.exe release/bootstrap/windows/versions/"${VERSION}"/SkinPrice.exe
+          touch release/bootstrap/windows/logs/.keep
+          cat > release/bootstrap/windows/current.json <<JSON
+          {
+            "version": "${VERSION}",
+            "entrypoint": "versions/${VERSION}/SkinPrice.exe",
+            "previous": "",
+            "updated_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          JSON
+          (
+            cd release/bootstrap/windows
+            zip -qr "${GITHUB_WORKSPACE}/release/assets/skinprice-bootstrap-windows-amd64.zip" .
+          )
+
+          WINDOWS_SHA="$(sha256sum release/assets/skinprice-windows-amd64.zip | awk '{print $1}')"
+          WINDOWS_SIZE="$(stat -c %s release/assets/skinprice-windows-amd64.zip)"
+          LINUX_SHA="$(sha256sum release/assets/skinprice-linux-amd64.tar.gz | awk '{print $1}')"
+          LINUX_SIZE="$(stat -c %s release/assets/skinprice-linux-amd64.tar.gz)"
+          PUBLISHED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+          cat > release/assets/update-manifest.json <<JSON
+          {
+            "version": "${VERSION}",
+            "channel": "stable",
+            "min_supported_version": "0.1.0",
+            "release_notes": "Release ${VERSION}",
+            "published_at": "${PUBLISHED_AT}",
+            "assets": [
+              {
+                "os": "windows",
+                "arch": "amd64",
+                "filename": "skinprice-windows-amd64.zip",
+                "sha256": "${WINDOWS_SHA}",
+                "size": ${WINDOWS_SIZE},
+                "entrypoint": "SkinPrice.exe"
+              },
+              {
+                "os": "linux",
+                "arch": "amd64",
+                "filename": "skinprice-linux-amd64.tar.gz",
+                "sha256": "${LINUX_SHA}",
+                "size": ${LINUX_SIZE},
+                "entrypoint": "skinprice"
+              }
+            ]
+          }
+          JSON
 
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
