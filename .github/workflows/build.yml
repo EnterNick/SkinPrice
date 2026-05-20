@@ -202,7 +202,7 @@ jobs:
 
       - name: Package release assets
         shell: bash
-        run: make release-package-assets RELEASE_VERSION="${GITHUB_REF_NAME#v}"
+        run: make -C "$GITHUB_WORKSPACE" release-package-assets RELEASE_VERSION="${GITHUB_REF_NAME#v}"
 
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
