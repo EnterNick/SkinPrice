@@ -47,7 +47,7 @@ func (s Service) Run(ctx context.Context) (LaunchResult, error) {
 			logger.Warn("failed to fetch latest release, launching current version", slog.String("error", err.Error()))
 			return s.launchCurrent(current, currentEntrypoint)
 		}
-		return LaunchResult{}, fmt.Errorf("%w: %v", ErrNoRunnableVersion, err)
+		return LaunchResult{}, fmt.Errorf("%w: %w", ErrNoRunnableVersion, err)
 	}
 
 	manifestAsset, err := s.ReleaseProvider.FindAsset(release, UpdateManifestFile)
@@ -56,7 +56,7 @@ func (s Service) Run(ctx context.Context) (LaunchResult, error) {
 			logger.Warn("release manifest asset not found, launching current version", slog.String("error", err.Error()))
 			return s.launchCurrent(current, currentEntrypoint)
 		}
-		return LaunchResult{}, fmt.Errorf("%w: %v", ErrNoRunnableVersion, err)
+		return LaunchResult{}, fmt.Errorf("%w: %w", ErrNoRunnableVersion, err)
 	}
 
 	manifest, err := s.downloadManifest(ctx, manifestAsset)
@@ -65,7 +65,7 @@ func (s Service) Run(ctx context.Context) (LaunchResult, error) {
 			logger.Warn("failed to read release manifest, launching current version", slog.String("error", err.Error()))
 			return s.launchCurrent(current, currentEntrypoint)
 		}
-		return LaunchResult{}, fmt.Errorf("%w: %v", ErrNoRunnableVersion, err)
+		return LaunchResult{}, fmt.Errorf("%w: %w", ErrNoRunnableVersion, err)
 	}
 
 	if currentValid && manifest.MinSupportedVersion != "" {
@@ -87,7 +87,7 @@ func (s Service) Run(ctx context.Context) (LaunchResult, error) {
 			logger.Warn("no manifest asset for current platform, launching current version", slog.String("error", err.Error()))
 			return s.launchCurrent(current, currentEntrypoint)
 		}
-		return LaunchResult{}, fmt.Errorf("%w: %v", ErrNoRunnableVersion, err)
+		return LaunchResult{}, fmt.Errorf("%w: %w", ErrNoRunnableVersion, err)
 	}
 
 	if currentValid {

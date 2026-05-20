@@ -3,12 +3,15 @@
 package prompt
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"os/exec"
 )
 
 func (Prompter) ConfirmUpdate(currentVersion, newVersion string) (bool, error) {
-	cmd := exec.Command(
+	cmd := exec.CommandContext(
+		context.Background(),
 		"zenity",
 		"--question",
 		"--title=SkinPrice Update",
@@ -19,7 +22,8 @@ func (Prompter) ConfirmUpdate(currentVersion, newVersion string) (bool, error) {
 	if err == nil {
 		return true, nil
 	}
-	if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 1 {
+	var exitErr *exec.ExitError
+	if errors.As(err, &exitErr) && exitErr.ExitCode() == 1 {
 		return false, nil
 	}
 	return false, err

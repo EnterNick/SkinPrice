@@ -1,6 +1,7 @@
 package processlauncher
 
 import (
+	"context"
 	"os/exec"
 	"path/filepath"
 )
@@ -8,7 +9,7 @@ import (
 type Runner struct{}
 
 func (Runner) Start(entrypoint string) error {
-	cmd := exec.Command(entrypoint)
+	cmd := exec.CommandContext(context.Background(), entrypoint)
 	cmd.Dir = filepath.Dir(entrypoint)
 	return cmd.Start()
 }
