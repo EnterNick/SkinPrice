@@ -1,0 +1,8 @@
+{
+  "version": "0.2.0",
+  "channel": "stable",
+  "min_supported_version": "0.2.0",
+  "release_notes": "Release 0.2.0",
+  "published_at": "2026-05-20T13:04:40Z",
+  "assets": [{"os":"windows","arch":"amd64","filename":"skinprice-windows-amd64.zip","sha256":"279b829c2c78bfe79189bd6424ce5fccbd1acf9188574041fd14f8eb9480a5d8","size":9005611,"entrypoint":"SkinPrice.exe"}]
+}
