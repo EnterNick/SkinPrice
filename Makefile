@@ -3,6 +3,12 @@
 # ===================================================================
 PROJECT_NAME    := skinprice
 APP_WORKERS     ?= 1
+RELEASE_VERSION ?=
+RELEASE_DIR     ?= release
+RELEASE_ASSETS_DIR ?= $(RELEASE_DIR)/assets
+RELEASE_BUILD_DIR ?= ./bin
+WAILS ?= wails
+WAILS_BUILD_DIR ?= $(PROJECT_NAME)/build/bin
 
 DOCKER_FILENAME ?= docker-compose.dev.yaml
 
@@ -41,6 +47,7 @@ SHELL := /usr/bin/env bash
         fmt format lint lint-ci \
         test test-ci \
         build run dev \
+        release-clean release-build-linux release-build-windows release-build-binaries release-package-assets release-package-local \
         local-create-migrations local-apply-migrations local-delete-migrations local-recreate-migrations \
         docker-apply-migrations \
         encrypt_env decrypt_env build-ci
@@ -68,6 +75,9 @@ tools: ## Install dev tools (goose, goimports, golangci-lint)
 clean: ## Cleanup build artifacts
 	rm -rf bin
 	$(GO) clean -testcache
+
+release-clean: ## Cleanup generated release packaging artifacts
+	rm -rf $(RELEASE_ASSETS_DIR) $(RELEASE_DIR)/bootstrap
 
 # ===================================================================
 #  Local stack (Docker)
@@ -142,6 +152,68 @@ dev: ## Run with file-watcher (requires air)
 
 wails:
 	cd $(PROJECT_NAME) && wails dev
+
+release-build-linux: ## Build Linux app + launcher into $(RELEASE_BUILD_DIR)/linux
+	mkdir -p "$(RELEASE_BUILD_DIR)/linux"
+	cd "$(PROJECT_NAME)" && $(WAILS) build -clean -platform linux/amd64 -tags webkit2_41
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 $(GO) build -o "$(RELEASE_BUILD_DIR)/linux/launcher" ./skinprice/cmd/launcher
+	cp "$(WAILS_BUILD_DIR)/SkinPrice" "$(RELEASE_BUILD_DIR)/linux/skinprice"
+	chmod +x "$(RELEASE_BUILD_DIR)/linux/launcher" "$(RELEASE_BUILD_DIR)/linux/skinprice"
+
+release-build-windows: ## Build Windows app + launcher into $(RELEASE_BUILD_DIR)/windows
+	mkdir -p "$(RELEASE_BUILD_DIR)/windows"
+	cd "$(PROJECT_NAME)" && CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ $(WAILS) build -clean -platform windows/amd64
+	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 $(GO) build -o "$(RELEASE_BUILD_DIR)/windows/launcher.exe" ./skinprice/cmd/launcher
+	cp "$(WAILS_BUILD_DIR)/SkinPrice.exe" "$(RELEASE_BUILD_DIR)/windows/SkinPrice.exe"
+
+release-build-binaries: ## Build Linux and Windows binaries required for release packaging into $(RELEASE_BUILD_DIR)
+	@$(MAKE) release-build-linux RELEASE_BUILD_DIR="$(RELEASE_BUILD_DIR)"
+	@$(MAKE) release-build-windows RELEASE_BUILD_DIR="$(RELEASE_BUILD_DIR)"
+
+release-package-assets: ## Build release bootstrap/update packages from $(RELEASE_DIR)/linux and $(RELEASE_DIR)/windows
+	@if [ -z "$(RELEASE_VERSION)" ]; then \
+		echo "RELEASE_VERSION is required, example: make release-package-assets RELEASE_VERSION=0.2.0"; \
+		exit 1; \
+	fi
+	@set -euo pipefail; \
+	mkdir -p "$(RELEASE_ASSETS_DIR)"; \
+	tar -C "$(RELEASE_DIR)/linux" -czf "$(RELEASE_ASSETS_DIR)/skinprice-linux-amd64.tar.gz" skinprice; \
+	( \
+		cd "$(RELEASE_DIR)/windows"; \
+		zip -q "$(abspath $(RELEASE_ASSETS_DIR))/skinprice-windows-amd64.zip" SkinPrice.exe; \
+	); \
+	mkdir -p "$(RELEASE_DIR)/bootstrap/linux/versions/$(RELEASE_VERSION)" "$(RELEASE_DIR)/bootstrap/linux/logs"; \
+	cp "$(RELEASE_DIR)/linux/launcher" "$(RELEASE_DIR)/bootstrap/linux/launcher"; \
+	cp "$(RELEASE_DIR)/linux/skinprice" "$(RELEASE_DIR)/bootstrap/linux/versions/$(RELEASE_VERSION)/skinprice"; \
+	touch "$(RELEASE_DIR)/bootstrap/linux/logs/.keep"; \
+	printf '{\n  "version": "%s",\n  "entrypoint": "versions/%s/skinprice",\n  "previous": "",\n  "updated_at": "%s"\n}\n' \
+		"$(RELEASE_VERSION)" "$(RELEASE_VERSION)" "$$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$(RELEASE_DIR)/bootstrap/linux/current.json"; \
+	tar -C "$(RELEASE_DIR)/bootstrap/linux" -czf "$(RELEASE_ASSETS_DIR)/skinprice-bootstrap-linux-amd64.tar.gz" .; \
+	mkdir -p "$(RELEASE_DIR)/bootstrap/windows/versions/$(RELEASE_VERSION)" "$(RELEASE_DIR)/bootstrap/windows/logs"; \
+	cp "$(RELEASE_DIR)/windows/launcher.exe" "$(RELEASE_DIR)/bootstrap/windows/launcher.exe"; \
+	cp "$(RELEASE_DIR)/windows/SkinPrice.exe" "$(RELEASE_DIR)/bootstrap/windows/versions/$(RELEASE_VERSION)/SkinPrice.exe"; \
+	touch "$(RELEASE_DIR)/bootstrap/windows/logs/.keep"; \
+	printf '{\n  "version": "%s",\n  "entrypoint": "versions/%s/SkinPrice.exe",\n  "previous": "",\n  "updated_at": "%s"\n}\n' \
+		"$(RELEASE_VERSION)" "$(RELEASE_VERSION)" "$$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$(RELEASE_DIR)/bootstrap/windows/current.json"; \
+	( \
+		cd "$(RELEASE_DIR)/bootstrap/windows"; \
+		zip -qr "$(abspath $(RELEASE_ASSETS_DIR))/skinprice-bootstrap-windows-amd64.zip" .; \
+	); \
+	WINDOWS_SHA="$$(sha256sum "$(RELEASE_ASSETS_DIR)/skinprice-windows-amd64.zip" | awk '{print $$1}')"; \
+	WINDOWS_SIZE="$$(stat -c %s "$(RELEASE_ASSETS_DIR)/skinprice-windows-amd64.zip")"; \
+	LINUX_SHA="$$(sha256sum "$(RELEASE_ASSETS_DIR)/skinprice-linux-amd64.tar.gz" | awk '{print $$1}')"; \
+	LINUX_SIZE="$$(stat -c %s "$(RELEASE_ASSETS_DIR)/skinprice-linux-amd64.tar.gz")"; \
+	PUBLISHED_AT="$$(date -u +%Y-%m-%dT%H:%M:%SZ)"; \
+	printf '{\n  "version": "%s",\n  "channel": "stable",\n  "min_supported_version": "0.1.0",\n  "release_notes": "Release %s",\n  "published_at": "%s",\n  "assets": [\n    {\n      "os": "windows",\n      "arch": "amd64",\n      "filename": "skinprice-windows-amd64.zip",\n      "sha256": "%s",\n      "size": %s,\n      "entrypoint": "SkinPrice.exe"\n    },\n    {\n      "os": "linux",\n      "arch": "amd64",\n      "filename": "skinprice-linux-amd64.tar.gz",\n      "sha256": "%s",\n      "size": %s,\n      "entrypoint": "skinprice"\n    }\n  ]\n}\n' \
+		"$(RELEASE_VERSION)" "$(RELEASE_VERSION)" "$$PUBLISHED_AT" "$$WINDOWS_SHA" "$$WINDOWS_SIZE" "$$LINUX_SHA" "$$LINUX_SIZE" > "$(RELEASE_ASSETS_DIR)/update-manifest.json"
+
+release-package-local: ## Build local Windows/Linux binaries into $(RELEASE_BUILD_DIR) and package release assets
+	@if [ -z "$(RELEASE_VERSION)" ]; then \
+		echo "RELEASE_VERSION is required, example: make release-package-local RELEASE_VERSION=0.2.0"; \
+		exit 1; \
+	fi
+	@$(MAKE) release-build-binaries RELEASE_BUILD_DIR="$(RELEASE_BUILD_DIR)"
+	@$(MAKE) release-package-assets RELEASE_VERSION="$(RELEASE_VERSION)" RELEASE_DIR="$(RELEASE_BUILD_DIR)"
 # ===================================================================
 #  Docker build/push
 # ===================================================================

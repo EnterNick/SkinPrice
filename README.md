@@ -19,14 +19,13 @@
 
 ## Release Downloads
 
-Tagged releases publish ready-to-use application archives for all supported desktop platforms.
+Tagged releases publish bootstrap packages for supported desktop platforms. Each bootstrap package already contains the launcher, `current.json`, and the latest application build in `versions/<version>/`.
 
 - Latest release page: [github.com/EnterNick/SkinPrice/releases/latest](https://github.com/EnterNick/SkinPrice/releases/latest)
-- Linux (`amd64`): [SkinPrice-linux-amd64.tar.gz](https://github.com/EnterNick/SkinPrice/releases/latest/download/SkinPrice-linux-amd64.tar.gz)
-- Windows (`amd64`): [SkinPrice-windows-amd64.zip](https://github.com/EnterNick/SkinPrice/releases/latest/download/SkinPrice-windows-amd64.zip)
-- macOS (`universal`): [SkinPrice-macos-universal.zip](https://github.com/EnterNick/SkinPrice/releases/latest/download/SkinPrice-macos-universal.zip)
+- Linux bootstrap (`amd64`): [skinprice-bootstrap-linux-amd64.tar.gz](https://github.com/EnterNick/SkinPrice/releases/latest/download/skinprice-bootstrap-linux-amd64.tar.gz)
+- Windows bootstrap (`amd64`): [skinprice-bootstrap-windows-amd64.zip](https://github.com/EnterNick/SkinPrice/releases/latest/download/skinprice-bootstrap-windows-amd64.zip)
 
-These links point to assets from the most recent published GitHub Release.
+These links point to bootstrap assets from the most recent published GitHub Release.
 
 ## Project Layout
 
