@@ -11,6 +11,8 @@ type Config struct {
 	AppEnv               string
 	SteamBaseURL         string
 	LisSkinsBaseURL      string
+	CSTMBaseURL          string
+	CSTMRequestTimeout   time.Duration
 	HTTPTimeout          time.Duration
 	BulkPriceUpdateDelay time.Duration
 	CacheTTL             time.Duration
@@ -31,6 +33,8 @@ func Load() (Config, error) {
 		AppEnv:               utils.GetStrWDefault("APP_ENV", "local"),
 		SteamBaseURL:         utils.GetStrWDefault("STEAM_BASE_URL", "https://steamcommunity.com/market"),
 		LisSkinsBaseURL:      utils.GetStrWDefault("LISSKINS_BASE_URL", "https://api.lis-skins.com/v1"),
+		CSTMBaseURL:          utils.GetStrWDefault("CSTM_BASE_URL", "https://market.csgo.com"),
+		CSTMRequestTimeout:   time.Duration(utils.GetIntWDefault("CSTM_REQUEST_TIMEOUT_SECONDS", 15)) * time.Second,
 		HTTPTimeout:          time.Duration(utils.GetIntWDefault("HTTP_TIMEOUT_SECONDS", 10)) * time.Second,
 		BulkPriceUpdateDelay: time.Duration(utils.GetIntWDefault("BULK_PRICE_UPDATE_DELAY_MS", 1200)) * time.Millisecond,
 		CacheTTL:             time.Duration(utils.GetIntWDefault("CACHE_TTL_SECONDS", 300)) * time.Second,

@@ -29,15 +29,21 @@ func (e *Endpoints) GetAppSettings() (AppSettingsResponse, error) {
 	}
 	return AppSettingsResponse{
 		Currency:                   settings.Currency,
+		AutoRefreshEnabled:         settings.AutoRefreshEnabled,
 		AutoRefreshIntervalSeconds: settings.AutoRefreshIntervalSeconds,
 		SavedSkinsViewMode:         settings.SavedSkinsViewMode,
+		FontFamily:                 settings.FontFamily,
+		FontSizePx:                 settings.FontSizePx,
 	}, nil
 }
 
 func (e *Endpoints) SaveAppSettings(payload SaveAppSettingsRequest) error {
 	return e.saveAppSettingsUC.Execute(appsettings.AppSettings{
 		Currency:                   payload.Currency,
+		AutoRefreshEnabled:         payload.AutoRefreshEnabled,
 		AutoRefreshIntervalSeconds: payload.AutoRefreshIntervalSeconds,
 		SavedSkinsViewMode:         payload.SavedSkinsViewMode,
+		FontFamily:                 payload.FontFamily,
+		FontSizePx:                 payload.FontSizePx,
 	})
 }

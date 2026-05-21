@@ -2,9 +2,22 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../app/router/routes";
 import { deleteSavedSkin, getAppSettings, saveAppSettings, updateAllSkinPrices, updateSkinPrice } from "../../../entities/skin/api/skinApi";
-import type { SavedSkinCurrency, SavedSkinsSortColumn, SavedSkinsSortState, SavedSkinsViewMode } from "../../../entities/skin/model/types";
+import type {
+  FontFamilyOptionValue,
+  SavedSkinCurrency,
+  SavedSkinsSortColumn,
+  SavedSkinsSortState,
+  SavedSkinsViewMode,
+} from "../../../entities/skin/model/types";
 import { useSavedSkins } from "../../../entities/skin/model/useSavedSkins";
-import { DEFAULT_AUTO_REFRESH_INTERVAL_SECONDS, DEFAULT_CURRENCY, DEFAULT_SAVED_SKINS_VIEW_MODE } from "../../../shared/config/settings";
+import {
+  DEFAULT_AUTO_REFRESH_ENABLED,
+  DEFAULT_AUTO_REFRESH_INTERVAL_SECONDS,
+  DEFAULT_CURRENCY,
+  DEFAULT_FONT_FAMILY,
+  DEFAULT_FONT_SIZE_PX,
+  DEFAULT_SAVED_SKINS_VIEW_MODE,
+} from "../../../shared/config/settings";
 import { UI_TEXT } from "../../../shared/config/uiText";
 import { formatErrorMessage } from "../../../shared/lib/error/formatErrorMessage";
 import { EmptyState, ErrorState, LoadingState, ToastAlert } from "../../../shared/ui/states/States";
@@ -24,8 +37,11 @@ export const SavedSkinsPage: React.FC = () => {
   const navigate = useNavigate();
   const { items, loading, error, loadSkins } = useSavedSkins();
   const [currency, setCurrency] = useState<SavedSkinCurrency>(DEFAULT_CURRENCY);
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(DEFAULT_AUTO_REFRESH_ENABLED);
   const [autoRefreshMs, setAutoRefreshMs] = useState(DEFAULT_AUTO_REFRESH_INTERVAL_SECONDS * 1000);
   const [viewMode, setViewMode] = useState<SavedSkinsViewMode>(DEFAULT_SAVED_SKINS_VIEW_MODE);
+  const [fontFamily, setFontFamily] = useState<FontFamilyOptionValue>(DEFAULT_FONT_FAMILY);
+  const [fontSizePx, setFontSizePx] = useState(DEFAULT_FONT_SIZE_PX);
   const [settingsLoading, setSettingsLoading] = useState(true);
   const [settingsError, setSettingsError] = useState<string | null>(null);
   const [updatingSkinIds, setUpdatingSkinIds] = useState<Record<string, boolean>>({});
@@ -54,8 +70,10 @@ export const SavedSkinsPage: React.FC = () => {
         result = a.title.localeCompare(b.title, "ru");
       } else if (sortState.column === "steamPrice") {
         result = parsePriceValue(a.steamPriceText) - parsePriceValue(b.steamPriceText);
-      } else {
+      } else if (sortState.column === "lisSkinsPrice") {
         result = parsePriceValue(a.lisSkinsPriceText) - parsePriceValue(b.lisSkinsPriceText);
+      } else {
+        result = parsePriceValue(a.csTmPriceText) - parsePriceValue(b.csTmPriceText);
       }
 
       if (result === 0) {
@@ -111,8 +129,11 @@ export const SavedSkinsPage: React.FC = () => {
         const settings = await getAppSettings();
         if (!active) return;
         setCurrency(settings.currency);
+        setAutoRefreshEnabled(settings.autoRefreshEnabled);
         setAutoRefreshMs(settings.autoRefreshIntervalSeconds * 1000);
         setViewMode(settings.savedSkinsViewMode);
+        setFontFamily(settings.fontFamily);
+        setFontSizePx(settings.fontSizePx);
         setSettingsError(null);
       } catch (err: unknown) {
         if (!active) return;
@@ -197,16 +218,22 @@ export const SavedSkinsPage: React.FC = () => {
     try {
       const saved = await saveAppSettings({
         currency,
+        autoRefreshEnabled,
         autoRefreshIntervalSeconds: Math.round(autoRefreshMs / 1000),
         savedSkinsViewMode: nextViewMode,
+        fontFamily,
+        fontSizePx,
       });
+      setAutoRefreshEnabled(saved.autoRefreshEnabled);
       setViewMode(saved.savedSkinsViewMode);
+      setFontFamily(saved.fontFamily);
+      setFontSizePx(saved.fontSizePx);
     } catch (err: unknown) {
       setNotice({ type: "error", text: formatErrorMessage("Не удалось сохранить режим отображения.", err) });
     } finally {
       setIsSavingViewMode(false);
     }
-  }, [autoRefreshMs, currency, viewMode]);
+  }, [autoRefreshEnabled, autoRefreshMs, currency, fontFamily, fontSizePx, viewMode]);
 
   const toggleViewMode = useCallback(async () => {
     await changeViewMode(viewMode === "table" ? "cards" : "table");
@@ -220,7 +247,8 @@ export const SavedSkinsPage: React.FC = () => {
   const getSortOptionLabel = useCallback((column: SavedSkinsSortColumn) => {
     if (column === "title") return UI_TEXT.savedSkinsSortTitle;
     if (column === "steamPrice") return UI_TEXT.savedSkinsSortSteam;
-    return UI_TEXT.savedSkinsSortLisSkins;
+    if (column === "lisSkinsPrice") return UI_TEXT.savedSkinsSortLisSkins;
+    return UI_TEXT.savedSkinsSortCSTM;
   }, []);
 
   const getSortButtonLabel = useCallback(() => {
@@ -236,7 +264,7 @@ export const SavedSkinsPage: React.FC = () => {
   }, [currency, currencyDirty, items.length, isUpdatingAll, loading, refreshAll, settingsLoading]);
 
   useEffect(() => {
-    if (loading || settingsLoading || items.length === 0 || currencyDirty) return undefined;
+    if (loading || settingsLoading || items.length === 0 || currencyDirty || !autoRefreshEnabled) return undefined;
 
     const intervalId = window.setInterval(() => {
       const hasRowOperation = Object.values(updatingSkinIds).some(Boolean) || Object.values(deletingSkinIds).some(Boolean);
@@ -253,7 +281,7 @@ export const SavedSkinsPage: React.FC = () => {
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [autoRefreshMs, currency, currencyDirty, deletingSkinIds, isUpdatingAll, items.length, loading, refreshAll, settingsLoading, updatingSkinIds]);
+  }, [autoRefreshEnabled, autoRefreshMs, currency, currencyDirty, deletingSkinIds, isUpdatingAll, items.length, loading, refreshAll, settingsLoading, updatingSkinIds]);
 
   if (loading || settingsLoading) return <LoadingState text={UI_TEXT.loadingSaved} />;
   if (settingsError) return <ErrorState text={settingsError} />;
@@ -331,6 +359,10 @@ export const SavedSkinsPage: React.FC = () => {
                     <button className="saved-skins-sort-item" type="button" role="menuitem" onClick={() => applySortOption("lisSkinsPrice")}>
                       {getSortOptionLabel("lisSkinsPrice")}
                       {sortState?.column === "lisSkinsPrice" ? <span className="saved-skins-sort-state">{sortState.direction === "desc" ? "↓" : "↑"}</span> : null}
+                    </button>
+                    <button className="saved-skins-sort-item" type="button" role="menuitem" onClick={() => applySortOption("csTmPrice")}>
+                      {getSortOptionLabel("csTmPrice")}
+                      {sortState?.column === "csTmPrice" ? <span className="saved-skins-sort-state">{sortState.direction === "desc" ? "↓" : "↑"}</span> : null}
                     </button>
                     <button className="saved-skins-sort-item" type="button" role="menuitem" onClick={() => { setSortState(null); setIsSortMenuOpen(false); }}>
                       {UI_TEXT.savedSkinsSortReset}

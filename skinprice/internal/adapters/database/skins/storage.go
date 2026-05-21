@@ -2,6 +2,7 @@ package skins
 
 import (
 	"SkinPrice/skinprice/internal/adapters/database"
+	adaptercstm "SkinPrice/skinprice/internal/adapters/http/cstm"
 	adapterlisskins "SkinPrice/skinprice/internal/adapters/http/lisskins"
 	"SkinPrice/skinprice/internal/application"
 	appskins "SkinPrice/skinprice/internal/application/skins"
@@ -21,6 +22,8 @@ type Storage struct {
 	Conn             *database.Connection
 	SteamStorage     marketPriceReader
 	LisSkinsStorage  marketPriceReader
+	CSTMStorage      marketPriceReader
+	CSTMBaseURL      string
 	BatchUpdateDelay time.Duration
 	Logger           *slog.Logger
 }
@@ -36,6 +39,9 @@ type savedSkinState struct {
 	LisSkinsPageURL   string
 	LisSkinsPriceText string
 	LisSkinsUpdatedAt time.Time
+	CSTMPageURL       string
+	CSTMPriceText     string
+	CSTMUpdatedAt     time.Time
 	Currency          string
 }
 
@@ -48,18 +54,19 @@ func (s *Storage) Save(params appskins.SaveSkinParams) (appskins.SaveSkinResult,
 
 	steamPageURL := params.PageURL
 	lisSkinsPageURL := adapterlisskins.BuildMarketPageURL(params.MarketHashName)
+	cstmPageURL := adaptercstm.BuildMarketPageURL(s.cstmBaseURL(), params.MarketHashName)
 	insertQuery := `INSERT INTO skins (
 		market_hash_name, display_name, name_color, icon_url, page_url, price_text,
-		steam_page_url, steam_price_text, lisskins_page_url, lisskins_price_text, currency
-	) VALUES (?, ?, ?, ?, ?, '', ?, '', ?, '', '1')`
+		steam_page_url, steam_price_text, lisskins_page_url, lisskins_price_text, cstm_page_url, cstm_price_text, currency
+	) VALUES (?, ?, ?, ?, ?, '', ?, '', ?, '', ?, '', '1')`
 	if s.Conn.Dialect() == "postgres" {
 		insertQuery = `INSERT INTO skins (
 			market_hash_name, display_name, name_color, icon_url, page_url, price_text,
-			steam_page_url, steam_price_text, lisskins_page_url, lisskins_price_text, currency
-		) VALUES ($1, $2, $3, $4, $5, '', $6, '', $7, '', '1')`
+			steam_page_url, steam_price_text, lisskins_page_url, lisskins_price_text, cstm_page_url, cstm_price_text, currency
+		) VALUES ($1, $2, $3, $4, $5, '', $6, '', $7, '', $8, '', '1')`
 	}
 
-	_, err := db.ExecContext(ctx, insertQuery, params.MarketHashName, params.DisplayName, params.NameColor, params.IconURL, steamPageURL, steamPageURL, lisSkinsPageURL)
+	_, err := db.ExecContext(ctx, insertQuery, params.MarketHashName, params.DisplayName, params.NameColor, params.IconURL, steamPageURL, steamPageURL, lisSkinsPageURL, cstmPageURL)
 	if err != nil {
 		if isUniqueViolation(err) {
 			logger.Info("skin already exists", slog.String("market_hash_name", params.MarketHashName))
@@ -89,13 +96,15 @@ func (s *Storage) GetSavedList(params *application.Pagination) (_ appskins.Saved
 	query := `SELECT
 		market_hash_name, display_name, name_color, icon_url,
 		page_url, price_text, steam_page_url, steam_price_text, steam_updated_at,
-		lisskins_page_url, lisskins_price_text, lisskins_updated_at, currency, updated_at
+		lisskins_page_url, lisskins_price_text, lisskins_updated_at,
+		cstm_page_url, cstm_price_text, cstm_updated_at, currency, updated_at
 	FROM skins ORDER BY id DESC LIMIT ? OFFSET ?`
 	if s.Conn.Dialect() == "postgres" {
 		query = `SELECT
 			market_hash_name, display_name, name_color, icon_url,
 			page_url, price_text, steam_page_url, steam_price_text, steam_updated_at,
-			lisskins_page_url, lisskins_price_text, lisskins_updated_at, currency, updated_at
+			lisskins_page_url, lisskins_price_text, lisskins_updated_at,
+			cstm_page_url, cstm_price_text, cstm_updated_at, currency, updated_at
 		FROM skins ORDER BY id DESC LIMIT $1 OFFSET $2`
 	}
 
@@ -117,6 +126,7 @@ func (s *Storage) GetSavedList(params *application.Pagination) (_ appskins.Saved
 		var legacyPriceText string
 		var steamUpdatedAt sql.NullTime
 		var lisSkinsUpdatedAt sql.NullTime
+		var cstmUpdatedAt sql.NullTime
 		var legacyUpdatedAt sql.NullTime
 		if err := rows.Scan(
 			&item.MarketHashName,
@@ -131,6 +141,9 @@ func (s *Storage) GetSavedList(params *application.Pagination) (_ appskins.Saved
 			&item.LisSkinsPageURL,
 			&item.LisSkinsPriceText,
 			&lisSkinsUpdatedAt,
+			&item.CSTMPageURL,
+			&item.CSTMPriceText,
+			&cstmUpdatedAt,
 			&item.Currency,
 			&legacyUpdatedAt,
 		); err != nil {
@@ -151,6 +164,9 @@ func (s *Storage) GetSavedList(params *application.Pagination) (_ appskins.Saved
 		}
 		if lisSkinsUpdatedAt.Valid {
 			item.LisSkinsUpdatedAt = lisSkinsUpdatedAt.Time
+		}
+		if cstmUpdatedAt.Valid {
+			item.CSTMUpdatedAt = cstmUpdatedAt.Time
 		}
 		items = append(items, item)
 	}
@@ -181,6 +197,7 @@ func (s *Storage) UpdateSavedSkinPrice(params appskins.UpdateSavedSkinPriceParam
 	updatedAny := false
 	steamErr := error(nil)
 	lisSkinsErr := error(nil)
+	cstmErr := error(nil)
 	var mu sync.Mutex
 	var wg sync.WaitGroup
 
@@ -244,6 +261,36 @@ func (s *Storage) UpdateSavedSkinPrice(params appskins.UpdateSavedSkinPriceParam
 		}()
 	}
 
+	if s.CSTMStorage != nil {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			price, fetchErr := s.CSTMStorage.GetByMarketHashName(params.MarketHashName, currency)
+			if fetchErr != nil {
+				classifiedErr := classifySourceError("skins.storage.update_one.cstm", "cstm", fetchErr)
+				logger.Warn("failed to fetch cstm price",
+					append([]any{
+						slog.String("market_hash_name", params.MarketHashName),
+						slog.String("currency", currency),
+					}, logx.ErrAttrs(classifiedErr)...)...,
+				)
+				mu.Lock()
+				cstmErr = classifiedErr
+				mu.Unlock()
+				return
+			}
+
+			updatedAt := time.Now().UTC()
+			mu.Lock()
+			updatedAny = true
+			state.CSTMPageURL = firstNonEmpty(price.PageURL, state.CSTMPageURL, adaptercstm.BuildMarketPageURL(s.cstmBaseURL(), params.MarketHashName))
+			state.CSTMPriceText = normalizePriceText(price, currency)
+			state.CSTMUpdatedAt = updatedAt
+			mu.Unlock()
+		}()
+	}
+
 	wg.Wait()
 
 	if !updatedAny {
@@ -252,6 +299,9 @@ func (s *Storage) UpdateSavedSkinPrice(params appskins.UpdateSavedSkinPriceParam
 		}
 		if lisSkinsErr != nil {
 			return appskins.UpdateSavedSkinPriceResult{}, lisSkinsErr
+		}
+		if cstmErr != nil {
+			return appskins.UpdateSavedSkinPriceResult{}, cstmErr
 		}
 		return appskins.UpdateSavedSkinPriceResult{}, errx.E("skins.storage.update_one.no_sources", errx.CodeInternal, "no price sources configured", nil)
 	}
@@ -266,6 +316,9 @@ func (s *Storage) UpdateSavedSkinPrice(params appskins.UpdateSavedSkinPriceParam
 		lisskins_page_url = ?,
 		lisskins_price_text = ?,
 		lisskins_updated_at = ?,
+		cstm_page_url = ?,
+		cstm_price_text = ?,
+		cstm_updated_at = ?,
 		currency = ?,
 		updated_at = ?
 	WHERE market_hash_name = ?`
@@ -279,9 +332,12 @@ func (s *Storage) UpdateSavedSkinPrice(params appskins.UpdateSavedSkinPriceParam
 			lisskins_page_url = $6,
 			lisskins_price_text = $7,
 			lisskins_updated_at = $8,
-			currency = $9,
-			updated_at = $10
-		WHERE market_hash_name = $11`
+			cstm_page_url = $9,
+			cstm_price_text = $10,
+			cstm_updated_at = $11,
+			currency = $12,
+			updated_at = $13
+		WHERE market_hash_name = $14`
 	}
 
 	result, err := s.Conn.DB().ExecContext(
@@ -295,6 +351,9 @@ func (s *Storage) UpdateSavedSkinPrice(params appskins.UpdateSavedSkinPriceParam
 		state.LisSkinsPageURL,
 		state.LisSkinsPriceText,
 		nullTime(state.LisSkinsUpdatedAt),
+		state.CSTMPageURL,
+		state.CSTMPriceText,
+		nullTime(state.CSTMUpdatedAt),
 		state.Currency,
 		nullTime(state.SteamUpdatedAt),
 		params.MarketHashName,
@@ -323,6 +382,7 @@ func (s *Storage) UpdateSavedSkinPrice(params appskins.UpdateSavedSkinPriceParam
 		slog.String("currency", currency),
 		slog.String("steam_price_text", state.SteamPriceText),
 		slog.String("lisskins_price_text", state.LisSkinsPriceText),
+		slog.String("cstm_price_text", state.CSTMPriceText),
 	)
 	return appskins.UpdateSavedSkinPriceResult{
 		MarketHashName:    params.MarketHashName,
@@ -332,6 +392,9 @@ func (s *Storage) UpdateSavedSkinPrice(params appskins.UpdateSavedSkinPriceParam
 		LisSkinsPageURL:   state.LisSkinsPageURL,
 		LisSkinsPriceText: state.LisSkinsPriceText,
 		LisSkinsUpdatedAt: state.LisSkinsUpdatedAt,
+		CSTMPageURL:       state.CSTMPageURL,
+		CSTMPriceText:     state.CSTMPriceText,
+		CSTMUpdatedAt:     state.CSTMUpdatedAt,
 		Currency:          state.Currency,
 	}, nil
 }
@@ -480,12 +543,14 @@ func formatPriceText(priceCents int64, currency string) string {
 func (s *Storage) loadSavedSkinState(ctx context.Context, marketHashName string) (savedSkinState, error) {
 	query := `SELECT
 		page_url, price_text, steam_page_url, steam_price_text, steam_updated_at,
-		lisskins_page_url, lisskins_price_text, lisskins_updated_at, currency, updated_at
+		lisskins_page_url, lisskins_price_text, lisskins_updated_at,
+		cstm_page_url, cstm_price_text, cstm_updated_at, currency, updated_at
 	FROM skins WHERE market_hash_name = ?`
 	if s.Conn.Dialect() == "postgres" {
 		query = `SELECT
 			page_url, price_text, steam_page_url, steam_price_text, steam_updated_at,
-			lisskins_page_url, lisskins_price_text, lisskins_updated_at, currency, updated_at
+			lisskins_page_url, lisskins_price_text, lisskins_updated_at,
+			cstm_page_url, cstm_price_text, cstm_updated_at, currency, updated_at
 		FROM skins WHERE market_hash_name = $1`
 	}
 
@@ -494,6 +559,7 @@ func (s *Storage) loadSavedSkinState(ctx context.Context, marketHashName string)
 	var legacyPriceText string
 	var steamUpdatedAt sql.NullTime
 	var lisSkinsUpdatedAt sql.NullTime
+	var cstmUpdatedAt sql.NullTime
 	var legacyUpdatedAt sql.NullTime
 	err := s.Conn.DB().QueryRowContext(ctx, query, marketHashName).Scan(
 		&legacyPageURL,
@@ -504,6 +570,9 @@ func (s *Storage) loadSavedSkinState(ctx context.Context, marketHashName string)
 		&state.LisSkinsPageURL,
 		&state.LisSkinsPriceText,
 		&lisSkinsUpdatedAt,
+		&state.CSTMPageURL,
+		&state.CSTMPriceText,
+		&cstmUpdatedAt,
 		&state.Currency,
 		&legacyUpdatedAt,
 	)
@@ -517,6 +586,7 @@ func (s *Storage) loadSavedSkinState(ctx context.Context, marketHashName string)
 	state.SteamPageURL = firstNonEmpty(state.SteamPageURL, legacyPageURL)
 	state.SteamPriceText = firstNonEmpty(state.SteamPriceText, legacyPriceText)
 	state.LisSkinsPageURL = firstNonEmpty(state.LisSkinsPageURL, adapterlisskins.BuildMarketPageURL(marketHashName))
+	state.CSTMPageURL = firstNonEmpty(state.CSTMPageURL, adaptercstm.BuildMarketPageURL(s.cstmBaseURL(), marketHashName))
 	state.Currency = normalizeCurrencyCode(state.Currency)
 	if steamUpdatedAt.Valid {
 		state.SteamUpdatedAt = steamUpdatedAt.Time
@@ -525,6 +595,9 @@ func (s *Storage) loadSavedSkinState(ctx context.Context, marketHashName string)
 	}
 	if lisSkinsUpdatedAt.Valid {
 		state.LisSkinsUpdatedAt = lisSkinsUpdatedAt.Time
+	}
+	if cstmUpdatedAt.Valid {
+		state.CSTMUpdatedAt = cstmUpdatedAt.Time
 	}
 	return state, nil
 }
@@ -553,6 +626,13 @@ func firstNonEmpty(values ...string) string {
 		}
 	}
 	return ""
+}
+
+func (s *Storage) cstmBaseURL() string {
+	if strings.TrimSpace(s.CSTMBaseURL) != "" {
+		return s.CSTMBaseURL
+	}
+	return "https://market.csgo.com"
 }
 
 func classifySourceError(op, source string, err error) error {

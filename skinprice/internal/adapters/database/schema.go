@@ -39,6 +39,9 @@ func ensureSkinsSchema(ctx context.Context, connection *Connection) error {
 			`ALTER TABLE skins ADD COLUMN IF NOT EXISTS lisskins_page_url TEXT NOT NULL DEFAULT ''`,
 			`ALTER TABLE skins ADD COLUMN IF NOT EXISTS lisskins_price_text TEXT NOT NULL DEFAULT ''`,
 			`ALTER TABLE skins ADD COLUMN IF NOT EXISTS lisskins_updated_at TIMESTAMPTZ`,
+			`ALTER TABLE skins ADD COLUMN IF NOT EXISTS cstm_page_url TEXT NOT NULL DEFAULT ''`,
+			`ALTER TABLE skins ADD COLUMN IF NOT EXISTS cstm_price_text TEXT NOT NULL DEFAULT ''`,
+			`ALTER TABLE skins ADD COLUMN IF NOT EXISTS cstm_updated_at TIMESTAMPTZ`,
 		}
 		for _, statement := range statements {
 			if _, err := connection.DB().ExecContext(ctx, statement); err != nil {
@@ -56,6 +59,9 @@ func ensureSkinsSchema(ctx context.Context, connection *Connection) error {
 		`ALTER TABLE skins ADD COLUMN lisskins_page_url TEXT NOT NULL DEFAULT ''`,
 		`ALTER TABLE skins ADD COLUMN lisskins_price_text TEXT NOT NULL DEFAULT ''`,
 		`ALTER TABLE skins ADD COLUMN lisskins_updated_at DATETIME`,
+		`ALTER TABLE skins ADD COLUMN cstm_page_url TEXT NOT NULL DEFAULT ''`,
+		`ALTER TABLE skins ADD COLUMN cstm_price_text TEXT NOT NULL DEFAULT ''`,
+		`ALTER TABLE skins ADD COLUMN cstm_updated_at DATETIME`,
 	}
 	for _, statement := range statements {
 		if _, err := connection.DB().ExecContext(ctx, statement); err != nil && !isMissingColumnIgnored(err) {
@@ -144,7 +150,10 @@ func isMissingColumnIgnored(err error) bool {
 		strings.Contains(message, "duplicate column name: steam_updated_at") ||
 		strings.Contains(message, "duplicate column name: lisskins_page_url") ||
 		strings.Contains(message, "duplicate column name: lisskins_price_text") ||
-		strings.Contains(message, "duplicate column name: lisskins_updated_at")
+		strings.Contains(message, "duplicate column name: lisskins_updated_at") ||
+		strings.Contains(message, "duplicate column name: cstm_page_url") ||
+		strings.Contains(message, "duplicate column name: cstm_price_text") ||
+		strings.Contains(message, "duplicate column name: cstm_updated_at")
 }
 
 const sqliteSchemaQuery = `
@@ -162,6 +171,9 @@ CREATE TABLE IF NOT EXISTS skins (
 	lisskins_page_url TEXT NOT NULL DEFAULT '',
 	lisskins_price_text TEXT NOT NULL DEFAULT '',
 	lisskins_updated_at DATETIME,
+	cstm_page_url TEXT NOT NULL DEFAULT '',
+	cstm_price_text TEXT NOT NULL DEFAULT '',
+	cstm_updated_at DATETIME,
 	currency TEXT NOT NULL DEFAULT '1',
 	updated_at DATETIME
 );
@@ -196,6 +208,9 @@ CREATE TABLE IF NOT EXISTS skins (
 	lisskins_page_url TEXT NOT NULL DEFAULT '',
 	lisskins_price_text TEXT NOT NULL DEFAULT '',
 	lisskins_updated_at TIMESTAMPTZ,
+	cstm_page_url TEXT NOT NULL DEFAULT '',
+	cstm_price_text TEXT NOT NULL DEFAULT '',
+	cstm_updated_at TIMESTAMPTZ,
 	currency TEXT NOT NULL DEFAULT '1',
 	updated_at TIMESTAMPTZ
 );

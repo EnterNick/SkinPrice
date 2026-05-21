@@ -1,11 +1,20 @@
 import { ClearLisSkinsToken, DeleteSavedSkin, GetAppSettings, GetSavedSkins, HasLisSkinsToken, SaveAppSettings, SaveSkin, SearchNewSkins, SetLisSkinsToken, UpdateAllSavedSkinsPrices, UpdateSavedSkinPrice } from "../../../wailsjs/go/main/App";
 import type { skins } from "../../../wailsjs/go/models";
 import { toApiError } from "../../../shared/api/errors";
-import { normalizeAutoRefreshIntervalSeconds, normalizeCurrency, normalizeSavedSkinsViewMode } from "../../../shared/config/settings";
+import {
+  normalizeAutoRefreshEnabled,
+  normalizeAutoRefreshIntervalSeconds,
+  normalizeCurrency,
+  normalizeFontFamily,
+  normalizeFontSizePx,
+  normalizeSavedSkinsViewMode,
+} from "../../../shared/config/settings";
 import { logClientEvent } from "../../../shared/lib/logging/logger";
+import { applyTypographySettings } from "../../../shared/lib/settings/appTypography";
 import { toSkinNameColor } from "../../../shared/lib/skinNameColor";
 import type {
   BulkPriceUpdateResult,
+  FontFamilyOptionValue,
   NewSkin,
   NewSkinsSearchParams,
   PaginatedResult,
@@ -37,6 +46,7 @@ const normalizeImageUrl = (imageUrl?: string, pageUrl?: string): string => {
 const mapSavedSkin = (item: skins.SavedSkinItem): SavedSkin => {
   const steamPageUrl = item.steam_page_url;
   const lisSkinsPageUrl = item.lisskins_page_url;
+  const csTmPageUrl = item.cstm_page_url;
 
   return {
     id: item.market_hash_name,
@@ -46,6 +56,7 @@ const mapSavedSkin = (item: skins.SavedSkinItem): SavedSkin => {
     imageUrl: normalizeImageUrl(item.icon_url, steamPageUrl),
     steamPageUrl,
     lisSkinsPageUrl,
+    csTmPageUrl,
     priceText: item.steam_price_text,
     currency: normalizeCurrency(item.currency),
     updatedAt: item.steam_updated_at,
@@ -53,6 +64,8 @@ const mapSavedSkin = (item: skins.SavedSkinItem): SavedSkin => {
     steamUpdatedAt: item.steam_updated_at,
     lisSkinsPriceText: item.lisskins_price_text,
     lisSkinsUpdatedAt: item.lisskins_updated_at,
+    csTmPriceText: item.cstm_price_text,
+    csTmUpdatedAt: item.cstm_updated_at,
   };
 };
 
@@ -64,6 +77,7 @@ const mapNewSkin = (item: skins.NewSkinItem): NewSkin => ({
   imageUrl: normalizeImageUrl(item.icon_url, item.page_url),
   steamPageUrl: item.page_url,
   lisSkinsPageUrl: "",
+  csTmPageUrl: "",
   priceText: item.price_text,
   priceCents: item.price_cents,
   sellListings: item.sell_listings,
@@ -193,6 +207,9 @@ export const updateSkinPrice = async (skinId: string, currency: SavedSkinCurrenc
       lisSkinsPageUrl: response.lisskins_page_url,
       lisSkinsPriceText: response.lisskins_price_text,
       lisSkinsUpdatedAt: response.lisskins_updated_at,
+      csTmPageUrl: response.cstm_page_url,
+      csTmPriceText: response.cstm_price_text,
+      csTmUpdatedAt: response.cstm_updated_at,
       currency: normalizeCurrency(response.currency),
     };
   } catch (err) {
@@ -299,18 +316,26 @@ export const clearLisSkinsToken = async (): Promise<void> => {
 
 export type AppSettings = {
   currency: SavedSkinCurrency;
+  autoRefreshEnabled: boolean;
   autoRefreshIntervalSeconds: number;
   savedSkinsViewMode: SavedSkinsViewMode;
+  fontFamily: FontFamilyOptionValue;
+  fontSizePx: number;
 };
 
 export const getAppSettings = async (): Promise<AppSettings> => {
   try {
     const response = await GetAppSettings();
-    return {
+    const settings = {
       currency: normalizeCurrency(response.currency),
+      autoRefreshEnabled: normalizeAutoRefreshEnabled(response.auto_refresh_enabled),
       autoRefreshIntervalSeconds: normalizeAutoRefreshIntervalSeconds(response.auto_refresh_interval_seconds),
       savedSkinsViewMode: normalizeSavedSkinsViewMode(response.saved_skins_view_mode),
+      fontFamily: normalizeFontFamily(response.font_family),
+      fontSizePx: normalizeFontSizePx(response.font_size_px),
     };
+    applyTypographySettings(settings);
+    return settings;
   } catch (err) {
     logClientEvent("error", "getAppSettings failed", "skinApi", {
       operation: "getAppSettings",
@@ -324,14 +349,21 @@ export const saveAppSettings = async (settings: AppSettings): Promise<AppSetting
   try {
     const normalized = {
       currency: normalizeCurrency(settings.currency),
+      autoRefreshEnabled: normalizeAutoRefreshEnabled(settings.autoRefreshEnabled),
       autoRefreshIntervalSeconds: normalizeAutoRefreshIntervalSeconds(settings.autoRefreshIntervalSeconds),
       savedSkinsViewMode: normalizeSavedSkinsViewMode(settings.savedSkinsViewMode),
+      fontFamily: normalizeFontFamily(settings.fontFamily),
+      fontSizePx: normalizeFontSizePx(settings.fontSizePx),
     };
     await SaveAppSettings({
       currency: normalized.currency,
+      auto_refresh_enabled: normalized.autoRefreshEnabled,
       auto_refresh_interval_seconds: normalized.autoRefreshIntervalSeconds,
       saved_skins_view_mode: normalized.savedSkinsViewMode,
+      font_family: normalized.fontFamily,
+      font_size_px: normalized.fontSizePx,
     });
+    applyTypographySettings(normalized);
     return normalized;
   } catch (err) {
     logClientEvent("error", "saveAppSettings failed", "skinApi", {

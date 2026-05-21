@@ -11,8 +11,11 @@ import (
 
 const (
 	currencyKey                   = "saved_skins.currency"
+	autoRefreshEnabledKey         = "saved_skins.auto_refresh_enabled"
 	autoRefreshIntervalSecondsKey = "saved_skins.auto_refresh_interval_seconds"
 	savedSkinsViewModeKey         = "saved_skins.view_mode"
+	fontFamilyKey                 = "ui.font_family"
+	fontSizePxKey                 = "ui.font_size_px"
 )
 
 type Storage struct {
@@ -31,7 +34,9 @@ func (s *Storage) GetAppSettings() (appsettings.AppSettings, error) {
 		_ = rows.Close()
 	}()
 
-	settings := appsettings.AppSettings{}
+	settings := appsettings.AppSettings{
+		AutoRefreshEnabled: appsettings.DefaultAutoRefreshEnabled,
+	}
 	for rows.Next() {
 		var key string
 		var value string
@@ -41,6 +46,11 @@ func (s *Storage) GetAppSettings() (appsettings.AppSettings, error) {
 		switch key {
 		case currencyKey:
 			settings.Currency = value
+		case autoRefreshEnabledKey:
+			enabled, parseErr := strconv.ParseBool(value)
+			if parseErr == nil {
+				settings.AutoRefreshEnabled = enabled
+			}
 		case autoRefreshIntervalSecondsKey:
 			interval, parseErr := strconv.Atoi(value)
 			if parseErr == nil {
@@ -48,6 +58,13 @@ func (s *Storage) GetAppSettings() (appsettings.AppSettings, error) {
 			}
 		case savedSkinsViewModeKey:
 			settings.SavedSkinsViewMode = value
+		case fontFamilyKey:
+			settings.FontFamily = value
+		case fontSizePxKey:
+			size, parseErr := strconv.Atoi(value)
+			if parseErr == nil {
+				settings.FontSizePx = size
+			}
 		}
 	}
 	if err := rows.Err(); err != nil {
@@ -61,10 +78,19 @@ func (s *Storage) SaveAppSettings(settings appsettings.AppSettings) error {
 	if err := s.upsertValue(currencyKey, settings.Currency); err != nil {
 		return err
 	}
+	if err := s.upsertValue(autoRefreshEnabledKey, strconv.FormatBool(settings.AutoRefreshEnabled)); err != nil {
+		return err
+	}
 	if err := s.upsertValue(autoRefreshIntervalSecondsKey, strconv.Itoa(settings.AutoRefreshIntervalSeconds)); err != nil {
 		return err
 	}
 	if err := s.upsertValue(savedSkinsViewModeKey, settings.SavedSkinsViewMode); err != nil {
+		return err
+	}
+	if err := s.upsertValue(fontFamilyKey, settings.FontFamily); err != nil {
+		return err
+	}
+	if err := s.upsertValue(fontSizePxKey, strconv.Itoa(settings.FontSizePx)); err != nil {
 		return err
 	}
 	return nil
