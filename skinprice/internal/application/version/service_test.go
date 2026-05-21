@@ -121,7 +121,8 @@ func TestRunInstallsUpdateAndLaunchesNewVersion(t *testing.T) {
 	})
 
 	runner := &fakeRunner{}
-	service := newService(root, release, downloader, runner, &fakePrompter{confirmResult: true})
+	prompter := &fakePrompter{confirmResult: true}
+	service := newService(root, release, downloader, runner, prompter)
 
 	result, err := service.Run(context.Background())
 	if err != nil {
@@ -145,6 +146,12 @@ func TestRunInstallsUpdateAndLaunchesNewVersion(t *testing.T) {
 	}
 	if info.Mode().Perm()&0o111 == 0 {
 		t.Fatalf("binary mode = %v, want executable", info.Mode().Perm())
+	}
+	if len(prompter.succeeded) != 1 || prompter.succeeded[0] != "0.1.0|0.2.0" {
+		t.Fatalf("success notifications = %#v, want [0.1.0|0.2.0]", prompter.succeeded)
+	}
+	if prompter.checkingShown != 1 || prompter.checkingClosed != 1 {
+		t.Fatalf("checking window lifecycle = shown:%d closed:%d, want 1/1", prompter.checkingShown, prompter.checkingClosed)
 	}
 }
 
@@ -257,7 +264,8 @@ func TestRunKeepsCurrentStateWhenChecksumMismatch(t *testing.T) {
 	})
 
 	runner := &fakeRunner{}
-	service := newService(root, release, downloader, runner, &fakePrompter{confirmResult: true})
+	prompter := &fakePrompter{confirmResult: true}
+	service := newService(root, release, downloader, runner, prompter)
 	if _, err := service.Run(context.Background()); err != nil {
 		t.Fatalf("Run() error = %v", err)
 	}
@@ -265,6 +273,12 @@ func TestRunKeepsCurrentStateWhenChecksumMismatch(t *testing.T) {
 	current := readCurrentState(t, root)
 	if current.Version != "0.1.0" {
 		t.Fatalf("current version = %s, want 0.1.0", current.Version)
+	}
+	if len(prompter.failed) != 1 || !strings.HasPrefix(prompter.failed[0], "0.1.0|") {
+		t.Fatalf("failure notifications = %#v, want one for current version 0.1.0", prompter.failed)
+	}
+	if prompter.checkingShown != 1 || prompter.checkingClosed != 1 {
+		t.Fatalf("checking window lifecycle = shown:%d closed:%d, want 1/1", prompter.checkingShown, prompter.checkingClosed)
 	}
 }
 
@@ -326,8 +340,31 @@ func (f *fakeRunner) Start(entrypoint string) error {
 }
 
 type fakePrompter struct {
-	confirmResult bool
-	calls         int
+	confirmResult  bool
+	calls          int
+	failed         []string
+	succeeded      []string
+	checkingShown  int
+	checkingClosed int
+}
+
+type fakeCloser struct {
+	onClose func() error
+}
+
+func (f fakeCloser) Close() error {
+	if f.onClose != nil {
+		return f.onClose()
+	}
+	return nil
+}
+
+func (f *fakePrompter) ShowCheckingForUpdates() (io.Closer, error) {
+	f.checkingShown++
+	return fakeCloser{onClose: func() error {
+		f.checkingClosed++
+		return nil
+	}}, nil
 }
 
 func (f *fakePrompter) ConfirmUpdate(currentVersion, newVersion string) (bool, error) {
@@ -335,6 +372,16 @@ func (f *fakePrompter) ConfirmUpdate(currentVersion, newVersion string) (bool, e
 	_ = newVersion
 	f.calls++
 	return f.confirmResult, nil
+}
+
+func (f *fakePrompter) NotifyUpdateFailed(currentVersion string, updateErr error) error {
+	f.failed = append(f.failed, currentVersion+"|"+updateErr.Error())
+	return nil
+}
+
+func (f *fakePrompter) NotifyUpdateSuccess(previousVersion, newVersion string) error {
+	f.succeeded = append(f.succeeded, previousVersion+"|"+newVersion)
+	return nil
 }
 
 func newService(root string, provider fakeReleaseProvider, downloader fakeDownloader, runner *fakeRunner, prompter *fakePrompter) Service {

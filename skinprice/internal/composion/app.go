@@ -2,11 +2,15 @@ package composion
 
 import (
 	"SkinPrice/skinprice/internal/composion/factory"
+	presentersettings "SkinPrice/skinprice/internal/presenters/settings"
+	presenterskins "SkinPrice/skinprice/internal/presenters/skins"
 	"log/slog"
 )
 
 type BackendApp struct {
-	Factory *factory.Factory
+	Factory           *factory.Factory
+	SkinsEndpoints    *presenterskins.Endpoints
+	SettingsEndpoints *presentersettings.Endpoints
 }
 
 func NewApp(logger *slog.Logger) (*BackendApp, error) {
@@ -15,7 +19,9 @@ func NewApp(logger *slog.Logger) (*BackendApp, error) {
 		return nil, err
 	}
 	return &BackendApp{
-		Factory: f,
+		Factory:           f,
+		SkinsEndpoints:    f.SkinsEndpoints(),
+		SettingsEndpoints: f.SettingsEndpoints(),
 	}, nil
 }
 

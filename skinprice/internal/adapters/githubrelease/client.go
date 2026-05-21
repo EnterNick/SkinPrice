@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	appversion "SkinPrice/skinprice/internal/application/version"
+	"SkinPrice/skinprice/internal/shared/httpx"
 )
 
 type Client struct {
@@ -35,14 +37,18 @@ func (c Client) GetLatestRelease(ctx context.Context) (appversion.ReleaseMeta, e
 		baseURL = "https://api.github.com"
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, baseURL+"/repos/"+c.Repo+"/releases/latest", nil)
-	if err != nil {
-		return appversion.ReleaseMeta{}, err
-	}
-	req.Header.Set("Accept", "application/vnd.github+json")
-	req.Header.Set("User-Agent", "skinprice-launcher")
-
-	resp, err := c.httpClient().Do(req)
+	resp, err := httpx.DoWithRetry(ctx, c.httpClient(), func(ctx context.Context) (*http.Request, error) {
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, baseURL+"/repos/"+c.Repo+"/releases/latest", nil)
+		if err != nil {
+			return nil, err
+		}
+		req.Header.Set("Accept", "application/vnd.github+json")
+		req.Header.Set("User-Agent", "skinprice-launcher")
+		return req, nil
+	}, httpx.RetryConfig{
+		Attempts: 3,
+		Delay:    750 * time.Millisecond,
+	})
 	if err != nil {
 		return appversion.ReleaseMeta{}, err
 	}

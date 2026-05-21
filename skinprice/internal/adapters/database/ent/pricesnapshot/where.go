@@ -4,6 +4,7 @@ package pricesnapshot
 
 import (
 	"SkinPrice/skinprice/internal/adapters/database/ent/predicate"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 )
@@ -51,6 +52,596 @@ func IDLT(id int) predicate.PriceSnapshot {
 // IDLTE applies the LTE predicate on the ID field.
 func IDLTE(id int) predicate.PriceSnapshot {
 	return predicate.PriceSnapshot(sql.FieldLTE(FieldID, id))
+}
+
+// MarketHashName applies equality check predicate on the "market_hash_name" field. It's identical to MarketHashNameEQ.
+func MarketHashName(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEQ(FieldMarketHashName, v))
+}
+
+// Source applies equality check predicate on the "source" field. It's identical to SourceEQ.
+func Source(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEQ(FieldSource, v))
+}
+
+// SourceLabel applies equality check predicate on the "source_label" field. It's identical to SourceLabelEQ.
+func SourceLabel(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEQ(FieldSourceLabel, v))
+}
+
+// PageURL applies equality check predicate on the "page_url" field. It's identical to PageURLEQ.
+func PageURL(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEQ(FieldPageURL, v))
+}
+
+// PriceText applies equality check predicate on the "price_text" field. It's identical to PriceTextEQ.
+func PriceText(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEQ(FieldPriceText, v))
+}
+
+// PriceCents applies equality check predicate on the "price_cents" field. It's identical to PriceCentsEQ.
+func PriceCents(v int64) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEQ(FieldPriceCents, v))
+}
+
+// Currency applies equality check predicate on the "currency" field. It's identical to CurrencyEQ.
+func Currency(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEQ(FieldCurrency, v))
+}
+
+// FetchedAt applies equality check predicate on the "fetched_at" field. It's identical to FetchedAtEQ.
+func FetchedAt(v time.Time) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEQ(FieldFetchedAt, v))
+}
+
+// Metadata applies equality check predicate on the "metadata" field. It's identical to MetadataEQ.
+func Metadata(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEQ(FieldMetadata, v))
+}
+
+// MarketHashNameEQ applies the EQ predicate on the "market_hash_name" field.
+func MarketHashNameEQ(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEQ(FieldMarketHashName, v))
+}
+
+// MarketHashNameNEQ applies the NEQ predicate on the "market_hash_name" field.
+func MarketHashNameNEQ(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldNEQ(FieldMarketHashName, v))
+}
+
+// MarketHashNameIn applies the In predicate on the "market_hash_name" field.
+func MarketHashNameIn(vs ...string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldIn(FieldMarketHashName, vs...))
+}
+
+// MarketHashNameNotIn applies the NotIn predicate on the "market_hash_name" field.
+func MarketHashNameNotIn(vs ...string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldNotIn(FieldMarketHashName, vs...))
+}
+
+// MarketHashNameGT applies the GT predicate on the "market_hash_name" field.
+func MarketHashNameGT(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldGT(FieldMarketHashName, v))
+}
+
+// MarketHashNameGTE applies the GTE predicate on the "market_hash_name" field.
+func MarketHashNameGTE(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldGTE(FieldMarketHashName, v))
+}
+
+// MarketHashNameLT applies the LT predicate on the "market_hash_name" field.
+func MarketHashNameLT(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldLT(FieldMarketHashName, v))
+}
+
+// MarketHashNameLTE applies the LTE predicate on the "market_hash_name" field.
+func MarketHashNameLTE(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldLTE(FieldMarketHashName, v))
+}
+
+// MarketHashNameContains applies the Contains predicate on the "market_hash_name" field.
+func MarketHashNameContains(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldContains(FieldMarketHashName, v))
+}
+
+// MarketHashNameHasPrefix applies the HasPrefix predicate on the "market_hash_name" field.
+func MarketHashNameHasPrefix(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldHasPrefix(FieldMarketHashName, v))
+}
+
+// MarketHashNameHasSuffix applies the HasSuffix predicate on the "market_hash_name" field.
+func MarketHashNameHasSuffix(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldHasSuffix(FieldMarketHashName, v))
+}
+
+// MarketHashNameEqualFold applies the EqualFold predicate on the "market_hash_name" field.
+func MarketHashNameEqualFold(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEqualFold(FieldMarketHashName, v))
+}
+
+// MarketHashNameContainsFold applies the ContainsFold predicate on the "market_hash_name" field.
+func MarketHashNameContainsFold(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldContainsFold(FieldMarketHashName, v))
+}
+
+// SourceEQ applies the EQ predicate on the "source" field.
+func SourceEQ(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEQ(FieldSource, v))
+}
+
+// SourceNEQ applies the NEQ predicate on the "source" field.
+func SourceNEQ(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldNEQ(FieldSource, v))
+}
+
+// SourceIn applies the In predicate on the "source" field.
+func SourceIn(vs ...string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldIn(FieldSource, vs...))
+}
+
+// SourceNotIn applies the NotIn predicate on the "source" field.
+func SourceNotIn(vs ...string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldNotIn(FieldSource, vs...))
+}
+
+// SourceGT applies the GT predicate on the "source" field.
+func SourceGT(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldGT(FieldSource, v))
+}
+
+// SourceGTE applies the GTE predicate on the "source" field.
+func SourceGTE(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldGTE(FieldSource, v))
+}
+
+// SourceLT applies the LT predicate on the "source" field.
+func SourceLT(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldLT(FieldSource, v))
+}
+
+// SourceLTE applies the LTE predicate on the "source" field.
+func SourceLTE(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldLTE(FieldSource, v))
+}
+
+// SourceContains applies the Contains predicate on the "source" field.
+func SourceContains(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldContains(FieldSource, v))
+}
+
+// SourceHasPrefix applies the HasPrefix predicate on the "source" field.
+func SourceHasPrefix(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldHasPrefix(FieldSource, v))
+}
+
+// SourceHasSuffix applies the HasSuffix predicate on the "source" field.
+func SourceHasSuffix(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldHasSuffix(FieldSource, v))
+}
+
+// SourceEqualFold applies the EqualFold predicate on the "source" field.
+func SourceEqualFold(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEqualFold(FieldSource, v))
+}
+
+// SourceContainsFold applies the ContainsFold predicate on the "source" field.
+func SourceContainsFold(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldContainsFold(FieldSource, v))
+}
+
+// SourceLabelEQ applies the EQ predicate on the "source_label" field.
+func SourceLabelEQ(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEQ(FieldSourceLabel, v))
+}
+
+// SourceLabelNEQ applies the NEQ predicate on the "source_label" field.
+func SourceLabelNEQ(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldNEQ(FieldSourceLabel, v))
+}
+
+// SourceLabelIn applies the In predicate on the "source_label" field.
+func SourceLabelIn(vs ...string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldIn(FieldSourceLabel, vs...))
+}
+
+// SourceLabelNotIn applies the NotIn predicate on the "source_label" field.
+func SourceLabelNotIn(vs ...string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldNotIn(FieldSourceLabel, vs...))
+}
+
+// SourceLabelGT applies the GT predicate on the "source_label" field.
+func SourceLabelGT(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldGT(FieldSourceLabel, v))
+}
+
+// SourceLabelGTE applies the GTE predicate on the "source_label" field.
+func SourceLabelGTE(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldGTE(FieldSourceLabel, v))
+}
+
+// SourceLabelLT applies the LT predicate on the "source_label" field.
+func SourceLabelLT(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldLT(FieldSourceLabel, v))
+}
+
+// SourceLabelLTE applies the LTE predicate on the "source_label" field.
+func SourceLabelLTE(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldLTE(FieldSourceLabel, v))
+}
+
+// SourceLabelContains applies the Contains predicate on the "source_label" field.
+func SourceLabelContains(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldContains(FieldSourceLabel, v))
+}
+
+// SourceLabelHasPrefix applies the HasPrefix predicate on the "source_label" field.
+func SourceLabelHasPrefix(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldHasPrefix(FieldSourceLabel, v))
+}
+
+// SourceLabelHasSuffix applies the HasSuffix predicate on the "source_label" field.
+func SourceLabelHasSuffix(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldHasSuffix(FieldSourceLabel, v))
+}
+
+// SourceLabelEqualFold applies the EqualFold predicate on the "source_label" field.
+func SourceLabelEqualFold(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEqualFold(FieldSourceLabel, v))
+}
+
+// SourceLabelContainsFold applies the ContainsFold predicate on the "source_label" field.
+func SourceLabelContainsFold(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldContainsFold(FieldSourceLabel, v))
+}
+
+// PageURLEQ applies the EQ predicate on the "page_url" field.
+func PageURLEQ(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEQ(FieldPageURL, v))
+}
+
+// PageURLNEQ applies the NEQ predicate on the "page_url" field.
+func PageURLNEQ(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldNEQ(FieldPageURL, v))
+}
+
+// PageURLIn applies the In predicate on the "page_url" field.
+func PageURLIn(vs ...string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldIn(FieldPageURL, vs...))
+}
+
+// PageURLNotIn applies the NotIn predicate on the "page_url" field.
+func PageURLNotIn(vs ...string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldNotIn(FieldPageURL, vs...))
+}
+
+// PageURLGT applies the GT predicate on the "page_url" field.
+func PageURLGT(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldGT(FieldPageURL, v))
+}
+
+// PageURLGTE applies the GTE predicate on the "page_url" field.
+func PageURLGTE(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldGTE(FieldPageURL, v))
+}
+
+// PageURLLT applies the LT predicate on the "page_url" field.
+func PageURLLT(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldLT(FieldPageURL, v))
+}
+
+// PageURLLTE applies the LTE predicate on the "page_url" field.
+func PageURLLTE(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldLTE(FieldPageURL, v))
+}
+
+// PageURLContains applies the Contains predicate on the "page_url" field.
+func PageURLContains(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldContains(FieldPageURL, v))
+}
+
+// PageURLHasPrefix applies the HasPrefix predicate on the "page_url" field.
+func PageURLHasPrefix(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldHasPrefix(FieldPageURL, v))
+}
+
+// PageURLHasSuffix applies the HasSuffix predicate on the "page_url" field.
+func PageURLHasSuffix(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldHasSuffix(FieldPageURL, v))
+}
+
+// PageURLEqualFold applies the EqualFold predicate on the "page_url" field.
+func PageURLEqualFold(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEqualFold(FieldPageURL, v))
+}
+
+// PageURLContainsFold applies the ContainsFold predicate on the "page_url" field.
+func PageURLContainsFold(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldContainsFold(FieldPageURL, v))
+}
+
+// PriceTextEQ applies the EQ predicate on the "price_text" field.
+func PriceTextEQ(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEQ(FieldPriceText, v))
+}
+
+// PriceTextNEQ applies the NEQ predicate on the "price_text" field.
+func PriceTextNEQ(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldNEQ(FieldPriceText, v))
+}
+
+// PriceTextIn applies the In predicate on the "price_text" field.
+func PriceTextIn(vs ...string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldIn(FieldPriceText, vs...))
+}
+
+// PriceTextNotIn applies the NotIn predicate on the "price_text" field.
+func PriceTextNotIn(vs ...string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldNotIn(FieldPriceText, vs...))
+}
+
+// PriceTextGT applies the GT predicate on the "price_text" field.
+func PriceTextGT(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldGT(FieldPriceText, v))
+}
+
+// PriceTextGTE applies the GTE predicate on the "price_text" field.
+func PriceTextGTE(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldGTE(FieldPriceText, v))
+}
+
+// PriceTextLT applies the LT predicate on the "price_text" field.
+func PriceTextLT(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldLT(FieldPriceText, v))
+}
+
+// PriceTextLTE applies the LTE predicate on the "price_text" field.
+func PriceTextLTE(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldLTE(FieldPriceText, v))
+}
+
+// PriceTextContains applies the Contains predicate on the "price_text" field.
+func PriceTextContains(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldContains(FieldPriceText, v))
+}
+
+// PriceTextHasPrefix applies the HasPrefix predicate on the "price_text" field.
+func PriceTextHasPrefix(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldHasPrefix(FieldPriceText, v))
+}
+
+// PriceTextHasSuffix applies the HasSuffix predicate on the "price_text" field.
+func PriceTextHasSuffix(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldHasSuffix(FieldPriceText, v))
+}
+
+// PriceTextEqualFold applies the EqualFold predicate on the "price_text" field.
+func PriceTextEqualFold(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEqualFold(FieldPriceText, v))
+}
+
+// PriceTextContainsFold applies the ContainsFold predicate on the "price_text" field.
+func PriceTextContainsFold(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldContainsFold(FieldPriceText, v))
+}
+
+// PriceCentsEQ applies the EQ predicate on the "price_cents" field.
+func PriceCentsEQ(v int64) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEQ(FieldPriceCents, v))
+}
+
+// PriceCentsNEQ applies the NEQ predicate on the "price_cents" field.
+func PriceCentsNEQ(v int64) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldNEQ(FieldPriceCents, v))
+}
+
+// PriceCentsIn applies the In predicate on the "price_cents" field.
+func PriceCentsIn(vs ...int64) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldIn(FieldPriceCents, vs...))
+}
+
+// PriceCentsNotIn applies the NotIn predicate on the "price_cents" field.
+func PriceCentsNotIn(vs ...int64) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldNotIn(FieldPriceCents, vs...))
+}
+
+// PriceCentsGT applies the GT predicate on the "price_cents" field.
+func PriceCentsGT(v int64) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldGT(FieldPriceCents, v))
+}
+
+// PriceCentsGTE applies the GTE predicate on the "price_cents" field.
+func PriceCentsGTE(v int64) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldGTE(FieldPriceCents, v))
+}
+
+// PriceCentsLT applies the LT predicate on the "price_cents" field.
+func PriceCentsLT(v int64) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldLT(FieldPriceCents, v))
+}
+
+// PriceCentsLTE applies the LTE predicate on the "price_cents" field.
+func PriceCentsLTE(v int64) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldLTE(FieldPriceCents, v))
+}
+
+// PriceCentsIsNil applies the IsNil predicate on the "price_cents" field.
+func PriceCentsIsNil() predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldIsNull(FieldPriceCents))
+}
+
+// PriceCentsNotNil applies the NotNil predicate on the "price_cents" field.
+func PriceCentsNotNil() predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldNotNull(FieldPriceCents))
+}
+
+// CurrencyEQ applies the EQ predicate on the "currency" field.
+func CurrencyEQ(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEQ(FieldCurrency, v))
+}
+
+// CurrencyNEQ applies the NEQ predicate on the "currency" field.
+func CurrencyNEQ(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldNEQ(FieldCurrency, v))
+}
+
+// CurrencyIn applies the In predicate on the "currency" field.
+func CurrencyIn(vs ...string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldIn(FieldCurrency, vs...))
+}
+
+// CurrencyNotIn applies the NotIn predicate on the "currency" field.
+func CurrencyNotIn(vs ...string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldNotIn(FieldCurrency, vs...))
+}
+
+// CurrencyGT applies the GT predicate on the "currency" field.
+func CurrencyGT(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldGT(FieldCurrency, v))
+}
+
+// CurrencyGTE applies the GTE predicate on the "currency" field.
+func CurrencyGTE(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldGTE(FieldCurrency, v))
+}
+
+// CurrencyLT applies the LT predicate on the "currency" field.
+func CurrencyLT(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldLT(FieldCurrency, v))
+}
+
+// CurrencyLTE applies the LTE predicate on the "currency" field.
+func CurrencyLTE(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldLTE(FieldCurrency, v))
+}
+
+// CurrencyContains applies the Contains predicate on the "currency" field.
+func CurrencyContains(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldContains(FieldCurrency, v))
+}
+
+// CurrencyHasPrefix applies the HasPrefix predicate on the "currency" field.
+func CurrencyHasPrefix(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldHasPrefix(FieldCurrency, v))
+}
+
+// CurrencyHasSuffix applies the HasSuffix predicate on the "currency" field.
+func CurrencyHasSuffix(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldHasSuffix(FieldCurrency, v))
+}
+
+// CurrencyEqualFold applies the EqualFold predicate on the "currency" field.
+func CurrencyEqualFold(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEqualFold(FieldCurrency, v))
+}
+
+// CurrencyContainsFold applies the ContainsFold predicate on the "currency" field.
+func CurrencyContainsFold(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldContainsFold(FieldCurrency, v))
+}
+
+// FetchedAtEQ applies the EQ predicate on the "fetched_at" field.
+func FetchedAtEQ(v time.Time) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEQ(FieldFetchedAt, v))
+}
+
+// FetchedAtNEQ applies the NEQ predicate on the "fetched_at" field.
+func FetchedAtNEQ(v time.Time) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldNEQ(FieldFetchedAt, v))
+}
+
+// FetchedAtIn applies the In predicate on the "fetched_at" field.
+func FetchedAtIn(vs ...time.Time) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldIn(FieldFetchedAt, vs...))
+}
+
+// FetchedAtNotIn applies the NotIn predicate on the "fetched_at" field.
+func FetchedAtNotIn(vs ...time.Time) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldNotIn(FieldFetchedAt, vs...))
+}
+
+// FetchedAtGT applies the GT predicate on the "fetched_at" field.
+func FetchedAtGT(v time.Time) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldGT(FieldFetchedAt, v))
+}
+
+// FetchedAtGTE applies the GTE predicate on the "fetched_at" field.
+func FetchedAtGTE(v time.Time) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldGTE(FieldFetchedAt, v))
+}
+
+// FetchedAtLT applies the LT predicate on the "fetched_at" field.
+func FetchedAtLT(v time.Time) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldLT(FieldFetchedAt, v))
+}
+
+// FetchedAtLTE applies the LTE predicate on the "fetched_at" field.
+func FetchedAtLTE(v time.Time) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldLTE(FieldFetchedAt, v))
+}
+
+// MetadataEQ applies the EQ predicate on the "metadata" field.
+func MetadataEQ(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEQ(FieldMetadata, v))
+}
+
+// MetadataNEQ applies the NEQ predicate on the "metadata" field.
+func MetadataNEQ(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldNEQ(FieldMetadata, v))
+}
+
+// MetadataIn applies the In predicate on the "metadata" field.
+func MetadataIn(vs ...string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldIn(FieldMetadata, vs...))
+}
+
+// MetadataNotIn applies the NotIn predicate on the "metadata" field.
+func MetadataNotIn(vs ...string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldNotIn(FieldMetadata, vs...))
+}
+
+// MetadataGT applies the GT predicate on the "metadata" field.
+func MetadataGT(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldGT(FieldMetadata, v))
+}
+
+// MetadataGTE applies the GTE predicate on the "metadata" field.
+func MetadataGTE(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldGTE(FieldMetadata, v))
+}
+
+// MetadataLT applies the LT predicate on the "metadata" field.
+func MetadataLT(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldLT(FieldMetadata, v))
+}
+
+// MetadataLTE applies the LTE predicate on the "metadata" field.
+func MetadataLTE(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldLTE(FieldMetadata, v))
+}
+
+// MetadataContains applies the Contains predicate on the "metadata" field.
+func MetadataContains(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldContains(FieldMetadata, v))
+}
+
+// MetadataHasPrefix applies the HasPrefix predicate on the "metadata" field.
+func MetadataHasPrefix(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldHasPrefix(FieldMetadata, v))
+}
+
+// MetadataHasSuffix applies the HasSuffix predicate on the "metadata" field.
+func MetadataHasSuffix(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldHasSuffix(FieldMetadata, v))
+}
+
+// MetadataEqualFold applies the EqualFold predicate on the "metadata" field.
+func MetadataEqualFold(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldEqualFold(FieldMetadata, v))
+}
+
+// MetadataContainsFold applies the ContainsFold predicate on the "metadata" field.
+func MetadataContainsFold(v string) predicate.PriceSnapshot {
+	return predicate.PriceSnapshot(sql.FieldContainsFold(FieldMetadata, v))
 }
 
 // And groups predicates with the AND operator between them.

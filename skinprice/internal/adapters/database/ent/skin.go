@@ -6,6 +6,7 @@ import (
 	"SkinPrice/skinprice/internal/adapters/database/ent/skin"
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -20,10 +21,36 @@ type Skin struct {
 	MarketHashName string `json:"market_hash_name,omitempty"`
 	// DisplayName holds the value of the "display_name" field.
 	DisplayName string `json:"display_name,omitempty"`
+	// NameColor holds the value of the "name_color" field.
+	NameColor string `json:"name_color,omitempty"`
 	// IconURL holds the value of the "icon_url" field.
 	IconURL string `json:"icon_url,omitempty"`
 	// PageURL holds the value of the "page_url" field.
-	PageURL      string `json:"page_url,omitempty"`
+	PageURL string `json:"page_url,omitempty"`
+	// PriceText holds the value of the "price_text" field.
+	PriceText string `json:"price_text,omitempty"`
+	// SteamPageURL holds the value of the "steam_page_url" field.
+	SteamPageURL string `json:"steam_page_url,omitempty"`
+	// SteamPriceText holds the value of the "steam_price_text" field.
+	SteamPriceText string `json:"steam_price_text,omitempty"`
+	// SteamUpdatedAt holds the value of the "steam_updated_at" field.
+	SteamUpdatedAt *time.Time `json:"steam_updated_at,omitempty"`
+	// LisskinsPageURL holds the value of the "lisskins_page_url" field.
+	LisskinsPageURL string `json:"lisskins_page_url,omitempty"`
+	// LisskinsPriceText holds the value of the "lisskins_price_text" field.
+	LisskinsPriceText string `json:"lisskins_price_text,omitempty"`
+	// LisskinsUpdatedAt holds the value of the "lisskins_updated_at" field.
+	LisskinsUpdatedAt *time.Time `json:"lisskins_updated_at,omitempty"`
+	// CstmPageURL holds the value of the "cstm_page_url" field.
+	CstmPageURL string `json:"cstm_page_url,omitempty"`
+	// CstmPriceText holds the value of the "cstm_price_text" field.
+	CstmPriceText string `json:"cstm_price_text,omitempty"`
+	// CstmUpdatedAt holds the value of the "cstm_updated_at" field.
+	CstmUpdatedAt *time.Time `json:"cstm_updated_at,omitempty"`
+	// Currency holds the value of the "currency" field.
+	Currency string `json:"currency,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt    *time.Time `json:"updated_at,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -34,8 +61,10 @@ func (*Skin) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case skin.FieldID:
 			values[i] = new(sql.NullInt64)
-		case skin.FieldMarketHashName, skin.FieldDisplayName, skin.FieldIconURL, skin.FieldPageURL:
+		case skin.FieldMarketHashName, skin.FieldDisplayName, skin.FieldNameColor, skin.FieldIconURL, skin.FieldPageURL, skin.FieldPriceText, skin.FieldSteamPageURL, skin.FieldSteamPriceText, skin.FieldLisskinsPageURL, skin.FieldLisskinsPriceText, skin.FieldCstmPageURL, skin.FieldCstmPriceText, skin.FieldCurrency:
 			values[i] = new(sql.NullString)
+		case skin.FieldSteamUpdatedAt, skin.FieldLisskinsUpdatedAt, skin.FieldCstmUpdatedAt, skin.FieldUpdatedAt:
+			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -69,6 +98,12 @@ func (_m *Skin) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DisplayName = value.String
 			}
+		case skin.FieldNameColor:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field name_color", values[i])
+			} else if value.Valid {
+				_m.NameColor = value.String
+			}
 		case skin.FieldIconURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field icon_url", values[i])
@@ -80,6 +115,82 @@ func (_m *Skin) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field page_url", values[i])
 			} else if value.Valid {
 				_m.PageURL = value.String
+			}
+		case skin.FieldPriceText:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field price_text", values[i])
+			} else if value.Valid {
+				_m.PriceText = value.String
+			}
+		case skin.FieldSteamPageURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field steam_page_url", values[i])
+			} else if value.Valid {
+				_m.SteamPageURL = value.String
+			}
+		case skin.FieldSteamPriceText:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field steam_price_text", values[i])
+			} else if value.Valid {
+				_m.SteamPriceText = value.String
+			}
+		case skin.FieldSteamUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field steam_updated_at", values[i])
+			} else if value.Valid {
+				_m.SteamUpdatedAt = new(time.Time)
+				*_m.SteamUpdatedAt = value.Time
+			}
+		case skin.FieldLisskinsPageURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field lisskins_page_url", values[i])
+			} else if value.Valid {
+				_m.LisskinsPageURL = value.String
+			}
+		case skin.FieldLisskinsPriceText:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field lisskins_price_text", values[i])
+			} else if value.Valid {
+				_m.LisskinsPriceText = value.String
+			}
+		case skin.FieldLisskinsUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field lisskins_updated_at", values[i])
+			} else if value.Valid {
+				_m.LisskinsUpdatedAt = new(time.Time)
+				*_m.LisskinsUpdatedAt = value.Time
+			}
+		case skin.FieldCstmPageURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field cstm_page_url", values[i])
+			} else if value.Valid {
+				_m.CstmPageURL = value.String
+			}
+		case skin.FieldCstmPriceText:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field cstm_price_text", values[i])
+			} else if value.Valid {
+				_m.CstmPriceText = value.String
+			}
+		case skin.FieldCstmUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field cstm_updated_at", values[i])
+			} else if value.Valid {
+				_m.CstmUpdatedAt = new(time.Time)
+				*_m.CstmUpdatedAt = value.Time
+			}
+		case skin.FieldCurrency:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field currency", values[i])
+			} else if value.Valid {
+				_m.Currency = value.String
+			}
+		case skin.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				_m.UpdatedAt = new(time.Time)
+				*_m.UpdatedAt = value.Time
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -123,11 +234,58 @@ func (_m *Skin) String() string {
 	builder.WriteString("display_name=")
 	builder.WriteString(_m.DisplayName)
 	builder.WriteString(", ")
+	builder.WriteString("name_color=")
+	builder.WriteString(_m.NameColor)
+	builder.WriteString(", ")
 	builder.WriteString("icon_url=")
 	builder.WriteString(_m.IconURL)
 	builder.WriteString(", ")
 	builder.WriteString("page_url=")
 	builder.WriteString(_m.PageURL)
+	builder.WriteString(", ")
+	builder.WriteString("price_text=")
+	builder.WriteString(_m.PriceText)
+	builder.WriteString(", ")
+	builder.WriteString("steam_page_url=")
+	builder.WriteString(_m.SteamPageURL)
+	builder.WriteString(", ")
+	builder.WriteString("steam_price_text=")
+	builder.WriteString(_m.SteamPriceText)
+	builder.WriteString(", ")
+	if v := _m.SteamUpdatedAt; v != nil {
+		builder.WriteString("steam_updated_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("lisskins_page_url=")
+	builder.WriteString(_m.LisskinsPageURL)
+	builder.WriteString(", ")
+	builder.WriteString("lisskins_price_text=")
+	builder.WriteString(_m.LisskinsPriceText)
+	builder.WriteString(", ")
+	if v := _m.LisskinsUpdatedAt; v != nil {
+		builder.WriteString("lisskins_updated_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("cstm_page_url=")
+	builder.WriteString(_m.CstmPageURL)
+	builder.WriteString(", ")
+	builder.WriteString("cstm_price_text=")
+	builder.WriteString(_m.CstmPriceText)
+	builder.WriteString(", ")
+	if v := _m.CstmUpdatedAt; v != nil {
+		builder.WriteString("cstm_updated_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("currency=")
+	builder.WriteString(_m.Currency)
+	builder.WriteString(", ")
+	if v := _m.UpdatedAt; v != nil {
+		builder.WriteString("updated_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

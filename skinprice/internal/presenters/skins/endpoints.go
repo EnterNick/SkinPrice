@@ -3,40 +3,49 @@ package skins
 import (
 	app "SkinPrice/skinprice/internal/application"
 	appskins "SkinPrice/skinprice/internal/application/skins"
+	"context"
 )
 
 type SearchNewSkinsUseCase interface {
-	Execute(criteria appskins.SearchCriteria, params app.Pagination) (appskins.NewSkinsList, error)
+	Execute(ctx context.Context, criteria appskins.SearchCriteria, params app.Pagination) (appskins.NewSkinsList, error)
 }
 
 type SaveSkinUseCase interface {
-	Execute(params appskins.SaveSkinParams) (appskins.SaveSkinResult, error)
+	Execute(ctx context.Context, params appskins.SaveSkinParams) (appskins.SaveSkinResult, error)
 }
 
 type GetSavedSkinsUseCase interface {
-	Execute(params app.Pagination) (appskins.SavedSkinsList, error)
+	Execute(ctx context.Context, params app.Pagination) (appskins.SavedSkinsList, error)
 }
 type UpdateSavedSkinPriceUseCase interface {
-	Execute(params appskins.UpdateSavedSkinPriceParams) (appskins.UpdateSavedSkinPriceResult, error)
+	Execute(ctx context.Context, params appskins.UpdateSavedSkinPriceParams) (appskins.UpdateSavedSkinPriceResult, error)
 }
 type UpdateAllSavedSkinsPricesUseCase interface {
-	Execute(params appskins.UpdateAllSavedSkinsPricesParams) (appskins.UpdateAllSavedSkinsPricesResult, error)
+	Execute(ctx context.Context, params appskins.UpdateAllSavedSkinsPricesParams) (appskins.UpdateAllSavedSkinsPricesResult, error)
 }
 
 type DeleteSavedSkinUseCase interface {
-	Execute(params appskins.DeleteSavedSkinParams) error
+	Execute(ctx context.Context, params appskins.DeleteSavedSkinParams) error
 }
 
 type SaveLisSkinsTokenUseCase interface {
-	Execute(token string) error
+	Execute(ctx context.Context, token string) error
 }
 
 type HasLisSkinsTokenUseCase interface {
-	Execute() (bool, error)
+	Execute(ctx context.Context) (bool, error)
 }
 
 type ClearLisSkinsTokenUseCase interface {
-	Execute() error
+	Execute(ctx context.Context) error
+}
+
+type GetPriceSourceStatesUseCase interface {
+	Execute(ctx context.Context) ([]appskins.SourceState, error)
+}
+
+type GetDiagnosticsUseCase interface {
+	Execute(ctx context.Context) (appskins.Diagnostics, error)
 }
 
 type Endpoints struct {
@@ -49,24 +58,42 @@ type Endpoints struct {
 	saveLisSkinsTokenUC         SaveLisSkinsTokenUseCase
 	hasLisSkinsTokenUC          HasLisSkinsTokenUseCase
 	clearLisSkinsTokenUC        ClearLisSkinsTokenUseCase
+	getPriceSourceStatesUC      GetPriceSourceStatesUseCase
+	getDiagnosticsUC            GetDiagnosticsUseCase
 }
 
-func NewEndpoints(searchNewSkinsUC SearchNewSkinsUseCase, saveSkinUC SaveSkinUseCase, getSavedSkinsUC GetSavedSkinsUseCase, updateSavedSkinPriceUC UpdateSavedSkinPriceUseCase, updateAllSavedSkinsPricesUC UpdateAllSavedSkinsPricesUseCase, deleteSavedSkinUC DeleteSavedSkinUseCase, saveLisSkinsTokenUC SaveLisSkinsTokenUseCase, hasLisSkinsTokenUC HasLisSkinsTokenUseCase, clearLisSkinsTokenUC ClearLisSkinsTokenUseCase) *Endpoints {
+type EndpointDeps struct {
+	SearchNewSkins            SearchNewSkinsUseCase
+	SaveSkin                  SaveSkinUseCase
+	GetSavedSkins             GetSavedSkinsUseCase
+	UpdateSavedSkinPrice      UpdateSavedSkinPriceUseCase
+	UpdateAllSavedSkinsPrices UpdateAllSavedSkinsPricesUseCase
+	DeleteSavedSkin           DeleteSavedSkinUseCase
+	SaveLisSkinsToken         SaveLisSkinsTokenUseCase
+	HasLisSkinsToken          HasLisSkinsTokenUseCase
+	ClearLisSkinsToken        ClearLisSkinsTokenUseCase
+	GetPriceSourceStates      GetPriceSourceStatesUseCase
+	GetDiagnostics            GetDiagnosticsUseCase
+}
+
+func NewEndpoints(deps EndpointDeps) *Endpoints {
 	return &Endpoints{
-		searchNewSkinsUC:            searchNewSkinsUC,
-		saveSkinUC:                  saveSkinUC,
-		getSavedSkinsUC:             getSavedSkinsUC,
-		updateSavedSkinPriceUC:      updateSavedSkinPriceUC,
-		updateAllSavedSkinsPricesUC: updateAllSavedSkinsPricesUC,
-		deleteSavedSkinUC:           deleteSavedSkinUC,
-		saveLisSkinsTokenUC:         saveLisSkinsTokenUC,
-		hasLisSkinsTokenUC:          hasLisSkinsTokenUC,
-		clearLisSkinsTokenUC:        clearLisSkinsTokenUC,
+		searchNewSkinsUC:            deps.SearchNewSkins,
+		saveSkinUC:                  deps.SaveSkin,
+		getSavedSkinsUC:             deps.GetSavedSkins,
+		updateSavedSkinPriceUC:      deps.UpdateSavedSkinPrice,
+		updateAllSavedSkinsPricesUC: deps.UpdateAllSavedSkinsPrices,
+		deleteSavedSkinUC:           deps.DeleteSavedSkin,
+		saveLisSkinsTokenUC:         deps.SaveLisSkinsToken,
+		hasLisSkinsTokenUC:          deps.HasLisSkinsToken,
+		clearLisSkinsTokenUC:        deps.ClearLisSkinsToken,
+		getPriceSourceStatesUC:      deps.GetPriceSourceStates,
+		getDiagnosticsUC:            deps.GetDiagnostics,
 	}
 }
 
-func (e *Endpoints) SearchNewSkins(filter SearchNewSkinsFilter) (NewSkinsResponse, error) {
-	result, err := e.searchNewSkinsUC.Execute(appskins.SearchCriteria{
+func (e *Endpoints) SearchNewSkins(ctx context.Context, filter SearchNewSkinsFilter) (NewSkinsResponse, error) {
+	result, err := e.searchNewSkinsUC.Execute(ctx, appskins.SearchCriteria{
 		MarketHashName:     filter.MarketHashName,
 		SortColumn:         filter.SortColumn,
 		SortDir:            filter.SortDir,
@@ -109,8 +136,8 @@ func (e *Endpoints) SearchNewSkins(filter SearchNewSkinsFilter) (NewSkinsRespons
 	}, nil
 }
 
-func (e *Endpoints) SaveSkin(payload SaveSkinRequest) (SaveSkinResponse, error) {
-	result, err := e.saveSkinUC.Execute(appskins.SaveSkinParams{
+func (e *Endpoints) SaveSkin(ctx context.Context, payload SaveSkinRequest) (SaveSkinResponse, error) {
+	result, err := e.saveSkinUC.Execute(ctx, appskins.SaveSkinParams{
 		MarketHashName: payload.MarketHashName,
 		DisplayName:    payload.DisplayName,
 		NameColor:      payload.NameColor,
@@ -123,8 +150,8 @@ func (e *Endpoints) SaveSkin(payload SaveSkinRequest) (SaveSkinResponse, error) 
 	return SaveSkinResponse{Created: result.Created}, nil
 }
 
-func (e *Endpoints) GetSavedSkins(filter GetSavedSkinsFilter) (SavedSkinsResponse, error) {
-	result, err := e.getSavedSkinsUC.Execute(app.Pagination{Limit: filter.Limit, Offset: filter.Offset})
+func (e *Endpoints) GetSavedSkins(ctx context.Context, filter GetSavedSkinsFilter) (SavedSkinsResponse, error) {
+	result, err := e.getSavedSkinsUC.Execute(ctx, app.Pagination{Limit: filter.Limit, Offset: filter.Offset})
 	if err != nil {
 		return SavedSkinsResponse{}, err
 	}
@@ -145,6 +172,7 @@ func (e *Endpoints) GetSavedSkins(filter GetSavedSkinsFilter) (SavedSkinsRespons
 			CSTMPageURL:       item.CSTMPageURL,
 			CSTMPriceText:     item.CSTMPriceText,
 			CSTMUpdatedAt:     item.CSTMUpdatedAt,
+			Prices:            mapPriceSnapshots(item.Prices),
 			Currency:          item.Currency,
 		})
 	}
@@ -152,8 +180,8 @@ func (e *Endpoints) GetSavedSkins(filter GetSavedSkinsFilter) (SavedSkinsRespons
 	return SavedSkinsResponse{Items: items, TotalCount: result.TotalCount, Limit: result.Limit, Offset: result.Offset}, nil
 }
 
-func (e *Endpoints) UpdateSavedSkinPrice(payload UpdateSavedSkinPriceRequest) (UpdateSavedSkinPriceResponse, error) {
-	result, err := e.updateSavedSkinPriceUC.Execute(appskins.UpdateSavedSkinPriceParams{MarketHashName: payload.MarketHashName, Currency: payload.Currency})
+func (e *Endpoints) UpdateSavedSkinPrice(ctx context.Context, payload UpdateSavedSkinPriceRequest) (UpdateSavedSkinPriceResponse, error) {
+	result, err := e.updateSavedSkinPriceUC.Execute(ctx, appskins.UpdateSavedSkinPriceParams{MarketHashName: payload.MarketHashName, Currency: payload.Currency})
 	if err != nil {
 		return UpdateSavedSkinPriceResponse{}, err
 	}
@@ -168,12 +196,13 @@ func (e *Endpoints) UpdateSavedSkinPrice(payload UpdateSavedSkinPriceRequest) (U
 		CSTMPageURL:       result.CSTMPageURL,
 		CSTMPriceText:     result.CSTMPriceText,
 		CSTMUpdatedAt:     result.CSTMUpdatedAt,
+		Prices:            mapPriceSnapshots(result.Prices),
 		Currency:          result.Currency,
 	}, nil
 }
 
-func (e *Endpoints) UpdateAllSavedSkinsPrices(payload UpdateAllSavedSkinsPricesRequest) (UpdateAllSavedSkinsPricesResponse, error) {
-	result, err := e.updateAllSavedSkinsPricesUC.Execute(appskins.UpdateAllSavedSkinsPricesParams{Currency: payload.Currency})
+func (e *Endpoints) UpdateAllSavedSkinsPrices(ctx context.Context, payload UpdateAllSavedSkinsPricesRequest) (UpdateAllSavedSkinsPricesResponse, error) {
+	result, err := e.updateAllSavedSkinsPricesUC.Execute(ctx, appskins.UpdateAllSavedSkinsPricesParams{Currency: payload.Currency})
 	if err != nil {
 		return UpdateAllSavedSkinsPricesResponse{}, err
 	}
@@ -193,22 +222,81 @@ func (e *Endpoints) UpdateAllSavedSkinsPrices(payload UpdateAllSavedSkinsPricesR
 	}, nil
 }
 
-func (e *Endpoints) DeleteSavedSkin(payload DeleteSavedSkinRequest) error {
-	return e.deleteSavedSkinUC.Execute(appskins.DeleteSavedSkinParams{MarketHashName: payload.MarketHashName})
+func (e *Endpoints) DeleteSavedSkin(ctx context.Context, payload DeleteSavedSkinRequest) error {
+	return e.deleteSavedSkinUC.Execute(ctx, appskins.DeleteSavedSkinParams{MarketHashName: payload.MarketHashName})
 }
 
-func (e *Endpoints) SetLisSkinsToken(payload SetLisSkinsTokenRequest) error {
-	return e.saveLisSkinsTokenUC.Execute(payload.Token)
+func (e *Endpoints) SetLisSkinsToken(ctx context.Context, payload SetLisSkinsTokenRequest) error {
+	return e.saveLisSkinsTokenUC.Execute(ctx, payload.Token)
 }
 
-func (e *Endpoints) GetLisSkinsTokenStatus() (LisSkinsTokenStatusResponse, error) {
-	hasToken, err := e.hasLisSkinsTokenUC.Execute()
+func (e *Endpoints) GetLisSkinsTokenStatus(ctx context.Context) (LisSkinsTokenStatusResponse, error) {
+	hasToken, err := e.hasLisSkinsTokenUC.Execute(ctx)
 	if err != nil {
 		return LisSkinsTokenStatusResponse{}, err
 	}
 	return LisSkinsTokenStatusResponse{HasToken: hasToken}, nil
 }
 
-func (e *Endpoints) ClearLisSkinsToken() error {
-	return e.clearLisSkinsTokenUC.Execute()
+func (e *Endpoints) ClearLisSkinsToken(ctx context.Context) error {
+	return e.clearLisSkinsTokenUC.Execute(ctx)
+}
+
+func (e *Endpoints) GetPriceSourceStates(ctx context.Context) (PriceSourceStatesResponse, error) {
+	if e.getPriceSourceStatesUC == nil {
+		return PriceSourceStatesResponse{}, nil
+	}
+	states, err := e.getPriceSourceStatesUC.Execute(ctx)
+	if err != nil {
+		return PriceSourceStatesResponse{}, err
+	}
+	return PriceSourceStatesResponse{Items: mapSourceStates(states)}, nil
+}
+
+func (e *Endpoints) GetDiagnostics(ctx context.Context) (DiagnosticsResponse, error) {
+	if e.getDiagnosticsUC == nil {
+		return DiagnosticsResponse{}, nil
+	}
+	diagnostics, err := e.getDiagnosticsUC.Execute(ctx)
+	if err != nil {
+		return DiagnosticsResponse{}, err
+	}
+	return DiagnosticsResponse{
+		Version:      diagnostics.Version,
+		DatabasePath: diagnostics.DatabasePath,
+		LogPath:      diagnostics.LogPath,
+		Sources:      mapSourceStates(diagnostics.Sources),
+	}, nil
+}
+
+func mapPriceSnapshots(items []appskins.PriceSnapshotView) []PriceSnapshotItem {
+	result := make([]PriceSnapshotItem, 0, len(items))
+	for _, item := range items {
+		result = append(result, PriceSnapshotItem{
+			Source:      item.Source,
+			SourceLabel: item.SourceLabel,
+			PageURL:     item.PageURL,
+			PriceText:   item.PriceText,
+			PriceCents:  item.PriceCents,
+			Currency:    item.Currency,
+			FetchedAt:   item.FetchedAt,
+			Status:      item.Status,
+		})
+	}
+	return result
+}
+
+func mapSourceStates(items []appskins.SourceState) []SourceStateItem {
+	result := make([]SourceStateItem, 0, len(items))
+	for _, item := range items {
+		result = append(result, SourceStateItem{
+			Source:        item.Source,
+			Status:        item.Status,
+			LastSuccessAt: item.LastSuccessAt,
+			LastError:     item.LastError,
+			LastErrorAt:   item.LastErrorAt,
+			UpdatedAt:     item.UpdatedAt,
+		})
+	}
+	return result
 }

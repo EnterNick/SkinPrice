@@ -6,6 +6,7 @@ import (
 	"SkinPrice/skinprice/internal/adapters/database/ent/pricesnapshot"
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -13,9 +14,27 @@ import (
 
 // PriceSnapshot is the model entity for the PriceSnapshot schema.
 type PriceSnapshot struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
-	ID           int `json:"id,omitempty"`
+	ID int `json:"id,omitempty"`
+	// MarketHashName holds the value of the "market_hash_name" field.
+	MarketHashName string `json:"market_hash_name,omitempty"`
+	// Source holds the value of the "source" field.
+	Source string `json:"source,omitempty"`
+	// SourceLabel holds the value of the "source_label" field.
+	SourceLabel string `json:"source_label,omitempty"`
+	// PageURL holds the value of the "page_url" field.
+	PageURL string `json:"page_url,omitempty"`
+	// PriceText holds the value of the "price_text" field.
+	PriceText string `json:"price_text,omitempty"`
+	// PriceCents holds the value of the "price_cents" field.
+	PriceCents *int64 `json:"price_cents,omitempty"`
+	// Currency holds the value of the "currency" field.
+	Currency string `json:"currency,omitempty"`
+	// FetchedAt holds the value of the "fetched_at" field.
+	FetchedAt time.Time `json:"fetched_at,omitempty"`
+	// Metadata holds the value of the "metadata" field.
+	Metadata     string `json:"metadata,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -24,8 +43,12 @@ func (*PriceSnapshot) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case pricesnapshot.FieldID:
+		case pricesnapshot.FieldID, pricesnapshot.FieldPriceCents:
 			values[i] = new(sql.NullInt64)
+		case pricesnapshot.FieldMarketHashName, pricesnapshot.FieldSource, pricesnapshot.FieldSourceLabel, pricesnapshot.FieldPageURL, pricesnapshot.FieldPriceText, pricesnapshot.FieldCurrency, pricesnapshot.FieldMetadata:
+			values[i] = new(sql.NullString)
+		case pricesnapshot.FieldFetchedAt:
+			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -47,6 +70,61 @@ func (_m *PriceSnapshot) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			_m.ID = int(value.Int64)
+		case pricesnapshot.FieldMarketHashName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field market_hash_name", values[i])
+			} else if value.Valid {
+				_m.MarketHashName = value.String
+			}
+		case pricesnapshot.FieldSource:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field source", values[i])
+			} else if value.Valid {
+				_m.Source = value.String
+			}
+		case pricesnapshot.FieldSourceLabel:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field source_label", values[i])
+			} else if value.Valid {
+				_m.SourceLabel = value.String
+			}
+		case pricesnapshot.FieldPageURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field page_url", values[i])
+			} else if value.Valid {
+				_m.PageURL = value.String
+			}
+		case pricesnapshot.FieldPriceText:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field price_text", values[i])
+			} else if value.Valid {
+				_m.PriceText = value.String
+			}
+		case pricesnapshot.FieldPriceCents:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field price_cents", values[i])
+			} else if value.Valid {
+				_m.PriceCents = new(int64)
+				*_m.PriceCents = value.Int64
+			}
+		case pricesnapshot.FieldCurrency:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field currency", values[i])
+			} else if value.Valid {
+				_m.Currency = value.String
+			}
+		case pricesnapshot.FieldFetchedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field fetched_at", values[i])
+			} else if value.Valid {
+				_m.FetchedAt = value.Time
+			}
+		case pricesnapshot.FieldMetadata:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field metadata", values[i])
+			} else if value.Valid {
+				_m.Metadata = value.String
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -82,7 +160,35 @@ func (_m *PriceSnapshot) Unwrap() *PriceSnapshot {
 func (_m *PriceSnapshot) String() string {
 	var builder strings.Builder
 	builder.WriteString("PriceSnapshot(")
-	builder.WriteString(fmt.Sprintf("id=%v", _m.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("market_hash_name=")
+	builder.WriteString(_m.MarketHashName)
+	builder.WriteString(", ")
+	builder.WriteString("source=")
+	builder.WriteString(_m.Source)
+	builder.WriteString(", ")
+	builder.WriteString("source_label=")
+	builder.WriteString(_m.SourceLabel)
+	builder.WriteString(", ")
+	builder.WriteString("page_url=")
+	builder.WriteString(_m.PageURL)
+	builder.WriteString(", ")
+	builder.WriteString("price_text=")
+	builder.WriteString(_m.PriceText)
+	builder.WriteString(", ")
+	if v := _m.PriceCents; v != nil {
+		builder.WriteString("price_cents=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("currency=")
+	builder.WriteString(_m.Currency)
+	builder.WriteString(", ")
+	builder.WriteString("fetched_at=")
+	builder.WriteString(_m.FetchedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("metadata=")
+	builder.WriteString(_m.Metadata)
 	builder.WriteByte(')')
 	return builder.String()
 }

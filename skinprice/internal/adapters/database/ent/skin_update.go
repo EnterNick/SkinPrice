@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -55,6 +56,20 @@ func (_u *SkinUpdate) SetNillableDisplayName(v *string) *SkinUpdate {
 	return _u
 }
 
+// SetNameColor sets the "name_color" field.
+func (_u *SkinUpdate) SetNameColor(v string) *SkinUpdate {
+	_u.mutation.SetNameColor(v)
+	return _u
+}
+
+// SetNillableNameColor sets the "name_color" field if the given value is not nil.
+func (_u *SkinUpdate) SetNillableNameColor(v *string) *SkinUpdate {
+	if v != nil {
+		_u.SetNameColor(*v)
+	}
+	return _u
+}
+
 // SetIconURL sets the "icon_url" field.
 func (_u *SkinUpdate) SetIconURL(v string) *SkinUpdate {
 	_u.mutation.SetIconURL(v)
@@ -66,12 +81,6 @@ func (_u *SkinUpdate) SetNillableIconURL(v *string) *SkinUpdate {
 	if v != nil {
 		_u.SetIconURL(*v)
 	}
-	return _u
-}
-
-// ClearIconURL clears the value of the "icon_url" field.
-func (_u *SkinUpdate) ClearIconURL() *SkinUpdate {
-	_u.mutation.ClearIconURL()
 	return _u
 }
 
@@ -89,9 +98,195 @@ func (_u *SkinUpdate) SetNillablePageURL(v *string) *SkinUpdate {
 	return _u
 }
 
-// ClearPageURL clears the value of the "page_url" field.
-func (_u *SkinUpdate) ClearPageURL() *SkinUpdate {
-	_u.mutation.ClearPageURL()
+// SetPriceText sets the "price_text" field.
+func (_u *SkinUpdate) SetPriceText(v string) *SkinUpdate {
+	_u.mutation.SetPriceText(v)
+	return _u
+}
+
+// SetNillablePriceText sets the "price_text" field if the given value is not nil.
+func (_u *SkinUpdate) SetNillablePriceText(v *string) *SkinUpdate {
+	if v != nil {
+		_u.SetPriceText(*v)
+	}
+	return _u
+}
+
+// SetSteamPageURL sets the "steam_page_url" field.
+func (_u *SkinUpdate) SetSteamPageURL(v string) *SkinUpdate {
+	_u.mutation.SetSteamPageURL(v)
+	return _u
+}
+
+// SetNillableSteamPageURL sets the "steam_page_url" field if the given value is not nil.
+func (_u *SkinUpdate) SetNillableSteamPageURL(v *string) *SkinUpdate {
+	if v != nil {
+		_u.SetSteamPageURL(*v)
+	}
+	return _u
+}
+
+// SetSteamPriceText sets the "steam_price_text" field.
+func (_u *SkinUpdate) SetSteamPriceText(v string) *SkinUpdate {
+	_u.mutation.SetSteamPriceText(v)
+	return _u
+}
+
+// SetNillableSteamPriceText sets the "steam_price_text" field if the given value is not nil.
+func (_u *SkinUpdate) SetNillableSteamPriceText(v *string) *SkinUpdate {
+	if v != nil {
+		_u.SetSteamPriceText(*v)
+	}
+	return _u
+}
+
+// SetSteamUpdatedAt sets the "steam_updated_at" field.
+func (_u *SkinUpdate) SetSteamUpdatedAt(v time.Time) *SkinUpdate {
+	_u.mutation.SetSteamUpdatedAt(v)
+	return _u
+}
+
+// SetNillableSteamUpdatedAt sets the "steam_updated_at" field if the given value is not nil.
+func (_u *SkinUpdate) SetNillableSteamUpdatedAt(v *time.Time) *SkinUpdate {
+	if v != nil {
+		_u.SetSteamUpdatedAt(*v)
+	}
+	return _u
+}
+
+// ClearSteamUpdatedAt clears the value of the "steam_updated_at" field.
+func (_u *SkinUpdate) ClearSteamUpdatedAt() *SkinUpdate {
+	_u.mutation.ClearSteamUpdatedAt()
+	return _u
+}
+
+// SetLisskinsPageURL sets the "lisskins_page_url" field.
+func (_u *SkinUpdate) SetLisskinsPageURL(v string) *SkinUpdate {
+	_u.mutation.SetLisskinsPageURL(v)
+	return _u
+}
+
+// SetNillableLisskinsPageURL sets the "lisskins_page_url" field if the given value is not nil.
+func (_u *SkinUpdate) SetNillableLisskinsPageURL(v *string) *SkinUpdate {
+	if v != nil {
+		_u.SetLisskinsPageURL(*v)
+	}
+	return _u
+}
+
+// SetLisskinsPriceText sets the "lisskins_price_text" field.
+func (_u *SkinUpdate) SetLisskinsPriceText(v string) *SkinUpdate {
+	_u.mutation.SetLisskinsPriceText(v)
+	return _u
+}
+
+// SetNillableLisskinsPriceText sets the "lisskins_price_text" field if the given value is not nil.
+func (_u *SkinUpdate) SetNillableLisskinsPriceText(v *string) *SkinUpdate {
+	if v != nil {
+		_u.SetLisskinsPriceText(*v)
+	}
+	return _u
+}
+
+// SetLisskinsUpdatedAt sets the "lisskins_updated_at" field.
+func (_u *SkinUpdate) SetLisskinsUpdatedAt(v time.Time) *SkinUpdate {
+	_u.mutation.SetLisskinsUpdatedAt(v)
+	return _u
+}
+
+// SetNillableLisskinsUpdatedAt sets the "lisskins_updated_at" field if the given value is not nil.
+func (_u *SkinUpdate) SetNillableLisskinsUpdatedAt(v *time.Time) *SkinUpdate {
+	if v != nil {
+		_u.SetLisskinsUpdatedAt(*v)
+	}
+	return _u
+}
+
+// ClearLisskinsUpdatedAt clears the value of the "lisskins_updated_at" field.
+func (_u *SkinUpdate) ClearLisskinsUpdatedAt() *SkinUpdate {
+	_u.mutation.ClearLisskinsUpdatedAt()
+	return _u
+}
+
+// SetCstmPageURL sets the "cstm_page_url" field.
+func (_u *SkinUpdate) SetCstmPageURL(v string) *SkinUpdate {
+	_u.mutation.SetCstmPageURL(v)
+	return _u
+}
+
+// SetNillableCstmPageURL sets the "cstm_page_url" field if the given value is not nil.
+func (_u *SkinUpdate) SetNillableCstmPageURL(v *string) *SkinUpdate {
+	if v != nil {
+		_u.SetCstmPageURL(*v)
+	}
+	return _u
+}
+
+// SetCstmPriceText sets the "cstm_price_text" field.
+func (_u *SkinUpdate) SetCstmPriceText(v string) *SkinUpdate {
+	_u.mutation.SetCstmPriceText(v)
+	return _u
+}
+
+// SetNillableCstmPriceText sets the "cstm_price_text" field if the given value is not nil.
+func (_u *SkinUpdate) SetNillableCstmPriceText(v *string) *SkinUpdate {
+	if v != nil {
+		_u.SetCstmPriceText(*v)
+	}
+	return _u
+}
+
+// SetCstmUpdatedAt sets the "cstm_updated_at" field.
+func (_u *SkinUpdate) SetCstmUpdatedAt(v time.Time) *SkinUpdate {
+	_u.mutation.SetCstmUpdatedAt(v)
+	return _u
+}
+
+// SetNillableCstmUpdatedAt sets the "cstm_updated_at" field if the given value is not nil.
+func (_u *SkinUpdate) SetNillableCstmUpdatedAt(v *time.Time) *SkinUpdate {
+	if v != nil {
+		_u.SetCstmUpdatedAt(*v)
+	}
+	return _u
+}
+
+// ClearCstmUpdatedAt clears the value of the "cstm_updated_at" field.
+func (_u *SkinUpdate) ClearCstmUpdatedAt() *SkinUpdate {
+	_u.mutation.ClearCstmUpdatedAt()
+	return _u
+}
+
+// SetCurrency sets the "currency" field.
+func (_u *SkinUpdate) SetCurrency(v string) *SkinUpdate {
+	_u.mutation.SetCurrency(v)
+	return _u
+}
+
+// SetNillableCurrency sets the "currency" field if the given value is not nil.
+func (_u *SkinUpdate) SetNillableCurrency(v *string) *SkinUpdate {
+	if v != nil {
+		_u.SetCurrency(*v)
+	}
+	return _u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *SkinUpdate) SetUpdatedAt(v time.Time) *SkinUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_u *SkinUpdate) SetNillableUpdatedAt(v *time.Time) *SkinUpdate {
+	if v != nil {
+		_u.SetUpdatedAt(*v)
+	}
+	return _u
+}
+
+// ClearUpdatedAt clears the value of the "updated_at" field.
+func (_u *SkinUpdate) ClearUpdatedAt() *SkinUpdate {
+	_u.mutation.ClearUpdatedAt()
 	return _u
 }
 
@@ -160,17 +355,62 @@ func (_u *SkinUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.DisplayName(); ok {
 		_spec.SetField(skin.FieldDisplayName, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.NameColor(); ok {
+		_spec.SetField(skin.FieldNameColor, field.TypeString, value)
+	}
 	if value, ok := _u.mutation.IconURL(); ok {
 		_spec.SetField(skin.FieldIconURL, field.TypeString, value)
-	}
-	if _u.mutation.IconURLCleared() {
-		_spec.ClearField(skin.FieldIconURL, field.TypeString)
 	}
 	if value, ok := _u.mutation.PageURL(); ok {
 		_spec.SetField(skin.FieldPageURL, field.TypeString, value)
 	}
-	if _u.mutation.PageURLCleared() {
-		_spec.ClearField(skin.FieldPageURL, field.TypeString)
+	if value, ok := _u.mutation.PriceText(); ok {
+		_spec.SetField(skin.FieldPriceText, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SteamPageURL(); ok {
+		_spec.SetField(skin.FieldSteamPageURL, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SteamPriceText(); ok {
+		_spec.SetField(skin.FieldSteamPriceText, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SteamUpdatedAt(); ok {
+		_spec.SetField(skin.FieldSteamUpdatedAt, field.TypeTime, value)
+	}
+	if _u.mutation.SteamUpdatedAtCleared() {
+		_spec.ClearField(skin.FieldSteamUpdatedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.LisskinsPageURL(); ok {
+		_spec.SetField(skin.FieldLisskinsPageURL, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.LisskinsPriceText(); ok {
+		_spec.SetField(skin.FieldLisskinsPriceText, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.LisskinsUpdatedAt(); ok {
+		_spec.SetField(skin.FieldLisskinsUpdatedAt, field.TypeTime, value)
+	}
+	if _u.mutation.LisskinsUpdatedAtCleared() {
+		_spec.ClearField(skin.FieldLisskinsUpdatedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.CstmPageURL(); ok {
+		_spec.SetField(skin.FieldCstmPageURL, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.CstmPriceText(); ok {
+		_spec.SetField(skin.FieldCstmPriceText, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.CstmUpdatedAt(); ok {
+		_spec.SetField(skin.FieldCstmUpdatedAt, field.TypeTime, value)
+	}
+	if _u.mutation.CstmUpdatedAtCleared() {
+		_spec.ClearField(skin.FieldCstmUpdatedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Currency(); ok {
+		_spec.SetField(skin.FieldCurrency, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(skin.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if _u.mutation.UpdatedAtCleared() {
+		_spec.ClearField(skin.FieldUpdatedAt, field.TypeTime)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -220,6 +460,20 @@ func (_u *SkinUpdateOne) SetNillableDisplayName(v *string) *SkinUpdateOne {
 	return _u
 }
 
+// SetNameColor sets the "name_color" field.
+func (_u *SkinUpdateOne) SetNameColor(v string) *SkinUpdateOne {
+	_u.mutation.SetNameColor(v)
+	return _u
+}
+
+// SetNillableNameColor sets the "name_color" field if the given value is not nil.
+func (_u *SkinUpdateOne) SetNillableNameColor(v *string) *SkinUpdateOne {
+	if v != nil {
+		_u.SetNameColor(*v)
+	}
+	return _u
+}
+
 // SetIconURL sets the "icon_url" field.
 func (_u *SkinUpdateOne) SetIconURL(v string) *SkinUpdateOne {
 	_u.mutation.SetIconURL(v)
@@ -231,12 +485,6 @@ func (_u *SkinUpdateOne) SetNillableIconURL(v *string) *SkinUpdateOne {
 	if v != nil {
 		_u.SetIconURL(*v)
 	}
-	return _u
-}
-
-// ClearIconURL clears the value of the "icon_url" field.
-func (_u *SkinUpdateOne) ClearIconURL() *SkinUpdateOne {
-	_u.mutation.ClearIconURL()
 	return _u
 }
 
@@ -254,9 +502,195 @@ func (_u *SkinUpdateOne) SetNillablePageURL(v *string) *SkinUpdateOne {
 	return _u
 }
 
-// ClearPageURL clears the value of the "page_url" field.
-func (_u *SkinUpdateOne) ClearPageURL() *SkinUpdateOne {
-	_u.mutation.ClearPageURL()
+// SetPriceText sets the "price_text" field.
+func (_u *SkinUpdateOne) SetPriceText(v string) *SkinUpdateOne {
+	_u.mutation.SetPriceText(v)
+	return _u
+}
+
+// SetNillablePriceText sets the "price_text" field if the given value is not nil.
+func (_u *SkinUpdateOne) SetNillablePriceText(v *string) *SkinUpdateOne {
+	if v != nil {
+		_u.SetPriceText(*v)
+	}
+	return _u
+}
+
+// SetSteamPageURL sets the "steam_page_url" field.
+func (_u *SkinUpdateOne) SetSteamPageURL(v string) *SkinUpdateOne {
+	_u.mutation.SetSteamPageURL(v)
+	return _u
+}
+
+// SetNillableSteamPageURL sets the "steam_page_url" field if the given value is not nil.
+func (_u *SkinUpdateOne) SetNillableSteamPageURL(v *string) *SkinUpdateOne {
+	if v != nil {
+		_u.SetSteamPageURL(*v)
+	}
+	return _u
+}
+
+// SetSteamPriceText sets the "steam_price_text" field.
+func (_u *SkinUpdateOne) SetSteamPriceText(v string) *SkinUpdateOne {
+	_u.mutation.SetSteamPriceText(v)
+	return _u
+}
+
+// SetNillableSteamPriceText sets the "steam_price_text" field if the given value is not nil.
+func (_u *SkinUpdateOne) SetNillableSteamPriceText(v *string) *SkinUpdateOne {
+	if v != nil {
+		_u.SetSteamPriceText(*v)
+	}
+	return _u
+}
+
+// SetSteamUpdatedAt sets the "steam_updated_at" field.
+func (_u *SkinUpdateOne) SetSteamUpdatedAt(v time.Time) *SkinUpdateOne {
+	_u.mutation.SetSteamUpdatedAt(v)
+	return _u
+}
+
+// SetNillableSteamUpdatedAt sets the "steam_updated_at" field if the given value is not nil.
+func (_u *SkinUpdateOne) SetNillableSteamUpdatedAt(v *time.Time) *SkinUpdateOne {
+	if v != nil {
+		_u.SetSteamUpdatedAt(*v)
+	}
+	return _u
+}
+
+// ClearSteamUpdatedAt clears the value of the "steam_updated_at" field.
+func (_u *SkinUpdateOne) ClearSteamUpdatedAt() *SkinUpdateOne {
+	_u.mutation.ClearSteamUpdatedAt()
+	return _u
+}
+
+// SetLisskinsPageURL sets the "lisskins_page_url" field.
+func (_u *SkinUpdateOne) SetLisskinsPageURL(v string) *SkinUpdateOne {
+	_u.mutation.SetLisskinsPageURL(v)
+	return _u
+}
+
+// SetNillableLisskinsPageURL sets the "lisskins_page_url" field if the given value is not nil.
+func (_u *SkinUpdateOne) SetNillableLisskinsPageURL(v *string) *SkinUpdateOne {
+	if v != nil {
+		_u.SetLisskinsPageURL(*v)
+	}
+	return _u
+}
+
+// SetLisskinsPriceText sets the "lisskins_price_text" field.
+func (_u *SkinUpdateOne) SetLisskinsPriceText(v string) *SkinUpdateOne {
+	_u.mutation.SetLisskinsPriceText(v)
+	return _u
+}
+
+// SetNillableLisskinsPriceText sets the "lisskins_price_text" field if the given value is not nil.
+func (_u *SkinUpdateOne) SetNillableLisskinsPriceText(v *string) *SkinUpdateOne {
+	if v != nil {
+		_u.SetLisskinsPriceText(*v)
+	}
+	return _u
+}
+
+// SetLisskinsUpdatedAt sets the "lisskins_updated_at" field.
+func (_u *SkinUpdateOne) SetLisskinsUpdatedAt(v time.Time) *SkinUpdateOne {
+	_u.mutation.SetLisskinsUpdatedAt(v)
+	return _u
+}
+
+// SetNillableLisskinsUpdatedAt sets the "lisskins_updated_at" field if the given value is not nil.
+func (_u *SkinUpdateOne) SetNillableLisskinsUpdatedAt(v *time.Time) *SkinUpdateOne {
+	if v != nil {
+		_u.SetLisskinsUpdatedAt(*v)
+	}
+	return _u
+}
+
+// ClearLisskinsUpdatedAt clears the value of the "lisskins_updated_at" field.
+func (_u *SkinUpdateOne) ClearLisskinsUpdatedAt() *SkinUpdateOne {
+	_u.mutation.ClearLisskinsUpdatedAt()
+	return _u
+}
+
+// SetCstmPageURL sets the "cstm_page_url" field.
+func (_u *SkinUpdateOne) SetCstmPageURL(v string) *SkinUpdateOne {
+	_u.mutation.SetCstmPageURL(v)
+	return _u
+}
+
+// SetNillableCstmPageURL sets the "cstm_page_url" field if the given value is not nil.
+func (_u *SkinUpdateOne) SetNillableCstmPageURL(v *string) *SkinUpdateOne {
+	if v != nil {
+		_u.SetCstmPageURL(*v)
+	}
+	return _u
+}
+
+// SetCstmPriceText sets the "cstm_price_text" field.
+func (_u *SkinUpdateOne) SetCstmPriceText(v string) *SkinUpdateOne {
+	_u.mutation.SetCstmPriceText(v)
+	return _u
+}
+
+// SetNillableCstmPriceText sets the "cstm_price_text" field if the given value is not nil.
+func (_u *SkinUpdateOne) SetNillableCstmPriceText(v *string) *SkinUpdateOne {
+	if v != nil {
+		_u.SetCstmPriceText(*v)
+	}
+	return _u
+}
+
+// SetCstmUpdatedAt sets the "cstm_updated_at" field.
+func (_u *SkinUpdateOne) SetCstmUpdatedAt(v time.Time) *SkinUpdateOne {
+	_u.mutation.SetCstmUpdatedAt(v)
+	return _u
+}
+
+// SetNillableCstmUpdatedAt sets the "cstm_updated_at" field if the given value is not nil.
+func (_u *SkinUpdateOne) SetNillableCstmUpdatedAt(v *time.Time) *SkinUpdateOne {
+	if v != nil {
+		_u.SetCstmUpdatedAt(*v)
+	}
+	return _u
+}
+
+// ClearCstmUpdatedAt clears the value of the "cstm_updated_at" field.
+func (_u *SkinUpdateOne) ClearCstmUpdatedAt() *SkinUpdateOne {
+	_u.mutation.ClearCstmUpdatedAt()
+	return _u
+}
+
+// SetCurrency sets the "currency" field.
+func (_u *SkinUpdateOne) SetCurrency(v string) *SkinUpdateOne {
+	_u.mutation.SetCurrency(v)
+	return _u
+}
+
+// SetNillableCurrency sets the "currency" field if the given value is not nil.
+func (_u *SkinUpdateOne) SetNillableCurrency(v *string) *SkinUpdateOne {
+	if v != nil {
+		_u.SetCurrency(*v)
+	}
+	return _u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_u *SkinUpdateOne) SetUpdatedAt(v time.Time) *SkinUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_u *SkinUpdateOne) SetNillableUpdatedAt(v *time.Time) *SkinUpdateOne {
+	if v != nil {
+		_u.SetUpdatedAt(*v)
+	}
+	return _u
+}
+
+// ClearUpdatedAt clears the value of the "updated_at" field.
+func (_u *SkinUpdateOne) ClearUpdatedAt() *SkinUpdateOne {
+	_u.mutation.ClearUpdatedAt()
 	return _u
 }
 
@@ -355,17 +789,62 @@ func (_u *SkinUpdateOne) sqlSave(ctx context.Context) (_node *Skin, err error) {
 	if value, ok := _u.mutation.DisplayName(); ok {
 		_spec.SetField(skin.FieldDisplayName, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.NameColor(); ok {
+		_spec.SetField(skin.FieldNameColor, field.TypeString, value)
+	}
 	if value, ok := _u.mutation.IconURL(); ok {
 		_spec.SetField(skin.FieldIconURL, field.TypeString, value)
-	}
-	if _u.mutation.IconURLCleared() {
-		_spec.ClearField(skin.FieldIconURL, field.TypeString)
 	}
 	if value, ok := _u.mutation.PageURL(); ok {
 		_spec.SetField(skin.FieldPageURL, field.TypeString, value)
 	}
-	if _u.mutation.PageURLCleared() {
-		_spec.ClearField(skin.FieldPageURL, field.TypeString)
+	if value, ok := _u.mutation.PriceText(); ok {
+		_spec.SetField(skin.FieldPriceText, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SteamPageURL(); ok {
+		_spec.SetField(skin.FieldSteamPageURL, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SteamPriceText(); ok {
+		_spec.SetField(skin.FieldSteamPriceText, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SteamUpdatedAt(); ok {
+		_spec.SetField(skin.FieldSteamUpdatedAt, field.TypeTime, value)
+	}
+	if _u.mutation.SteamUpdatedAtCleared() {
+		_spec.ClearField(skin.FieldSteamUpdatedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.LisskinsPageURL(); ok {
+		_spec.SetField(skin.FieldLisskinsPageURL, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.LisskinsPriceText(); ok {
+		_spec.SetField(skin.FieldLisskinsPriceText, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.LisskinsUpdatedAt(); ok {
+		_spec.SetField(skin.FieldLisskinsUpdatedAt, field.TypeTime, value)
+	}
+	if _u.mutation.LisskinsUpdatedAtCleared() {
+		_spec.ClearField(skin.FieldLisskinsUpdatedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.CstmPageURL(); ok {
+		_spec.SetField(skin.FieldCstmPageURL, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.CstmPriceText(); ok {
+		_spec.SetField(skin.FieldCstmPriceText, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.CstmUpdatedAt(); ok {
+		_spec.SetField(skin.FieldCstmUpdatedAt, field.TypeTime, value)
+	}
+	if _u.mutation.CstmUpdatedAtCleared() {
+		_spec.ClearField(skin.FieldCstmUpdatedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Currency(); ok {
+		_spec.SetField(skin.FieldCurrency, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.UpdatedAt(); ok {
+		_spec.SetField(skin.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if _u.mutation.UpdatedAtCleared() {
+		_spec.ClearField(skin.FieldUpdatedAt, field.TypeTime)
 	}
 	_node = &Skin{config: _u.config}
 	_spec.Assign = _node.assignValues

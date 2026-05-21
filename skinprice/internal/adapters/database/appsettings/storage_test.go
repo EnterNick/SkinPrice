@@ -3,6 +3,7 @@ package appsettings
 import (
 	"SkinPrice/skinprice/internal/adapters/database"
 	settings "SkinPrice/skinprice/internal/application/settings"
+	"context"
 	"testing"
 )
 
@@ -27,11 +28,11 @@ func TestStoragePersistsSavedSkinsViewMode(t *testing.T) {
 		FontSizePx:                 18,
 	}
 
-	if err := storage.SaveAppSettings(expected); err != nil {
+	if err := storage.SaveAppSettings(context.Background(), expected); err != nil {
 		t.Fatalf("save app settings: %v", err)
 	}
 
-	actual, err := storage.GetAppSettings()
+	actual, err := storage.GetAppSettings(context.Background())
 	if err != nil {
 		t.Fatalf("get app settings: %v", err)
 	}

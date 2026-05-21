@@ -3,6 +3,7 @@ package steam
 import (
 	"SkinPrice/skinprice/internal/application"
 	"SkinPrice/skinprice/internal/application/skins"
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -42,7 +43,7 @@ func TestGetListParsesNameColor(t *testing.T) {
 		BaseURL: server.URL,
 	}
 
-	result, err := storage.GetList(skins.SearchCriteria{}, &application.Pagination{Limit: 1, Offset: 0})
+	result, err := storage.GetList(context.Background(), skins.SearchCriteria{}, &application.Pagination{Limit: 1, Offset: 0})
 	if err != nil {
 		t.Fatalf("GetList() error = %v", err)
 	}
@@ -128,7 +129,7 @@ func TestGetByMarketHashNameUsesPriceOverviewText(t *testing.T) {
 		BaseURL: server.URL,
 	}
 
-	result, err := storage.GetByMarketHashName("Gamma Case Key", "5")
+	result, err := storage.GetByMarketHashName(context.Background(), "Gamma Case Key", "5")
 	if err != nil {
 		t.Fatalf("GetByMarketHashName() error = %v", err)
 	}
@@ -151,7 +152,7 @@ func TestGetByMarketHashNameFallsBackToMedianPrice(t *testing.T) {
 		BaseURL: server.URL,
 	}
 
-	result, err := storage.GetByMarketHashName("Gamma Case Key", "3")
+	result, err := storage.GetByMarketHashName(context.Background(), "Gamma Case Key", "3")
 	if err != nil {
 		t.Fatalf("GetByMarketHashName() error = %v", err)
 	}

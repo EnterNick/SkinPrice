@@ -1,13 +1,16 @@
 package settings
 
-import appsettings "SkinPrice/skinprice/internal/application/settings"
+import (
+	appsettings "SkinPrice/skinprice/internal/application/settings"
+	"context"
+)
 
 type GetAppSettingsUseCase interface {
-	Execute() (appsettings.AppSettings, error)
+	Execute(ctx context.Context) (appsettings.AppSettings, error)
 }
 
 type SaveAppSettingsUseCase interface {
-	Execute(settings appsettings.AppSettings) error
+	Execute(ctx context.Context, settings appsettings.AppSettings) error
 }
 
 type Endpoints struct {
@@ -15,15 +18,20 @@ type Endpoints struct {
 	saveAppSettingsUC SaveAppSettingsUseCase
 }
 
-func NewEndpoints(getAppSettingsUC GetAppSettingsUseCase, saveAppSettingsUC SaveAppSettingsUseCase) *Endpoints {
+type EndpointDeps struct {
+	GetAppSettings  GetAppSettingsUseCase
+	SaveAppSettings SaveAppSettingsUseCase
+}
+
+func NewEndpoints(deps EndpointDeps) *Endpoints {
 	return &Endpoints{
-		getAppSettingsUC:  getAppSettingsUC,
-		saveAppSettingsUC: saveAppSettingsUC,
+		getAppSettingsUC:  deps.GetAppSettings,
+		saveAppSettingsUC: deps.SaveAppSettings,
 	}
 }
 
-func (e *Endpoints) GetAppSettings() (AppSettingsResponse, error) {
-	settings, err := e.getAppSettingsUC.Execute()
+func (e *Endpoints) GetAppSettings(ctx context.Context) (AppSettingsResponse, error) {
+	settings, err := e.getAppSettingsUC.Execute(ctx)
 	if err != nil {
 		return AppSettingsResponse{}, err
 	}
@@ -37,8 +45,8 @@ func (e *Endpoints) GetAppSettings() (AppSettingsResponse, error) {
 	}, nil
 }
 
-func (e *Endpoints) SaveAppSettings(payload SaveAppSettingsRequest) error {
-	return e.saveAppSettingsUC.Execute(appsettings.AppSettings{
+func (e *Endpoints) SaveAppSettings(ctx context.Context, payload SaveAppSettingsRequest) error {
+	return e.saveAppSettingsUC.Execute(ctx, appsettings.AppSettings{
 		Currency:                   payload.Currency,
 		AutoRefreshEnabled:         payload.AutoRefreshEnabled,
 		AutoRefreshIntervalSeconds: payload.AutoRefreshIntervalSeconds,

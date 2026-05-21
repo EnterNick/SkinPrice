@@ -53,7 +53,7 @@ type steamMarketSearchItem struct {
 
 const requestTimeout = 15 * time.Second
 
-func (s *Storage) GetList(criteria skins.SearchCriteria, params *application.Pagination) (_ skins.NewSkinsList, err error) {
+func (s *Storage) GetList(ctx context.Context, criteria skins.SearchCriteria, params *application.Pagination) (_ skins.NewSkinsList, err error) {
 	logger := logx.WithComponent(s.Logger, "steam_storage")
 	q := buildSteamMarketSearchParams(criteria, params)
 	if criteria.MarketHashName != nil {
@@ -62,7 +62,7 @@ func (s *Storage) GetList(criteria skins.SearchCriteria, params *application.Pag
 
 	endpoint := fmt.Sprintf("%s/search/render/?%s", s.BaseURL, q.Encode())
 	startedAt := time.Now()
-	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
+	ctx, cancel := context.WithTimeout(ctx, requestTimeout)
 	defer cancel()
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
@@ -197,7 +197,7 @@ func addSteamMarketFilterValues(q url.Values, key string, values []string) {
 	}
 }
 
-func (s *Storage) GetByMarketHashName(marketHashName, currency string) (_ *skins.NewSkin, err error) {
+func (s *Storage) GetByMarketHashName(ctx context.Context, marketHashName, currency string) (_ *skins.NewSkin, err error) {
 	logger := logx.WithComponent(s.Logger, "steam_storage")
 	q := url.Values{}
 	q.Set("appid", "730")
@@ -208,7 +208,7 @@ func (s *Storage) GetByMarketHashName(marketHashName, currency string) (_ *skins
 
 	endpoint := fmt.Sprintf("%s/priceoverview/?%s", s.BaseURL, q.Encode())
 	startedAt := time.Now()
-	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
+	ctx, cancel := context.WithTimeout(ctx, requestTimeout)
 	defer cancel()
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)

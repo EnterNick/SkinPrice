@@ -5,7 +5,7 @@ import { ClipboardSetText } from "../../wailsjs/runtime/runtime";
 import { openExternal } from "../../shared/lib/browser/openExternal";
 import { formatUpdatedAt } from "../../shared/lib/date/formatUpdatedAt";
 import { SkinThumb } from "../../entities/skin/ui/SkinThumb";
-import type { SavedSkin, SavedSkinsSortColumn, SavedSkinsSortDirection, SavedSkinsSortState } from "../../entities/skin/model/types";
+import type { PriceSnapshot, SavedSkin, SavedSkinsSortColumn, SavedSkinsSortDirection, SavedSkinsSortState } from "../../entities/skin/model/types";
 
 type SavedSkinsTableProps = {
   items: SavedSkin[];
@@ -13,6 +13,7 @@ type SavedSkinsTableProps = {
   updatingSkinIds: Record<string, boolean>;
   deletingSkinIds: Record<string, boolean>;
   sortState: SavedSkinsSortState;
+  sources: Array<{ source: string; label: string }>;
   onSortChange: (column: SavedSkinsSortColumn) => void;
   onRefreshOne: (skinId: string) => Promise<void> | void;
   onDelete: (skinId: string) => Promise<void> | void;
@@ -26,11 +27,14 @@ const buildPriceTooltip = (source: string, updatedAt?: string) => {
   return `${source}: ${formatted}`;
 };
 
+const getSourcePrice = (prices: PriceSnapshot[], source: string): PriceSnapshot | undefined => prices.find((price) => price.source === source);
+
 const buildSkinNameStyle = (nameColor?: string): React.CSSProperties | undefined =>
   nameColor ? { "--skin-name-color": nameColor } as React.CSSProperties : undefined;
 
 const getSortArrow = (direction: SavedSkinsSortDirection) => (direction === "desc" ? "↓" : "↑");
-const ROW_ACTIONS_DROPDOWN_WIDTH = 180;
+const ROW_ACTIONS_DROPDOWN_MIN_WIDTH = 0;
+const ROW_ACTIONS_DROPDOWN_MAX_WIDTH = 220;
 
 export const SavedSkinsTable: React.FC<SavedSkinsTableProps> = ({
   items,
@@ -38,6 +42,7 @@ export const SavedSkinsTable: React.FC<SavedSkinsTableProps> = ({
   updatingSkinIds,
   deletingSkinIds,
   sortState,
+  sources,
   onSortChange,
   onRefreshOne,
   onDelete,
@@ -95,9 +100,13 @@ export const SavedSkinsTable: React.FC<SavedSkinsTableProps> = ({
       const dropdownHeight = 96;
       const showAbove = topBelow + dropdownHeight > window.innerHeight && rect.top > dropdownHeight + 16;
       const nextTop = showAbove ? Math.max(8, topAbove - dropdownHeight) : topBelow;
+      const estimatedWidth = Math.min(
+        ROW_ACTIONS_DROPDOWN_MAX_WIDTH,
+        Math.max(ROW_ACTIONS_DROPDOWN_MIN_WIDTH, rect.width + 140),
+      );
       const nextLeft = Math.min(
-        Math.max(8, rect.right - ROW_ACTIONS_DROPDOWN_WIDTH),
-        Math.max(8, window.innerWidth - ROW_ACTIONS_DROPDOWN_WIDTH - 8),
+        Math.max(8, rect.right - estimatedWidth),
+        Math.max(8, window.innerWidth - estimatedWidth - 8),
       );
 
       setMenuPosition({ top: nextTop, left: nextLeft });
@@ -139,24 +148,17 @@ export const SavedSkinsTable: React.FC<SavedSkinsTableProps> = ({
                   {sortState?.column === "title" ? <span className="table-sort-arrow">{getSortArrow(sortState.direction)}</span> : null}
                 </button>
               </th>
-              <th>
-                <button className="table-sort-button" type="button" onClick={() => onSortChange("steamPrice")}>
-                  <span>{UI_TEXT.steamPriceLabel}</span>
-                  {sortState?.column === "steamPrice" ? <span className="table-sort-arrow">{getSortArrow(sortState.direction)}</span> : null}
-                </button>
-              </th>
-              <th>
-                <button className="table-sort-button" type="button" onClick={() => onSortChange("lisSkinsPrice")}>
-                  <span>{UI_TEXT.lisSkinsPriceLabel}</span>
-                  {sortState?.column === "lisSkinsPrice" ? <span className="table-sort-arrow">{getSortArrow(sortState.direction)}</span> : null}
-                </button>
-              </th>
-              <th>
-                <button className="table-sort-button" type="button" onClick={() => onSortChange("csTmPrice")}>
-                  <span>{UI_TEXT.csTmPriceLabel}</span>
-                  {sortState?.column === "csTmPrice" ? <span className="table-sort-arrow">{getSortArrow(sortState.direction)}</span> : null}
-                </button>
-              </th>
+              {sources.map((source) => {
+                const column = `source:${source.source}` as const;
+                return (
+                  <th key={source.source}>
+                    <button className="table-sort-button" type="button" onClick={() => onSortChange(column)}>
+                      <span>{source.label}</span>
+                      {sortState?.column === column ? <span className="table-sort-arrow">{getSortArrow(sortState.direction)}</span> : null}
+                    </button>
+                  </th>
+                );
+              })}
               <th className="actions-menu-column" aria-label="Действия" />
             </tr>
           </thead>
@@ -181,39 +183,22 @@ export const SavedSkinsTable: React.FC<SavedSkinsTableProps> = ({
                       </button>
                     </div>
                   </td>
-                  <td>
-                    <button
-                      className="price-cell-button"
-                      type="button"
-                      disabled={!skin.steamPageUrl}
-                      onClick={() => openExternal(skin.steamPageUrl)}
-                      title={buildPriceTooltip(UI_TEXT.sourceSteamShort, skin.steamUpdatedAt)}
-                    >
-                      <span className="price-cell-value">{skin.steamPriceText || "-"}</span>
-                    </button>
-                  </td>
-                  <td>
-                    <button
-                      className="price-cell-button"
-                      type="button"
-                      disabled={!skin.lisSkinsPageUrl}
-                      onClick={() => openExternal(skin.lisSkinsPageUrl)}
-                      title={buildPriceTooltip(UI_TEXT.sourceLisSkinsShort, skin.lisSkinsUpdatedAt)}
-                    >
-                      <span className="price-cell-value">{skin.lisSkinsPriceText || "-"}</span>
-                    </button>
-                  </td>
-                  <td>
-                    <button
-                      className="price-cell-button"
-                      type="button"
-                      disabled={!skin.csTmPageUrl}
-                      onClick={() => openExternal(skin.csTmPageUrl)}
-                      title={buildPriceTooltip(UI_TEXT.sourceCSTMShort, skin.csTmUpdatedAt)}
-                    >
-                      <span className="price-cell-value">{skin.csTmPriceText || "-"}</span>
-                    </button>
-                  </td>
+                  {sources.map((source) => {
+                    const price = getSourcePrice(skin.prices, source.source);
+                    return (
+                      <td key={source.source}>
+                        <button
+                          className="price-cell-button"
+                          type="button"
+                          disabled={!price?.pageUrl}
+                          onClick={() => price?.pageUrl && openExternal(price.pageUrl)}
+                          title={buildPriceTooltip(source.label, price?.fetchedAt)}
+                        >
+                          <span className="price-cell-value">{price?.priceText || "-"}</span>
+                        </button>
+                      </td>
+                    );
+                  })}
                   <td className="actions-menu-column">
                     <div className="row-actions-menu" role="group">
                       <button

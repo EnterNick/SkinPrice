@@ -3,6 +3,7 @@ package lisskins
 import (
 	"SkinPrice/skinprice/internal/application"
 	"SkinPrice/skinprice/internal/application/skins"
+	"context"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -15,7 +16,7 @@ type tokenProviderStub struct {
 	err   error
 }
 
-func (s tokenProviderStub) Execute() (string, error) {
+func (s tokenProviderStub) Execute(context.Context) (string, error) {
 	if s.err != nil {
 		return "", s.err
 	}
@@ -34,7 +35,7 @@ func TestGetListAddsAuthorizationHeader(t *testing.T) {
 	defer server.Close()
 
 	storage := &Storage{Client: server.Client(), BaseURL: server.URL, TokenProvider: tokenProviderStub{token: token}}
-	_, err := storage.GetList(skins.SearchCriteria{}, &application.Pagination{Limit: 10, Offset: 0})
+	_, err := storage.GetList(context.Background(), skins.SearchCriteria{}, &application.Pagination{Limit: 10, Offset: 0})
 	if err != nil {
 		t.Fatalf("GetList() error = %v", err)
 	}
@@ -52,7 +53,7 @@ func TestGetListWithMissingTokenSendsRequestWithoutAuthorization(t *testing.T) {
 	defer server.Close()
 
 	storage := &Storage{Client: server.Client(), BaseURL: server.URL, TokenProvider: tokenProviderStub{token: ""}}
-	_, err := storage.GetList(skins.SearchCriteria{}, &application.Pagination{Limit: 10, Offset: 0})
+	_, err := storage.GetList(context.Background(), skins.SearchCriteria{}, &application.Pagination{Limit: 10, Offset: 0})
 	if err != nil {
 		t.Fatalf("expected request without token to succeed, got %v", err)
 	}
@@ -71,7 +72,7 @@ func TestGetListMapsAuthStatusToInvalidToken(t *testing.T) {
 			defer server.Close()
 
 			storage := &Storage{Client: server.Client(), BaseURL: server.URL, TokenProvider: tokenProviderStub{token: "token"}}
-			_, err := storage.GetList(skins.SearchCriteria{}, &application.Pagination{Limit: 10, Offset: 0})
+			_, err := storage.GetList(context.Background(), skins.SearchCriteria{}, &application.Pagination{Limit: 10, Offset: 0})
 			if !errors.Is(err, skins.ErrLisSkinsTokenInvalid) {
 				t.Fatalf("expected ErrLisSkinsTokenInvalid, got %v", err)
 			}
@@ -86,7 +87,7 @@ func TestGetListWithoutTokenLeavesUnauthorizedAsBadStatus(t *testing.T) {
 	defer server.Close()
 
 	storage := &Storage{Client: server.Client(), BaseURL: server.URL, TokenProvider: tokenProviderStub{token: ""}}
-	_, err := storage.GetList(skins.SearchCriteria{}, &application.Pagination{Limit: 10, Offset: 0})
+	_, err := storage.GetList(context.Background(), skins.SearchCriteria{}, &application.Pagination{Limit: 10, Offset: 0})
 	if errors.Is(err, skins.ErrLisSkinsTokenInvalid) {
 		t.Fatalf("expected unauthorized without token to avoid invalid-token classification")
 	}
@@ -142,7 +143,7 @@ func TestGetListParsesMetaNextCursor(t *testing.T) {
 	defer server.Close()
 
 	storage := &Storage{Client: server.Client(), BaseURL: server.URL, TokenProvider: tokenProviderStub{token: "token"}}
-	list, err := storage.GetList(skins.SearchCriteria{}, &application.Pagination{Limit: 10})
+	list, err := storage.GetList(context.Background(), skins.SearchCriteria{}, &application.Pagination{Limit: 10})
 	if err != nil {
 		t.Fatalf("GetList() error = %v", err)
 	}
@@ -180,7 +181,7 @@ func TestGetByMarketHashNameMatchesNormalizedNames(t *testing.T) {
 	defer server.Close()
 
 	storage := &Storage{Client: server.Client(), BaseURL: server.URL, TokenProvider: tokenProviderStub{token: ""}}
-	skin, err := storage.GetByMarketHashName("StatTrak™ MP9 | Featherweight (Field-Tested)", "1")
+	skin, err := storage.GetByMarketHashName(context.Background(), "StatTrak™ MP9 | Featherweight (Field-Tested)", "1")
 	if err != nil {
 		t.Fatalf("GetByMarketHashName() error = %v", err)
 	}

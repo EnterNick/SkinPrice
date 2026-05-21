@@ -1,5 +1,7 @@
 package settings
 
+import "context"
+
 const (
 	DefaultCurrency                   = "1"
 	DefaultAutoRefreshEnabled         = true
@@ -16,8 +18,8 @@ type GetAppSettings struct {
 	Storage Storage
 }
 
-func (uc GetAppSettings) Execute() (AppSettings, error) {
-	settings, err := uc.Storage.GetAppSettings()
+func (uc GetAppSettings) Execute(ctx context.Context) (AppSettings, error) {
+	settings, err := uc.Storage.GetAppSettings(ctx)
 	if err != nil {
 		return AppSettings{}, err
 	}
@@ -34,14 +36,14 @@ type SaveAppSettings struct {
 	Storage Storage
 }
 
-func (uc SaveAppSettings) Execute(settings AppSettings) error {
+func (uc SaveAppSettings) Execute(ctx context.Context, settings AppSettings) error {
 	settings.Currency = normalizeCurrency(settings.Currency)
 	settings.AutoRefreshEnabled = normalizeAutoRefreshEnabled(settings.AutoRefreshEnabled)
 	settings.AutoRefreshIntervalSeconds = normalizeAutoRefreshIntervalSeconds(settings.AutoRefreshIntervalSeconds)
 	settings.SavedSkinsViewMode = normalizeSavedSkinsViewMode(settings.SavedSkinsViewMode)
 	settings.FontFamily = normalizeFontFamily(settings.FontFamily)
 	settings.FontSizePx = normalizeFontSizePx(settings.FontSizePx)
-	return uc.Storage.SaveAppSettings(settings)
+	return uc.Storage.SaveAppSettings(ctx, settings)
 }
 
 func normalizeCurrency(value string) string {

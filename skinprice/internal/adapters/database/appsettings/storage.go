@@ -2,6 +2,8 @@ package appsettings
 
 import (
 	"SkinPrice/skinprice/internal/adapters/database"
+	"SkinPrice/skinprice/internal/adapters/database/ent"
+	entappsetting "SkinPrice/skinprice/internal/adapters/database/ent/appsetting"
 	appsettings "SkinPrice/skinprice/internal/application/settings"
 	"SkinPrice/skinprice/internal/shared/errx"
 	"context"
@@ -22,108 +24,87 @@ type Storage struct {
 	Conn *database.Connection
 }
 
-func (s *Storage) GetAppSettings() (appsettings.AppSettings, error) {
-	ctx := context.Background()
-	query := `SELECT key, value FROM app_settings`
-
-	rows, err := s.Conn.DB().QueryContext(ctx, query)
+func (s *Storage) GetAppSettings(ctx context.Context) (appsettings.AppSettings, error) {
+	rows, err := s.Conn.Client().AppSetting.Query().All(ctx)
 	if err != nil {
-		return appsettings.AppSettings{}, errx.E("appsettings.storage.get.query", errx.CodeInternal, "failed to load app settings", err)
+		return appsettings.AppSettings{}, errx.E("appsettings.repository.get", errx.CodeInternal, "failed to load app settings", err)
 	}
-	defer func() {
-		_ = rows.Close()
-	}()
 
 	settings := appsettings.AppSettings{
 		AutoRefreshEnabled: appsettings.DefaultAutoRefreshEnabled,
 	}
-	for rows.Next() {
-		var key string
-		var value string
-		if err := rows.Scan(&key, &value); err != nil {
-			return appsettings.AppSettings{}, errx.E("appsettings.storage.get.scan", errx.CodeInternal, "failed to read app settings", err)
-		}
-		switch key {
+	for _, row := range rows {
+		switch row.Key {
 		case currencyKey:
-			settings.Currency = value
+			settings.Currency = row.Value
 		case autoRefreshEnabledKey:
-			enabled, parseErr := strconv.ParseBool(value)
-			if parseErr == nil {
+			if enabled, parseErr := strconv.ParseBool(row.Value); parseErr == nil {
 				settings.AutoRefreshEnabled = enabled
 			}
 		case autoRefreshIntervalSecondsKey:
-			interval, parseErr := strconv.Atoi(value)
-			if parseErr == nil {
+			if interval, parseErr := strconv.Atoi(row.Value); parseErr == nil {
 				settings.AutoRefreshIntervalSeconds = interval
 			}
 		case savedSkinsViewModeKey:
-			settings.SavedSkinsViewMode = value
+			settings.SavedSkinsViewMode = row.Value
 		case fontFamilyKey:
-			settings.FontFamily = value
+			settings.FontFamily = row.Value
 		case fontSizePxKey:
-			size, parseErr := strconv.Atoi(value)
-			if parseErr == nil {
+			if size, parseErr := strconv.Atoi(row.Value); parseErr == nil {
 				settings.FontSizePx = size
 			}
 		}
 	}
-	if err := rows.Err(); err != nil {
-		return appsettings.AppSettings{}, errx.E("appsettings.storage.get.rows", errx.CodeInternal, "failed to iterate app settings", err)
-	}
-
 	return settings, nil
 }
 
-func (s *Storage) SaveAppSettings(settings appsettings.AppSettings) error {
-	if err := s.upsertValue(currencyKey, settings.Currency); err != nil {
-		return err
+func (s *Storage) SaveAppSettings(ctx context.Context, settings appsettings.AppSettings) error {
+	values := map[string]string{
+		currencyKey:                   settings.Currency,
+		autoRefreshEnabledKey:         strconv.FormatBool(settings.AutoRefreshEnabled),
+		autoRefreshIntervalSecondsKey: strconv.Itoa(settings.AutoRefreshIntervalSeconds),
+		savedSkinsViewModeKey:         settings.SavedSkinsViewMode,
+		fontFamilyKey:                 settings.FontFamily,
+		fontSizePxKey:                 strconv.Itoa(settings.FontSizePx),
 	}
-	if err := s.upsertValue(autoRefreshEnabledKey, strconv.FormatBool(settings.AutoRefreshEnabled)); err != nil {
-		return err
-	}
-	if err := s.upsertValue(autoRefreshIntervalSecondsKey, strconv.Itoa(settings.AutoRefreshIntervalSeconds)); err != nil {
-		return err
-	}
-	if err := s.upsertValue(savedSkinsViewModeKey, settings.SavedSkinsViewMode); err != nil {
-		return err
-	}
-	if err := s.upsertValue(fontFamilyKey, settings.FontFamily); err != nil {
-		return err
-	}
-	if err := s.upsertValue(fontSizePxKey, strconv.Itoa(settings.FontSizePx)); err != nil {
-		return err
+	for key, value := range values {
+		if err := s.upsertValue(ctx, key, value); err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
-func (s *Storage) upsertValue(key, value string) error {
-	ctx := context.Background()
+func (s *Storage) upsertValue(ctx context.Context, key, value string) error {
 	now := time.Now().UTC()
-
-	updateQuery := `UPDATE app_settings SET value = ?, updated_at = ? WHERE key = ?`
-	insertQuery := `INSERT INTO app_settings (key, value, updated_at) VALUES (?, ?, ?)`
-	if s.Conn.Dialect() == "postgres" {
-		updateQuery = `UPDATE app_settings SET value = $1, updated_at = $2 WHERE key = $3`
-		insertQuery = `INSERT INTO app_settings (key, value, updated_at) VALUES ($1, $2, $3)`
-	}
-
-	result, err := s.Conn.DB().ExecContext(ctx, updateQuery, value, now, key)
+	count, err := s.Conn.Client().AppSetting.Update().
+		Where(entappsetting.Key(key)).
+		SetValue(value).
+		SetUpdatedAt(now).
+		Save(ctx)
 	if err != nil {
-		return errx.E("appsettings.storage.save.update", errx.CodeInternal, "failed to update app settings", err)
+		return errx.E("appsettings.repository.save.update", errx.CodeInternal, "failed to update app settings", err)
 	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return errx.E("appsettings.storage.save.rows", errx.CodeInternal, "failed to inspect app settings update", err)
-	}
-	if rowsAffected > 0 {
+	if count > 0 {
 		return nil
 	}
 
-	if _, err = s.Conn.DB().ExecContext(ctx, insertQuery, key, value, now); err != nil {
-		if _, retryErr := s.Conn.DB().ExecContext(ctx, updateQuery, value, now, key); retryErr == nil {
-			return nil
+	if _, err := s.Conn.Client().AppSetting.Create().
+		SetKey(key).
+		SetValue(value).
+		SetUpdatedAt(now).
+		Save(ctx); err != nil {
+		if ent.IsConstraintError(err) {
+			_, retryErr := s.Conn.Client().AppSetting.Update().
+				Where(entappsetting.Key(key)).
+				SetValue(value).
+				SetUpdatedAt(now).
+				Save(ctx)
+			if retryErr == nil {
+				return nil
+			}
 		}
-		return errx.E("appsettings.storage.save.insert", errx.CodeInternal, "failed to save app settings", err)
+		return errx.E("appsettings.repository.save.insert", errx.CodeInternal, "failed to save app settings", err)
 	}
 	return nil
 }

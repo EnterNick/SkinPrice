@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../app/router/routes";
-import { clearLisSkinsToken, getAppSettings, hasLisSkinsToken, saveAppSettings, saveLisSkinsToken } from "../../../entities/skin/api/skinApi";
-import type { SavedSkinCurrency } from "../../../entities/skin/model/types";
+import { clearLisSkinsToken, getAppSettings, getDiagnostics, hasLisSkinsToken, saveAppSettings, saveLisSkinsToken } from "../../../entities/skin/api/skinApi";
+import type { Diagnostics, SavedSkinCurrency } from "../../../entities/skin/model/types";
 import {
   CURRENCY_OPTIONS,
   DEFAULT_AUTO_REFRESH_ENABLED,
@@ -46,6 +46,7 @@ export const SettingsPage: React.FC = () => {
   const [checkingToken, setCheckingToken] = useState(false);
   const [tokenError, setTokenError] = useState<string | null>(null);
   const [pageError, setPageError] = useState<string | null>(null);
+  const [diagnostics, setDiagnostics] = useState<Diagnostics | null>(null);
   const [notice, setNotice] = useState<{ type: "success" | "warning" | "error"; text: string } | null>(null);
 
   useEffect(() => {
@@ -53,7 +54,7 @@ export const SettingsPage: React.FC = () => {
 
     const loadPageState = async () => {
       try {
-        const [settings, hasToken] = await Promise.all([getAppSettings(), hasLisSkinsToken()]);
+        const [settings, hasToken, loadedDiagnostics] = await Promise.all([getAppSettings(), hasLisSkinsToken(), getDiagnostics()]);
         if (!active) return;
         setCurrency(settings.currency);
         setAutoRefreshEnabled(settings.autoRefreshEnabled);
@@ -63,6 +64,7 @@ export const SettingsPage: React.FC = () => {
         setFontSizeInput(String(settings.fontSizePx));
         setIsTokenConfigured(hasToken);
         setTokenStatus(hasToken ? "saved" : "missing");
+        setDiagnostics(loadedDiagnostics);
         setPageError(null);
       } catch (err: unknown) {
         if (!active) return;
@@ -245,7 +247,7 @@ export const SettingsPage: React.FC = () => {
   return (
     <div className="settings-page">
       <PageHeader sectionLabel={UI_TEXT.settingsEyebrow} title={UI_TEXT.settingsTitle} actions={<div className="toolbar-group"><button className="toolbar-button" type="button" onClick={() => navigate(ROUTES.home)}>{UI_TEXT.ctaToHome}</button></div>} />
-      {notice && <ToastAlert type={notice.type} text={notice.text} />}
+      {notice && <ToastAlert type={notice.type} text={notice.text} onClose={() => setNotice(null)} />}
       <LisSkinsTokenPanel
         visible
         configured={isTokenConfigured}
@@ -273,6 +275,30 @@ export const SettingsPage: React.FC = () => {
         <article className="settings-card"><h2 className="settings-card-title">{UI_TEXT.settingsFontFamilyTitle}</h2><p className="settings-card-description">{UI_TEXT.settingsFontFamilyHelp}</p><label className="token-panel-field" htmlFor="settings-font-family-select"><span className="token-panel-label">{UI_TEXT.settingsFontFamilyLabel}</span><select id="settings-font-family-select" className="toolbar-select settings-select" value={fontFamily} onChange={(event) => void onFontFamilyChange(event.target.value)}>{FONT_FAMILY_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label></article>
         <article className="settings-card"><h2 className="settings-card-title">{UI_TEXT.settingsFontSizeTitle}</h2><p className="settings-card-description">{UI_TEXT.settingsFontSizeHelp}</p><label className="token-panel-field" htmlFor="settings-font-size-input"><span className="token-panel-label">{UI_TEXT.settingsFontSizeLabel}</span><input id="settings-font-size-input" className="search-input settings-number-input" type="number" min={MIN_FONT_SIZE_PX} max={MAX_FONT_SIZE_PX} step={1} value={fontSizeInput} onChange={(event) => onFontSizeChange(event.target.value)} onBlur={onFontSizeBlur} /></label><p className="toolbar-hint">{UI_TEXT.settingsFontSizeHint.replace("{min}", String(MIN_FONT_SIZE_PX)).replace("{max}", String(MAX_FONT_SIZE_PX))}</p></article>
       </section>
+      {diagnostics ? (
+        <section className="settings-grid diagnostics-grid">
+          <article className="settings-card diagnostics-card">
+            <h2 className="settings-card-title">{UI_TEXT.diagnosticsTitle}</h2>
+            <dl className="diagnostics-list">
+              <div><dt>{UI_TEXT.diagnosticsVersion}</dt><dd>{diagnostics.version || "dev"}</dd></div>
+              <div><dt>{UI_TEXT.diagnosticsDatabasePath}</dt><dd>{diagnostics.databasePath || "-"}</dd></div>
+              <div><dt>{UI_TEXT.diagnosticsLogPath}</dt><dd>{diagnostics.logPath || "-"}</dd></div>
+            </dl>
+          </article>
+          <article className="settings-card diagnostics-card">
+            <h2 className="settings-card-title">{UI_TEXT.diagnosticsSources}</h2>
+            <div className="diagnostics-sources">
+              {diagnostics.sources.length === 0 ? <p className="toolbar-hint">{UI_TEXT.diagnosticsNoSources}</p> : diagnostics.sources.map((source) => (
+                <div key={source.source} className="diagnostics-source-row">
+                  <span>{source.source}</span>
+                  <span>{source.status || "unknown"}</span>
+                  <span>{source.lastError || source.lastSuccessAt || "-"}</span>
+                </div>
+              ))}
+            </div>
+          </article>
+        </section>
+      ) : null}
     </div>
   );
 };

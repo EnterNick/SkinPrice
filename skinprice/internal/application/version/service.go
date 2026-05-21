@@ -35,6 +35,8 @@ type LaunchResult struct {
 func (s Service) Run(ctx context.Context) (LaunchResult, error) {
 	logger := s.logger()
 	currentPath := filepath.Join(s.InstallRoot, CurrentStateFile)
+	updateWindow := s.showCheckingForUpdates()
+	defer s.closeCheckingForUpdates(updateWindow)
 
 	current, currentEntrypoint, currentValid, currentErr := s.loadRunnableCurrent(currentPath)
 	if currentErr != nil {
@@ -44,8 +46,7 @@ func (s Service) Run(ctx context.Context) (LaunchResult, error) {
 	release, err := s.ReleaseProvider.GetLatestRelease(ctx)
 	if err != nil {
 		if currentValid {
-			logger.Warn("failed to fetch latest release, launching current version", slog.String("error", err.Error()))
-			return s.launchCurrent(current, currentEntrypoint)
+			return s.fallbackToCurrent(current, currentEntrypoint, "failed to fetch latest release, launching current version", err)
 		}
 		return LaunchResult{}, fmt.Errorf("%w: %w", ErrNoRunnableVersion, err)
 	}
@@ -53,8 +54,7 @@ func (s Service) Run(ctx context.Context) (LaunchResult, error) {
 	manifestAsset, err := s.ReleaseProvider.FindAsset(release, UpdateManifestFile)
 	if err != nil {
 		if currentValid {
-			logger.Warn("release manifest asset not found, launching current version", slog.String("error", err.Error()))
-			return s.launchCurrent(current, currentEntrypoint)
+			return s.fallbackToCurrent(current, currentEntrypoint, "release manifest asset not found, launching current version", err)
 		}
 		return LaunchResult{}, fmt.Errorf("%w: %w", ErrNoRunnableVersion, err)
 	}
@@ -62,8 +62,7 @@ func (s Service) Run(ctx context.Context) (LaunchResult, error) {
 	manifest, err := s.downloadManifest(ctx, manifestAsset)
 	if err != nil {
 		if currentValid {
-			logger.Warn("failed to read release manifest, launching current version", slog.String("error", err.Error()))
-			return s.launchCurrent(current, currentEntrypoint)
+			return s.fallbackToCurrent(current, currentEntrypoint, "failed to read release manifest, launching current version", err)
 		}
 		return LaunchResult{}, fmt.Errorf("%w: %w", ErrNoRunnableVersion, err)
 	}
@@ -84,8 +83,7 @@ func (s Service) Run(ctx context.Context) (LaunchResult, error) {
 	asset, err := selectManifestAsset(manifest, s.platformOS(), s.platformArch())
 	if err != nil {
 		if currentValid {
-			logger.Warn("no manifest asset for current platform, launching current version", slog.String("error", err.Error()))
-			return s.launchCurrent(current, currentEntrypoint)
+			return s.fallbackToCurrent(current, currentEntrypoint, "no manifest asset for current platform, launching current version", err)
 		}
 		return LaunchResult{}, fmt.Errorf("%w: %w", ErrNoRunnableVersion, err)
 	}
@@ -101,8 +99,7 @@ func (s Service) Run(ctx context.Context) (LaunchResult, error) {
 
 		confirmed, confirmErr := s.Prompter.ConfirmUpdate(current.Version, manifest.Version)
 		if confirmErr != nil {
-			logger.Warn("update prompt failed, launching current version", slog.String("error", confirmErr.Error()))
-			return s.launchCurrent(current, currentEntrypoint)
+			return s.fallbackToCurrent(current, currentEntrypoint, "update prompt failed, launching current version", confirmErr)
 		}
 		if !confirmed {
 			return s.launchCurrent(current, currentEntrypoint)
@@ -112,8 +109,7 @@ func (s Service) Run(ctx context.Context) (LaunchResult, error) {
 	installedCurrent, err := s.installRelease(ctx, release, manifest, asset, current)
 	if err != nil {
 		if currentValid {
-			logger.Warn("update install failed, launching current version", slog.String("error", err.Error()))
-			return s.launchCurrent(current, currentEntrypoint)
+			return s.fallbackToCurrent(current, currentEntrypoint, "update install failed, launching current version", err)
 		}
 		return LaunchResult{}, err
 	}
@@ -122,7 +118,46 @@ func (s Service) Run(ctx context.Context) (LaunchResult, error) {
 	if err != nil {
 		return LaunchResult{}, err
 	}
+	if currentValid && installedCurrent.Version != "" && installedCurrent.Version != current.Version {
+		s.notifyUpdateSuccess(current.Version, installedCurrent.Version)
+	}
 	return s.launchCurrent(installedCurrent, installedEntrypoint)
+}
+
+func (s Service) fallbackToCurrent(current CurrentVersionDTO, entrypoint, message string, cause error) (LaunchResult, error) {
+	s.logger().Warn(message, slog.String("error", cause.Error()))
+	s.notifyUpdateFailure(current.Version, cause)
+	return s.launchCurrent(current, entrypoint)
+}
+
+func (s Service) notifyUpdateFailure(currentVersion string, cause error) {
+	if err := s.Prompter.NotifyUpdateFailed(currentVersion, cause); err != nil {
+		s.logger().Warn("failed to show update failure notification", slog.String("error", err.Error()))
+	}
+}
+
+func (s Service) notifyUpdateSuccess(previousVersion, newVersion string) {
+	if err := s.Prompter.NotifyUpdateSuccess(previousVersion, newVersion); err != nil {
+		s.logger().Warn("failed to show update success notification", slog.String("error", err.Error()))
+	}
+}
+
+func (s Service) showCheckingForUpdates() io.Closer {
+	closer, err := s.Prompter.ShowCheckingForUpdates()
+	if err != nil {
+		s.logger().Warn("failed to show checking updates window", slog.String("error", err.Error()))
+		return nil
+	}
+	return closer
+}
+
+func (s Service) closeCheckingForUpdates(closer io.Closer) {
+	if closer == nil {
+		return
+	}
+	if err := closer.Close(); err != nil {
+		s.logger().Warn("failed to close checking updates window", slog.String("error", err.Error()))
+	}
 }
 
 func (s Service) loadRunnableCurrent(currentPath string) (CurrentVersionDTO, string, bool, error) {

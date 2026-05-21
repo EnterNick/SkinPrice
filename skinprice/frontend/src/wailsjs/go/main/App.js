@@ -14,6 +14,14 @@ export function GetAppSettings() {
   return window['go']['main']['App']['GetAppSettings']();
 }
 
+export function GetDiagnostics() {
+  return window['go']['main']['App']['GetDiagnostics']();
+}
+
+export function GetPriceSourceStates() {
+  return window['go']['main']['App']['GetPriceSourceStates']();
+}
+
 export function GetSavedSkins(arg1) {
   return window['go']['main']['App']['GetSavedSkins'](arg1);
 }

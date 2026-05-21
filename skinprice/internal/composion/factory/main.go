@@ -2,15 +2,23 @@ package factory
 
 import (
 	"SkinPrice/skinprice/internal/adapters/database"
+	"SkinPrice/skinprice/internal/application/skins"
+	presentersettings "SkinPrice/skinprice/internal/presenters/settings"
+	presenterskins "SkinPrice/skinprice/internal/presenters/skins"
 	"SkinPrice/skinprice/internal/shared/logx"
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
 )
 
 type Factory struct {
-	dbConnection *database.Connection
-	logger       *slog.Logger
+	dbConnection      *database.Connection
+	skinsEndpoints    *presenterskins.Endpoints
+	settingsEndpoints *presentersettings.Endpoints
+	refreshQueue      *skins.DefaultRefreshQueue
+	refreshCancel     context.CancelFunc
+	logger            *slog.Logger
 }
 
 func NewFactory(logger *slog.Logger) (*Factory, error) {
@@ -25,16 +33,27 @@ func NewFactory(logger *slog.Logger) (*Factory, error) {
 		logger.Error("failed to ensure database schema", logx.ErrAttrs(err)...)
 		return nil, fmt.Errorf("ensure database schema: %w", err)
 	}
-	logger.Info("factory initialized")
-	return &Factory{
+	f := &Factory{
 		dbConnection: connection,
 		logger:       logger,
-	}, nil
+	}
+	if err := f.buildEndpoints(); err != nil {
+		_ = connection.Close()
+		return nil, err
+	}
+	logger.Info("factory initialized")
+	return f, nil
 }
 
 func (f *Factory) Close() error {
 	var closeErr error
 
+	if f.refreshQueue != nil {
+		if f.refreshCancel != nil {
+			f.refreshCancel()
+		}
+		f.refreshQueue.Shutdown()
+	}
 	if f.dbConnection != nil {
 		if err := f.dbConnection.Close(); err != nil {
 			f.logger.Error("failed to close database connection", logx.ErrAttrs(err)...)
@@ -47,10 +66,14 @@ func (f *Factory) Close() error {
 	return closeErr
 }
 
-func (f *Factory) GetCurrentPrice(skinName string) (float64, error) {
-	return 123.123, nil
-}
-
 func (f *Factory) DBConnection() *database.Connection {
 	return f.dbConnection
+}
+
+func (f *Factory) SkinsEndpoints() *presenterskins.Endpoints {
+	return f.skinsEndpoints
+}
+
+func (f *Factory) SettingsEndpoints() *presentersettings.Endpoints {
+	return f.settingsEndpoints
 }

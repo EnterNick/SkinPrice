@@ -5,6 +5,7 @@ import { deleteSavedSkin, getAppSettings, saveAppSettings, updateAllSkinPrices, 
 import type {
   FontFamilyOptionValue,
   SavedSkinCurrency,
+  PriceSnapshot,
   SavedSkinsSortColumn,
   SavedSkinsSortState,
   SavedSkinsViewMode,
@@ -33,6 +34,14 @@ const parsePriceValue = (priceText?: string): number => {
   return Number.isFinite(value) ? value : Number.POSITIVE_INFINITY;
 };
 
+const legacySortSource: Record<string, string> = {
+  steamPrice: "steam",
+  lisSkinsPrice: "lisskins",
+  csTmPrice: "cstm",
+};
+
+const getSourcePrice = (prices: PriceSnapshot[], source: string): PriceSnapshot | undefined => prices.find((price) => price.source === source);
+
 export const SavedSkinsPage: React.FC = () => {
   const navigate = useNavigate();
   const { items, loading, error, loadSkins } = useSavedSkins();
@@ -55,6 +64,22 @@ export const SavedSkinsPage: React.FC = () => {
   const autoRefreshInFlightRef = useRef(false);
   const sortMenuRef = useRef<HTMLDivElement | null>(null);
   const currencyDirty = useMemo(() => items.length > 0 && items.some((skin) => skin.currency !== currency), [currency, items]);
+  const priceSources = useMemo(() => {
+    const sourceMap = new Map<string, string>();
+    for (const skin of items) {
+      for (const price of skin.prices) {
+        if (!sourceMap.has(price.source)) {
+          sourceMap.set(price.source, price.sourceLabel || price.source);
+        }
+      }
+    }
+    for (const [source, label] of [["steam", "Steam"], ["lisskins", "LisSkins"], ["cstm", "CS TM"]] as const) {
+      if (!sourceMap.has(source)) {
+        sourceMap.set(source, label);
+      }
+    }
+    return Array.from(sourceMap, ([source, label]) => ({ source, label }));
+  }, [items]);
 
   const filteredItems = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -68,12 +93,9 @@ export const SavedSkinsPage: React.FC = () => {
       let result = 0;
       if (sortState.column === "title") {
         result = a.title.localeCompare(b.title, "ru");
-      } else if (sortState.column === "steamPrice") {
-        result = parsePriceValue(a.steamPriceText) - parsePriceValue(b.steamPriceText);
-      } else if (sortState.column === "lisSkinsPrice") {
-        result = parsePriceValue(a.lisSkinsPriceText) - parsePriceValue(b.lisSkinsPriceText);
       } else {
-        result = parsePriceValue(a.csTmPriceText) - parsePriceValue(b.csTmPriceText);
+        const source = sortState.column.startsWith("source:") ? sortState.column.slice("source:".length) : legacySortSource[sortState.column] || "cstm";
+        result = parsePriceValue(getSourcePrice(a.prices, source)?.priceText) - parsePriceValue(getSourcePrice(b.prices, source)?.priceText);
       }
 
       if (result === 0) {
@@ -248,8 +270,12 @@ export const SavedSkinsPage: React.FC = () => {
     if (column === "title") return UI_TEXT.savedSkinsSortTitle;
     if (column === "steamPrice") return UI_TEXT.savedSkinsSortSteam;
     if (column === "lisSkinsPrice") return UI_TEXT.savedSkinsSortLisSkins;
+    if (column.startsWith("source:")) {
+      const source = column.slice("source:".length);
+      return priceSources.find((item) => item.source === source)?.label ?? source;
+    }
     return UI_TEXT.savedSkinsSortCSTM;
-  }, []);
+  }, [priceSources]);
 
   const getSortButtonLabel = useCallback(() => {
     if (!sortState) return UI_TEXT.savedSkinsSortMenu;
@@ -316,7 +342,7 @@ export const SavedSkinsPage: React.FC = () => {
           </div>
         }
       />
-      {notice && <ToastAlert type={notice.type} text={notice.text} />}
+      {notice && <ToastAlert type={notice.type} text={notice.text} onClose={() => setNotice(null)} />}
       {items.length === 0 ? (
         <div className="empty-shell">
           <h3 className="empty-title">В коллекции пока нет скинов</h3>
@@ -352,18 +378,15 @@ export const SavedSkinsPage: React.FC = () => {
                       {getSortOptionLabel("title")}
                       {sortState?.column === "title" ? <span className="saved-skins-sort-state">{sortState.direction === "desc" ? "↓" : "↑"}</span> : null}
                     </button>
-                    <button className="saved-skins-sort-item" type="button" role="menuitem" onClick={() => applySortOption("steamPrice")}>
-                      {getSortOptionLabel("steamPrice")}
-                      {sortState?.column === "steamPrice" ? <span className="saved-skins-sort-state">{sortState.direction === "desc" ? "↓" : "↑"}</span> : null}
-                    </button>
-                    <button className="saved-skins-sort-item" type="button" role="menuitem" onClick={() => applySortOption("lisSkinsPrice")}>
-                      {getSortOptionLabel("lisSkinsPrice")}
-                      {sortState?.column === "lisSkinsPrice" ? <span className="saved-skins-sort-state">{sortState.direction === "desc" ? "↓" : "↑"}</span> : null}
-                    </button>
-                    <button className="saved-skins-sort-item" type="button" role="menuitem" onClick={() => applySortOption("csTmPrice")}>
-                      {getSortOptionLabel("csTmPrice")}
-                      {sortState?.column === "csTmPrice" ? <span className="saved-skins-sort-state">{sortState.direction === "desc" ? "↓" : "↑"}</span> : null}
-                    </button>
+                    {priceSources.map((source) => {
+                      const column = `source:${source.source}` as const;
+                      return (
+                        <button key={source.source} className="saved-skins-sort-item" type="button" role="menuitem" onClick={() => applySortOption(column)}>
+                          {source.label}
+                          {sortState?.column === column ? <span className="saved-skins-sort-state">{sortState.direction === "desc" ? "↓" : "↑"}</span> : null}
+                        </button>
+                      );
+                    })}
                     <button className="saved-skins-sort-item" type="button" role="menuitem" onClick={() => { setSortState(null); setIsSortMenuOpen(false); }}>
                       {UI_TEXT.savedSkinsSortReset}
                     </button>
@@ -379,6 +402,7 @@ export const SavedSkinsPage: React.FC = () => {
               updatingSkinIds={updatingSkinIds}
               deletingSkinIds={deletingSkinIds}
               sortState={sortState}
+              sources={priceSources}
               onSortChange={toggleSort}
               onRefreshOne={refreshOne}
               onDelete={removeSkin}
@@ -389,6 +413,7 @@ export const SavedSkinsPage: React.FC = () => {
               isUpdatingAll={isUpdatingAll}
               updatingSkinIds={updatingSkinIds}
               deletingSkinIds={deletingSkinIds}
+              sources={priceSources}
               onRefreshOne={refreshOne}
               onDelete={removeSkin}
             />

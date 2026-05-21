@@ -66,20 +66,32 @@ type SavedSkinsResponse struct {
 }
 
 type SavedSkinItem struct {
-	MarketHashName    string    `json:"market_hash_name"`
-	DisplayName       string    `json:"display_name"`
-	NameColor         string    `json:"name_color"`
-	IconURL           string    `json:"icon_url"`
-	SteamPageURL      string    `json:"steam_page_url"`
-	SteamPriceText    string    `json:"steam_price_text"`
-	SteamUpdatedAt    time.Time `json:"steam_updated_at"`
-	LisSkinsPageURL   string    `json:"lisskins_page_url"`
-	LisSkinsPriceText string    `json:"lisskins_price_text"`
-	LisSkinsUpdatedAt time.Time `json:"lisskins_updated_at"`
-	CSTMPageURL       string    `json:"cstm_page_url"`
-	CSTMPriceText     string    `json:"cstm_price_text"`
-	CSTMUpdatedAt     time.Time `json:"cstm_updated_at"`
-	Currency          string    `json:"currency"`
+	MarketHashName    string              `json:"market_hash_name"`
+	DisplayName       string              `json:"display_name"`
+	NameColor         string              `json:"name_color"`
+	IconURL           string              `json:"icon_url"`
+	SteamPageURL      string              `json:"steam_page_url"`
+	SteamPriceText    string              `json:"steam_price_text"`
+	SteamUpdatedAt    time.Time           `json:"steam_updated_at"`
+	LisSkinsPageURL   string              `json:"lisskins_page_url"`
+	LisSkinsPriceText string              `json:"lisskins_price_text"`
+	LisSkinsUpdatedAt time.Time           `json:"lisskins_updated_at"`
+	CSTMPageURL       string              `json:"cstm_page_url"`
+	CSTMPriceText     string              `json:"cstm_price_text"`
+	CSTMUpdatedAt     time.Time           `json:"cstm_updated_at"`
+	Prices            []PriceSnapshotItem `json:"prices"`
+	Currency          string              `json:"currency"`
+}
+
+type PriceSnapshotItem struct {
+	Source      string    `json:"source"`
+	SourceLabel string    `json:"source_label"`
+	PageURL     string    `json:"page_url"`
+	PriceText   string    `json:"price_text"`
+	PriceCents  *int64    `json:"price_cents"`
+	Currency    string    `json:"currency"`
+	FetchedAt   time.Time `json:"fetched_at"`
+	Status      string    `json:"status"`
 }
 
 type UpdateSavedSkinPriceRequest struct {
@@ -88,17 +100,18 @@ type UpdateSavedSkinPriceRequest struct {
 }
 
 type UpdateSavedSkinPriceResponse struct {
-	MarketHashName    string    `json:"market_hash_name"`
-	SteamPageURL      string    `json:"steam_page_url"`
-	SteamPriceText    string    `json:"steam_price_text"`
-	SteamUpdatedAt    time.Time `json:"steam_updated_at"`
-	LisSkinsPageURL   string    `json:"lisskins_page_url"`
-	LisSkinsPriceText string    `json:"lisskins_price_text"`
-	LisSkinsUpdatedAt time.Time `json:"lisskins_updated_at"`
-	CSTMPageURL       string    `json:"cstm_page_url"`
-	CSTMPriceText     string    `json:"cstm_price_text"`
-	CSTMUpdatedAt     time.Time `json:"cstm_updated_at"`
-	Currency          string    `json:"currency"`
+	MarketHashName    string              `json:"market_hash_name"`
+	SteamPageURL      string              `json:"steam_page_url"`
+	SteamPriceText    string              `json:"steam_price_text"`
+	SteamUpdatedAt    time.Time           `json:"steam_updated_at"`
+	LisSkinsPageURL   string              `json:"lisskins_page_url"`
+	LisSkinsPriceText string              `json:"lisskins_price_text"`
+	LisSkinsUpdatedAt time.Time           `json:"lisskins_updated_at"`
+	CSTMPageURL       string              `json:"cstm_page_url"`
+	CSTMPriceText     string              `json:"cstm_price_text"`
+	CSTMUpdatedAt     time.Time           `json:"cstm_updated_at"`
+	Prices            []PriceSnapshotItem `json:"prices"`
+	Currency          string              `json:"currency"`
 }
 
 type UpdateAllSavedSkinsPricesRequest struct {
@@ -126,4 +139,24 @@ type SetLisSkinsTokenRequest struct {
 
 type LisSkinsTokenStatusResponse struct {
 	HasToken bool `json:"hasToken"`
+}
+
+type SourceStateItem struct {
+	Source        string    `json:"source"`
+	Status        string    `json:"status"`
+	LastSuccessAt time.Time `json:"last_success_at"`
+	LastError     string    `json:"last_error"`
+	LastErrorAt   time.Time `json:"last_error_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
+}
+
+type PriceSourceStatesResponse struct {
+	Items []SourceStateItem `json:"items"`
+}
+
+type DiagnosticsResponse struct {
+	Version      string            `json:"version"`
+	DatabasePath string            `json:"database_path"`
+	LogPath      string            `json:"log_path"`
+	Sources      []SourceStateItem `json:"sources"`
 }
