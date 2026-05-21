@@ -303,7 +303,9 @@ FROM skins`)
 	if err != nil {
 		return err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		_ = rows.Close()
+	}(rows)
 
 	now := time.Now().UTC()
 	legacyRows := make([]legacySkinRow, 0)
