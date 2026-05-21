@@ -56,6 +56,74 @@ func (_u *SourceStateUpdate) SetNillableAPITokenEncrypted(v *string) *SourceStat
 	return _u
 }
 
+// SetStatus sets the "status" field.
+func (_u *SourceStateUpdate) SetStatus(v string) *SourceStateUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *SourceStateUpdate) SetNillableStatus(v *string) *SourceStateUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
+	}
+	return _u
+}
+
+// SetLastSuccessAt sets the "last_success_at" field.
+func (_u *SourceStateUpdate) SetLastSuccessAt(v time.Time) *SourceStateUpdate {
+	_u.mutation.SetLastSuccessAt(v)
+	return _u
+}
+
+// SetNillableLastSuccessAt sets the "last_success_at" field if the given value is not nil.
+func (_u *SourceStateUpdate) SetNillableLastSuccessAt(v *time.Time) *SourceStateUpdate {
+	if v != nil {
+		_u.SetLastSuccessAt(*v)
+	}
+	return _u
+}
+
+// ClearLastSuccessAt clears the value of the "last_success_at" field.
+func (_u *SourceStateUpdate) ClearLastSuccessAt() *SourceStateUpdate {
+	_u.mutation.ClearLastSuccessAt()
+	return _u
+}
+
+// SetLastError sets the "last_error" field.
+func (_u *SourceStateUpdate) SetLastError(v string) *SourceStateUpdate {
+	_u.mutation.SetLastError(v)
+	return _u
+}
+
+// SetNillableLastError sets the "last_error" field if the given value is not nil.
+func (_u *SourceStateUpdate) SetNillableLastError(v *string) *SourceStateUpdate {
+	if v != nil {
+		_u.SetLastError(*v)
+	}
+	return _u
+}
+
+// SetLastErrorAt sets the "last_error_at" field.
+func (_u *SourceStateUpdate) SetLastErrorAt(v time.Time) *SourceStateUpdate {
+	_u.mutation.SetLastErrorAt(v)
+	return _u
+}
+
+// SetNillableLastErrorAt sets the "last_error_at" field if the given value is not nil.
+func (_u *SourceStateUpdate) SetNillableLastErrorAt(v *time.Time) *SourceStateUpdate {
+	if v != nil {
+		_u.SetLastErrorAt(*v)
+	}
+	return _u
+}
+
+// ClearLastErrorAt clears the value of the "last_error_at" field.
+func (_u *SourceStateUpdate) ClearLastErrorAt() *SourceStateUpdate {
+	_u.mutation.ClearLastErrorAt()
+	return _u
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *SourceStateUpdate) SetUpdatedAt(v time.Time) *SourceStateUpdate {
 	_u.mutation.SetUpdatedAt(v)
@@ -136,6 +204,24 @@ func (_u *SourceStateUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.APITokenEncrypted(); ok {
 		_spec.SetField(sourcestate.FieldAPITokenEncrypted, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(sourcestate.FieldStatus, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.LastSuccessAt(); ok {
+		_spec.SetField(sourcestate.FieldLastSuccessAt, field.TypeTime, value)
+	}
+	if _u.mutation.LastSuccessAtCleared() {
+		_spec.ClearField(sourcestate.FieldLastSuccessAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.LastError(); ok {
+		_spec.SetField(sourcestate.FieldLastError, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.LastErrorAt(); ok {
+		_spec.SetField(sourcestate.FieldLastErrorAt, field.TypeTime, value)
+	}
+	if _u.mutation.LastErrorAtCleared() {
+		_spec.ClearField(sourcestate.FieldLastErrorAt, field.TypeTime)
+	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(sourcestate.FieldUpdatedAt, field.TypeTime, value)
 	}
@@ -187,6 +273,74 @@ func (_u *SourceStateUpdateOne) SetNillableAPITokenEncrypted(v *string) *SourceS
 	if v != nil {
 		_u.SetAPITokenEncrypted(*v)
 	}
+	return _u
+}
+
+// SetStatus sets the "status" field.
+func (_u *SourceStateUpdateOne) SetStatus(v string) *SourceStateUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_u *SourceStateUpdateOne) SetNillableStatus(v *string) *SourceStateUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
+	}
+	return _u
+}
+
+// SetLastSuccessAt sets the "last_success_at" field.
+func (_u *SourceStateUpdateOne) SetLastSuccessAt(v time.Time) *SourceStateUpdateOne {
+	_u.mutation.SetLastSuccessAt(v)
+	return _u
+}
+
+// SetNillableLastSuccessAt sets the "last_success_at" field if the given value is not nil.
+func (_u *SourceStateUpdateOne) SetNillableLastSuccessAt(v *time.Time) *SourceStateUpdateOne {
+	if v != nil {
+		_u.SetLastSuccessAt(*v)
+	}
+	return _u
+}
+
+// ClearLastSuccessAt clears the value of the "last_success_at" field.
+func (_u *SourceStateUpdateOne) ClearLastSuccessAt() *SourceStateUpdateOne {
+	_u.mutation.ClearLastSuccessAt()
+	return _u
+}
+
+// SetLastError sets the "last_error" field.
+func (_u *SourceStateUpdateOne) SetLastError(v string) *SourceStateUpdateOne {
+	_u.mutation.SetLastError(v)
+	return _u
+}
+
+// SetNillableLastError sets the "last_error" field if the given value is not nil.
+func (_u *SourceStateUpdateOne) SetNillableLastError(v *string) *SourceStateUpdateOne {
+	if v != nil {
+		_u.SetLastError(*v)
+	}
+	return _u
+}
+
+// SetLastErrorAt sets the "last_error_at" field.
+func (_u *SourceStateUpdateOne) SetLastErrorAt(v time.Time) *SourceStateUpdateOne {
+	_u.mutation.SetLastErrorAt(v)
+	return _u
+}
+
+// SetNillableLastErrorAt sets the "last_error_at" field if the given value is not nil.
+func (_u *SourceStateUpdateOne) SetNillableLastErrorAt(v *time.Time) *SourceStateUpdateOne {
+	if v != nil {
+		_u.SetLastErrorAt(*v)
+	}
+	return _u
+}
+
+// ClearLastErrorAt clears the value of the "last_error_at" field.
+func (_u *SourceStateUpdateOne) ClearLastErrorAt() *SourceStateUpdateOne {
+	_u.mutation.ClearLastErrorAt()
 	return _u
 }
 
@@ -299,6 +453,24 @@ func (_u *SourceStateUpdateOne) sqlSave(ctx context.Context) (_node *SourceState
 	}
 	if value, ok := _u.mutation.APITokenEncrypted(); ok {
 		_spec.SetField(sourcestate.FieldAPITokenEncrypted, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Status(); ok {
+		_spec.SetField(sourcestate.FieldStatus, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.LastSuccessAt(); ok {
+		_spec.SetField(sourcestate.FieldLastSuccessAt, field.TypeTime, value)
+	}
+	if _u.mutation.LastSuccessAtCleared() {
+		_spec.ClearField(sourcestate.FieldLastSuccessAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.LastError(); ok {
+		_spec.SetField(sourcestate.FieldLastError, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.LastErrorAt(); ok {
+		_spec.SetField(sourcestate.FieldLastErrorAt, field.TypeTime, value)
+	}
+	if _u.mutation.LastErrorAtCleared() {
+		_spec.ClearField(sourcestate.FieldLastErrorAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(sourcestate.FieldUpdatedAt, field.TypeTime, value)

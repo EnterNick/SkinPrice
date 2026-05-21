@@ -6,13 +6,14 @@ import { openExternal } from "../../shared/lib/browser/openExternal";
 import { formatUpdatedAt } from "../../shared/lib/date/formatUpdatedAt";
 import { CardGrid } from "../../shared/ui/card-grid/CardGrid";
 import { SkinThumb } from "../../entities/skin/ui/SkinThumb";
-import type { SavedSkin } from "../../entities/skin/model/types";
+import type { PriceSnapshot, SavedSkin } from "../../entities/skin/model/types";
 
 type SavedSkinsCardsProps = {
   items: SavedSkin[];
   isUpdatingAll: boolean;
   updatingSkinIds: Record<string, boolean>;
   deletingSkinIds: Record<string, boolean>;
+  sources: Array<{ source: string; label: string }>;
   onRefreshOne: (skinId: string) => Promise<void> | void;
   onDelete: (skinId: string) => Promise<void> | void;
 };
@@ -25,6 +26,8 @@ const buildPriceTooltip = (source: string, updatedAt?: string) => {
   return `${source}: ${formatted}`;
 };
 
+const getSourcePrice = (prices: PriceSnapshot[], source: string): PriceSnapshot | undefined => prices.find((price) => price.source === source);
+
 const buildSkinNameStyle = (nameColor?: string): React.CSSProperties | undefined =>
   nameColor ? { "--skin-name-color": nameColor } as React.CSSProperties : undefined;
 
@@ -36,6 +39,7 @@ export const SavedSkinsCards: React.FC<SavedSkinsCardsProps> = ({
   isUpdatingAll,
   updatingSkinIds,
   deletingSkinIds,
+  sources,
   onRefreshOne,
   onDelete,
 }) => {
@@ -168,36 +172,22 @@ export const SavedSkinsCards: React.FC<SavedSkinsCardsProps> = ({
               </div>
 
               <div className="saved-skin-card-prices">
-                <button
-                  className="saved-skin-price-card"
-                  type="button"
-                  disabled={!skin.steamPageUrl}
-                  title={buildPriceTooltip(UI_TEXT.sourceSteamShort, skin.steamUpdatedAt)}
-                  onClick={() => openExternal(skin.steamPageUrl)}
-                >
-                  <span className="saved-skin-price-source">{UI_TEXT.steamPriceLabel}</span>
-                  <span className="saved-skin-price-value">{skin.steamPriceText || "-"}</span>
-                </button>
-                <button
-                  className="saved-skin-price-card"
-                  type="button"
-                  disabled={!skin.lisSkinsPageUrl}
-                  title={buildPriceTooltip(UI_TEXT.sourceLisSkinsShort, skin.lisSkinsUpdatedAt)}
-                  onClick={() => openExternal(skin.lisSkinsPageUrl)}
-                >
-                  <span className="saved-skin-price-source">{UI_TEXT.lisSkinsPriceLabel}</span>
-                  <span className="saved-skin-price-value">{skin.lisSkinsPriceText || "-"}</span>
-                </button>
-                <button
-                  className="saved-skin-price-card"
-                  type="button"
-                  disabled={!skin.csTmPageUrl}
-                  title={buildPriceTooltip(UI_TEXT.sourceCSTMShort, skin.csTmUpdatedAt)}
-                  onClick={() => openExternal(skin.csTmPageUrl)}
-                >
-                  <span className="saved-skin-price-source">{UI_TEXT.csTmPriceLabel}</span>
-                  <span className="saved-skin-price-value">{skin.csTmPriceText || "-"}</span>
-                </button>
+                {sources.map((source) => {
+                  const price = getSourcePrice(skin.prices, source.source);
+                  return (
+                    <button
+                      key={source.source}
+                      className="saved-skin-price-card"
+                      type="button"
+                      disabled={!price?.pageUrl}
+                      title={buildPriceTooltip(source.label, price?.fetchedAt)}
+                      onClick={() => price?.pageUrl && openExternal(price.pageUrl)}
+                    >
+                      <span className="saved-skin-price-source">{source.label}</span>
+                      <span className="saved-skin-price-value">{price?.priceText || "-"}</span>
+                    </button>
+                  );
+                })}
               </div>
             </article>
           );

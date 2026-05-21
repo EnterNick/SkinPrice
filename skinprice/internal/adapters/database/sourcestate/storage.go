@@ -16,6 +16,89 @@ type Storage struct {
 	Conn *database.Connection
 }
 
+func (s *Storage) RecordSourceSuccess(ctx context.Context, source string, at time.Time) error {
+	now := time.Now().UTC()
+	count, err := s.Conn.Client().SourceState.Update().
+		Where(entsourcestate.Source(source)).
+		SetStatus("ok").
+		SetLastSuccessAt(at.UTC()).
+		SetLastError("").
+		ClearLastErrorAt().
+		SetUpdatedAt(now).
+		Save(ctx)
+	if err != nil {
+		return errx.E("sourcestate.repository.record_success.update", errx.CodeInternal, "failed to update source state", err)
+	}
+	if count > 0 {
+		return nil
+	}
+	if _, err := s.Conn.Client().SourceState.Create().
+		SetSource(source).
+		SetStatus("ok").
+		SetLastSuccessAt(at.UTC()).
+		SetLastError("").
+		SetUpdatedAt(now).
+		Save(ctx); err != nil {
+		return errx.E("sourcestate.repository.record_success.insert", errx.CodeInternal, "failed to create source state", err)
+	}
+	return nil
+}
+
+func (s *Storage) RecordSourceError(ctx context.Context, source string, message string, at time.Time) error {
+	now := time.Now().UTC()
+	count, err := s.Conn.Client().SourceState.Update().
+		Where(entsourcestate.Source(source)).
+		SetStatus("error").
+		SetLastError(message).
+		SetLastErrorAt(at.UTC()).
+		SetUpdatedAt(now).
+		Save(ctx)
+	if err != nil {
+		return errx.E("sourcestate.repository.record_error.update", errx.CodeInternal, "failed to update source error", err)
+	}
+	if count > 0 {
+		return nil
+	}
+	if _, err := s.Conn.Client().SourceState.Create().
+		SetSource(source).
+		SetStatus("error").
+		SetLastError(message).
+		SetLastErrorAt(at.UTC()).
+		SetUpdatedAt(now).
+		Save(ctx); err != nil {
+		return errx.E("sourcestate.repository.record_error.insert", errx.CodeInternal, "failed to create source error", err)
+	}
+	return nil
+}
+
+func (s *Storage) ListSourceStates(ctx context.Context) ([]appskins.SourceState, error) {
+	rows, err := s.Conn.Client().SourceState.Query().
+		Order(ent.Asc(entsourcestate.FieldSource)).
+		All(ctx)
+	if err != nil {
+		return nil, errx.E("sourcestate.repository.list", errx.CodeInternal, "failed to list source states", err)
+	}
+	result := make([]appskins.SourceState, 0, len(rows))
+	for _, row := range rows {
+		state := appskins.SourceState{
+			Source:    row.Source,
+			Status:    row.Status,
+			LastError: row.LastError,
+		}
+		if row.LastSuccessAt != nil {
+			state.LastSuccessAt = *row.LastSuccessAt
+		}
+		if row.LastErrorAt != nil {
+			state.LastErrorAt = *row.LastErrorAt
+		}
+		if row.UpdatedAt != nil {
+			state.UpdatedAt = *row.UpdatedAt
+		}
+		result = append(result, state)
+	}
+	return result, nil
+}
+
 func (s *Storage) UpsertLisSkinsToken(ctx context.Context, encrypted string) error {
 	now := time.Now().UTC()
 	count, err := s.Conn.Client().SourceState.Update().

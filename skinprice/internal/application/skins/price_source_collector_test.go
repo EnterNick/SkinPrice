@@ -51,12 +51,12 @@ func TestDefaultSavedSkinPriceCollectorKeepsPartialSuccessAndFallbackPages(t *te
 	cstm := &collectorReader{err: errors.New("bad status 502")}
 
 	result, err := DefaultSavedSkinPriceCollector{
-		SteamSource:    steam,
-		LisSkinsSource: lis,
-		CSTMSource:     cstm,
-		LisSkinsPages:  collectorPageBuilder("lis/"),
-		CSTMPages:      collectorPageBuilder("cstm/"),
-		Now:            func() time.Time { return now },
+		Sources: []PriceSource{
+			ReaderPriceSource{SourceID: "steam", SourceLabel: "Steam", Reader: steam, Now: func() time.Time { return now }},
+			ReaderPriceSource{SourceID: "lisskins", SourceLabel: "LisSkins", Reader: lis, Pages: collectorPageBuilder("lis/"), CurrencyOverride: LisSkinsCurrency, Now: func() time.Time { return now }},
+			ReaderPriceSource{SourceID: "cstm", SourceLabel: "CS TM", Reader: cstm, Pages: collectorPageBuilder("cstm/"), Now: func() time.Time { return now }},
+		},
+		Now: func() time.Time { return now },
 	}.Collect(context.Background(), SavedSkin{
 		MarketHashName: "AK-47 | Redline",
 		CSTMPageURL:    "existing-cstm",
@@ -81,6 +81,9 @@ func TestDefaultSavedSkinPriceCollectorKeepsPartialSuccessAndFallbackPages(t *te
 	if result.Currency != "3" {
 		t.Fatalf("expected canonical selected currency, got %q", result.Currency)
 	}
+	if len(result.Prices) != 2 {
+		t.Fatalf("expected two successful snapshots, got %+v", result.Prices)
+	}
 	if steam.lastCurrency() != "3" {
 		t.Fatalf("expected steam to use selected currency, got %q", steam.lastCurrency())
 	}
@@ -91,7 +94,9 @@ func TestDefaultSavedSkinPriceCollectorKeepsPartialSuccessAndFallbackPages(t *te
 
 func TestDefaultSavedSkinPriceCollectorReturnsSourceErrorWhenAllSourcesFail(t *testing.T) {
 	_, err := DefaultSavedSkinPriceCollector{
-		SteamSource: &collectorReader{err: errors.New("context deadline exceeded")},
+		Sources: []PriceSource{
+			ReaderPriceSource{SourceID: "steam", SourceLabel: "Steam", Reader: &collectorReader{err: errors.New("context deadline exceeded")}},
+		},
 	}.Collect(context.Background(), SavedSkin{}, UpdateSavedSkinPriceParams{MarketHashName: "AK-47 | Redline", Currency: "1"})
 	if err == nil {
 		t.Fatalf("expected collect error")

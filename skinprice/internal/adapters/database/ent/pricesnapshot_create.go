@@ -5,7 +5,9 @@ package ent
 import (
 	"SkinPrice/skinprice/internal/adapters/database/ent/pricesnapshot"
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -18,6 +20,132 @@ type PriceSnapshotCreate struct {
 	hooks    []Hook
 }
 
+// SetMarketHashName sets the "market_hash_name" field.
+func (_c *PriceSnapshotCreate) SetMarketHashName(v string) *PriceSnapshotCreate {
+	_c.mutation.SetMarketHashName(v)
+	return _c
+}
+
+// SetNillableMarketHashName sets the "market_hash_name" field if the given value is not nil.
+func (_c *PriceSnapshotCreate) SetNillableMarketHashName(v *string) *PriceSnapshotCreate {
+	if v != nil {
+		_c.SetMarketHashName(*v)
+	}
+	return _c
+}
+
+// SetSource sets the "source" field.
+func (_c *PriceSnapshotCreate) SetSource(v string) *PriceSnapshotCreate {
+	_c.mutation.SetSource(v)
+	return _c
+}
+
+// SetNillableSource sets the "source" field if the given value is not nil.
+func (_c *PriceSnapshotCreate) SetNillableSource(v *string) *PriceSnapshotCreate {
+	if v != nil {
+		_c.SetSource(*v)
+	}
+	return _c
+}
+
+// SetSourceLabel sets the "source_label" field.
+func (_c *PriceSnapshotCreate) SetSourceLabel(v string) *PriceSnapshotCreate {
+	_c.mutation.SetSourceLabel(v)
+	return _c
+}
+
+// SetNillableSourceLabel sets the "source_label" field if the given value is not nil.
+func (_c *PriceSnapshotCreate) SetNillableSourceLabel(v *string) *PriceSnapshotCreate {
+	if v != nil {
+		_c.SetSourceLabel(*v)
+	}
+	return _c
+}
+
+// SetPageURL sets the "page_url" field.
+func (_c *PriceSnapshotCreate) SetPageURL(v string) *PriceSnapshotCreate {
+	_c.mutation.SetPageURL(v)
+	return _c
+}
+
+// SetNillablePageURL sets the "page_url" field if the given value is not nil.
+func (_c *PriceSnapshotCreate) SetNillablePageURL(v *string) *PriceSnapshotCreate {
+	if v != nil {
+		_c.SetPageURL(*v)
+	}
+	return _c
+}
+
+// SetPriceText sets the "price_text" field.
+func (_c *PriceSnapshotCreate) SetPriceText(v string) *PriceSnapshotCreate {
+	_c.mutation.SetPriceText(v)
+	return _c
+}
+
+// SetNillablePriceText sets the "price_text" field if the given value is not nil.
+func (_c *PriceSnapshotCreate) SetNillablePriceText(v *string) *PriceSnapshotCreate {
+	if v != nil {
+		_c.SetPriceText(*v)
+	}
+	return _c
+}
+
+// SetPriceCents sets the "price_cents" field.
+func (_c *PriceSnapshotCreate) SetPriceCents(v int64) *PriceSnapshotCreate {
+	_c.mutation.SetPriceCents(v)
+	return _c
+}
+
+// SetNillablePriceCents sets the "price_cents" field if the given value is not nil.
+func (_c *PriceSnapshotCreate) SetNillablePriceCents(v *int64) *PriceSnapshotCreate {
+	if v != nil {
+		_c.SetPriceCents(*v)
+	}
+	return _c
+}
+
+// SetCurrency sets the "currency" field.
+func (_c *PriceSnapshotCreate) SetCurrency(v string) *PriceSnapshotCreate {
+	_c.mutation.SetCurrency(v)
+	return _c
+}
+
+// SetNillableCurrency sets the "currency" field if the given value is not nil.
+func (_c *PriceSnapshotCreate) SetNillableCurrency(v *string) *PriceSnapshotCreate {
+	if v != nil {
+		_c.SetCurrency(*v)
+	}
+	return _c
+}
+
+// SetFetchedAt sets the "fetched_at" field.
+func (_c *PriceSnapshotCreate) SetFetchedAt(v time.Time) *PriceSnapshotCreate {
+	_c.mutation.SetFetchedAt(v)
+	return _c
+}
+
+// SetNillableFetchedAt sets the "fetched_at" field if the given value is not nil.
+func (_c *PriceSnapshotCreate) SetNillableFetchedAt(v *time.Time) *PriceSnapshotCreate {
+	if v != nil {
+		_c.SetFetchedAt(*v)
+	}
+	return _c
+}
+
+// SetMetadata sets the "metadata" field.
+func (_c *PriceSnapshotCreate) SetMetadata(v string) *PriceSnapshotCreate {
+	_c.mutation.SetMetadata(v)
+	return _c
+}
+
+// SetNillableMetadata sets the "metadata" field if the given value is not nil.
+func (_c *PriceSnapshotCreate) SetNillableMetadata(v *string) *PriceSnapshotCreate {
+	if v != nil {
+		_c.SetMetadata(*v)
+	}
+	return _c
+}
+
 // Mutation returns the PriceSnapshotMutation object of the builder.
 func (_c *PriceSnapshotCreate) Mutation() *PriceSnapshotMutation {
 	return _c.mutation
@@ -25,6 +153,7 @@ func (_c *PriceSnapshotCreate) Mutation() *PriceSnapshotMutation {
 
 // Save creates the PriceSnapshot in the database.
 func (_c *PriceSnapshotCreate) Save(ctx context.Context) (*PriceSnapshot, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -50,8 +179,78 @@ func (_c *PriceSnapshotCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *PriceSnapshotCreate) defaults() {
+	if _, ok := _c.mutation.MarketHashName(); !ok {
+		v := pricesnapshot.DefaultMarketHashName
+		_c.mutation.SetMarketHashName(v)
+	}
+	if _, ok := _c.mutation.Source(); !ok {
+		v := pricesnapshot.DefaultSource
+		_c.mutation.SetSource(v)
+	}
+	if _, ok := _c.mutation.SourceLabel(); !ok {
+		v := pricesnapshot.DefaultSourceLabel
+		_c.mutation.SetSourceLabel(v)
+	}
+	if _, ok := _c.mutation.PageURL(); !ok {
+		v := pricesnapshot.DefaultPageURL
+		_c.mutation.SetPageURL(v)
+	}
+	if _, ok := _c.mutation.PriceText(); !ok {
+		v := pricesnapshot.DefaultPriceText
+		_c.mutation.SetPriceText(v)
+	}
+	if _, ok := _c.mutation.Currency(); !ok {
+		v := pricesnapshot.DefaultCurrency
+		_c.mutation.SetCurrency(v)
+	}
+	if _, ok := _c.mutation.FetchedAt(); !ok {
+		v := pricesnapshot.DefaultFetchedAt()
+		_c.mutation.SetFetchedAt(v)
+	}
+	if _, ok := _c.mutation.Metadata(); !ok {
+		v := pricesnapshot.DefaultMetadata
+		_c.mutation.SetMetadata(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *PriceSnapshotCreate) check() error {
+	if _, ok := _c.mutation.MarketHashName(); !ok {
+		return &ValidationError{Name: "market_hash_name", err: errors.New(`ent: missing required field "PriceSnapshot.market_hash_name"`)}
+	}
+	if v, ok := _c.mutation.MarketHashName(); ok {
+		if err := pricesnapshot.MarketHashNameValidator(v); err != nil {
+			return &ValidationError{Name: "market_hash_name", err: fmt.Errorf(`ent: validator failed for field "PriceSnapshot.market_hash_name": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Source(); !ok {
+		return &ValidationError{Name: "source", err: errors.New(`ent: missing required field "PriceSnapshot.source"`)}
+	}
+	if v, ok := _c.mutation.Source(); ok {
+		if err := pricesnapshot.SourceValidator(v); err != nil {
+			return &ValidationError{Name: "source", err: fmt.Errorf(`ent: validator failed for field "PriceSnapshot.source": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.SourceLabel(); !ok {
+		return &ValidationError{Name: "source_label", err: errors.New(`ent: missing required field "PriceSnapshot.source_label"`)}
+	}
+	if _, ok := _c.mutation.PageURL(); !ok {
+		return &ValidationError{Name: "page_url", err: errors.New(`ent: missing required field "PriceSnapshot.page_url"`)}
+	}
+	if _, ok := _c.mutation.PriceText(); !ok {
+		return &ValidationError{Name: "price_text", err: errors.New(`ent: missing required field "PriceSnapshot.price_text"`)}
+	}
+	if _, ok := _c.mutation.Currency(); !ok {
+		return &ValidationError{Name: "currency", err: errors.New(`ent: missing required field "PriceSnapshot.currency"`)}
+	}
+	if _, ok := _c.mutation.FetchedAt(); !ok {
+		return &ValidationError{Name: "fetched_at", err: errors.New(`ent: missing required field "PriceSnapshot.fetched_at"`)}
+	}
+	if _, ok := _c.mutation.Metadata(); !ok {
+		return &ValidationError{Name: "metadata", err: errors.New(`ent: missing required field "PriceSnapshot.metadata"`)}
+	}
 	return nil
 }
 
@@ -78,6 +277,42 @@ func (_c *PriceSnapshotCreate) createSpec() (*PriceSnapshot, *sqlgraph.CreateSpe
 		_node = &PriceSnapshot{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(pricesnapshot.Table, sqlgraph.NewFieldSpec(pricesnapshot.FieldID, field.TypeInt))
 	)
+	if value, ok := _c.mutation.MarketHashName(); ok {
+		_spec.SetField(pricesnapshot.FieldMarketHashName, field.TypeString, value)
+		_node.MarketHashName = value
+	}
+	if value, ok := _c.mutation.Source(); ok {
+		_spec.SetField(pricesnapshot.FieldSource, field.TypeString, value)
+		_node.Source = value
+	}
+	if value, ok := _c.mutation.SourceLabel(); ok {
+		_spec.SetField(pricesnapshot.FieldSourceLabel, field.TypeString, value)
+		_node.SourceLabel = value
+	}
+	if value, ok := _c.mutation.PageURL(); ok {
+		_spec.SetField(pricesnapshot.FieldPageURL, field.TypeString, value)
+		_node.PageURL = value
+	}
+	if value, ok := _c.mutation.PriceText(); ok {
+		_spec.SetField(pricesnapshot.FieldPriceText, field.TypeString, value)
+		_node.PriceText = value
+	}
+	if value, ok := _c.mutation.PriceCents(); ok {
+		_spec.SetField(pricesnapshot.FieldPriceCents, field.TypeInt64, value)
+		_node.PriceCents = &value
+	}
+	if value, ok := _c.mutation.Currency(); ok {
+		_spec.SetField(pricesnapshot.FieldCurrency, field.TypeString, value)
+		_node.Currency = value
+	}
+	if value, ok := _c.mutation.FetchedAt(); ok {
+		_spec.SetField(pricesnapshot.FieldFetchedAt, field.TypeTime, value)
+		_node.FetchedAt = value
+	}
+	if value, ok := _c.mutation.Metadata(); ok {
+		_spec.SetField(pricesnapshot.FieldMetadata, field.TypeString, value)
+		_node.Metadata = value
+	}
 	return _node, _spec
 }
 
@@ -99,6 +334,7 @@ func (_c *PriceSnapshotCreateBulk) Save(ctx context.Context) ([]*PriceSnapshot, 
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*PriceSnapshotMutation)
 				if !ok {

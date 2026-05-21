@@ -21,6 +21,14 @@ type SourceState struct {
 	Source string `json:"source,omitempty"`
 	// APITokenEncrypted holds the value of the "api_token_encrypted" field.
 	APITokenEncrypted string `json:"api_token_encrypted,omitempty"`
+	// Status holds the value of the "status" field.
+	Status string `json:"status,omitempty"`
+	// LastSuccessAt holds the value of the "last_success_at" field.
+	LastSuccessAt *time.Time `json:"last_success_at,omitempty"`
+	// LastError holds the value of the "last_error" field.
+	LastError string `json:"last_error,omitempty"`
+	// LastErrorAt holds the value of the "last_error_at" field.
+	LastErrorAt *time.Time `json:"last_error_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt    *time.Time `json:"updated_at,omitempty"`
 	selectValues sql.SelectValues
@@ -33,9 +41,9 @@ func (*SourceState) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case sourcestate.FieldID:
 			values[i] = new(sql.NullInt64)
-		case sourcestate.FieldSource, sourcestate.FieldAPITokenEncrypted:
+		case sourcestate.FieldSource, sourcestate.FieldAPITokenEncrypted, sourcestate.FieldStatus, sourcestate.FieldLastError:
 			values[i] = new(sql.NullString)
-		case sourcestate.FieldUpdatedAt:
+		case sourcestate.FieldLastSuccessAt, sourcestate.FieldLastErrorAt, sourcestate.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -69,6 +77,32 @@ func (_m *SourceState) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field api_token_encrypted", values[i])
 			} else if value.Valid {
 				_m.APITokenEncrypted = value.String
+			}
+		case sourcestate.FieldStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
+			} else if value.Valid {
+				_m.Status = value.String
+			}
+		case sourcestate.FieldLastSuccessAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field last_success_at", values[i])
+			} else if value.Valid {
+				_m.LastSuccessAt = new(time.Time)
+				*_m.LastSuccessAt = value.Time
+			}
+		case sourcestate.FieldLastError:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field last_error", values[i])
+			} else if value.Valid {
+				_m.LastError = value.String
+			}
+		case sourcestate.FieldLastErrorAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field last_error_at", values[i])
+			} else if value.Valid {
+				_m.LastErrorAt = new(time.Time)
+				*_m.LastErrorAt = value.Time
 			}
 		case sourcestate.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -118,6 +152,22 @@ func (_m *SourceState) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("api_token_encrypted=")
 	builder.WriteString(_m.APITokenEncrypted)
+	builder.WriteString(", ")
+	builder.WriteString("status=")
+	builder.WriteString(_m.Status)
+	builder.WriteString(", ")
+	if v := _m.LastSuccessAt; v != nil {
+		builder.WriteString("last_success_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("last_error=")
+	builder.WriteString(_m.LastError)
+	builder.WriteString(", ")
+	if v := _m.LastErrorAt; v != nil {
+		builder.WriteString("last_error_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteString(", ")
 	if v := _m.UpdatedAt; v != nil {
 		builder.WriteString("updated_at=")

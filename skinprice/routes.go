@@ -51,6 +51,30 @@ func (a *App) ClearLisSkinsToken() error {
 	return nil
 }
 
+func (a *App) GetPriceSourceStates() (presenterskins.PriceSourceStatesResponse, error) {
+	logger := logx.WithComponent(a.logger, "route")
+	logger.Info("get price source states requested")
+	response, err := a.skinsEndpoints.GetPriceSourceStates(a.requestContext())
+	if err != nil {
+		logRouteError(logger, "get price source states failed", err)
+		return presenterskins.PriceSourceStatesResponse{}, errx.FromError(err, "failed to load source states")
+	}
+	logger.Info("get price source states completed", slog.Int("items", len(response.Items)))
+	return response, nil
+}
+
+func (a *App) GetDiagnostics() (presenterskins.DiagnosticsResponse, error) {
+	logger := logx.WithComponent(a.logger, "route")
+	logger.Info("get diagnostics requested")
+	response, err := a.skinsEndpoints.GetDiagnostics(a.requestContext())
+	if err != nil {
+		logRouteError(logger, "get diagnostics failed", err)
+		return presenterskins.DiagnosticsResponse{}, errx.FromError(err, "failed to load diagnostics")
+	}
+	logger.Info("get diagnostics completed", slog.Int("sources", len(response.Sources)))
+	return response, nil
+}
+
 func (a *App) UpdateSavedSkinPrice(payload presenterskins.UpdateSavedSkinPriceRequest) (presenterskins.UpdateSavedSkinPriceResponse, error) {
 	logger := logx.WithComponent(a.logger, "route")
 	logger.Info("update saved skin price requested", slog.String("market_hash_name", payload.MarketHashName), slog.String("currency", payload.Currency))

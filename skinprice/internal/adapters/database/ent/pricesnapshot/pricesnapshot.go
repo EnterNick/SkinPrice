@@ -3,6 +3,8 @@
 package pricesnapshot
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
 )
 
@@ -11,6 +13,24 @@ const (
 	Label = "price_snapshot"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldMarketHashName holds the string denoting the market_hash_name field in the database.
+	FieldMarketHashName = "market_hash_name"
+	// FieldSource holds the string denoting the source field in the database.
+	FieldSource = "source"
+	// FieldSourceLabel holds the string denoting the source_label field in the database.
+	FieldSourceLabel = "source_label"
+	// FieldPageURL holds the string denoting the page_url field in the database.
+	FieldPageURL = "page_url"
+	// FieldPriceText holds the string denoting the price_text field in the database.
+	FieldPriceText = "price_text"
+	// FieldPriceCents holds the string denoting the price_cents field in the database.
+	FieldPriceCents = "price_cents"
+	// FieldCurrency holds the string denoting the currency field in the database.
+	FieldCurrency = "currency"
+	// FieldFetchedAt holds the string denoting the fetched_at field in the database.
+	FieldFetchedAt = "fetched_at"
+	// FieldMetadata holds the string denoting the metadata field in the database.
+	FieldMetadata = "metadata"
 	// Table holds the table name of the pricesnapshot in the database.
 	Table = "price_snapshots"
 )
@@ -18,6 +38,15 @@ const (
 // Columns holds all SQL columns for pricesnapshot fields.
 var Columns = []string{
 	FieldID,
+	FieldMarketHashName,
+	FieldSource,
+	FieldSourceLabel,
+	FieldPageURL,
+	FieldPriceText,
+	FieldPriceCents,
+	FieldCurrency,
+	FieldFetchedAt,
+	FieldMetadata,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -30,10 +59,78 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+var (
+	// DefaultMarketHashName holds the default value on creation for the "market_hash_name" field.
+	DefaultMarketHashName string
+	// MarketHashNameValidator is a validator for the "market_hash_name" field. It is called by the builders before save.
+	MarketHashNameValidator func(string) error
+	// DefaultSource holds the default value on creation for the "source" field.
+	DefaultSource string
+	// SourceValidator is a validator for the "source" field. It is called by the builders before save.
+	SourceValidator func(string) error
+	// DefaultSourceLabel holds the default value on creation for the "source_label" field.
+	DefaultSourceLabel string
+	// DefaultPageURL holds the default value on creation for the "page_url" field.
+	DefaultPageURL string
+	// DefaultPriceText holds the default value on creation for the "price_text" field.
+	DefaultPriceText string
+	// DefaultCurrency holds the default value on creation for the "currency" field.
+	DefaultCurrency string
+	// DefaultFetchedAt holds the default value on creation for the "fetched_at" field.
+	DefaultFetchedAt func() time.Time
+	// DefaultMetadata holds the default value on creation for the "metadata" field.
+	DefaultMetadata string
+)
+
 // OrderOption defines the ordering options for the PriceSnapshot queries.
 type OrderOption func(*sql.Selector)
 
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByMarketHashName orders the results by the market_hash_name field.
+func ByMarketHashName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMarketHashName, opts...).ToFunc()
+}
+
+// BySource orders the results by the source field.
+func BySource(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSource, opts...).ToFunc()
+}
+
+// BySourceLabel orders the results by the source_label field.
+func BySourceLabel(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSourceLabel, opts...).ToFunc()
+}
+
+// ByPageURL orders the results by the page_url field.
+func ByPageURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPageURL, opts...).ToFunc()
+}
+
+// ByPriceText orders the results by the price_text field.
+func ByPriceText(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPriceText, opts...).ToFunc()
+}
+
+// ByPriceCents orders the results by the price_cents field.
+func ByPriceCents(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPriceCents, opts...).ToFunc()
+}
+
+// ByCurrency orders the results by the currency field.
+func ByCurrency(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCurrency, opts...).ToFunc()
+}
+
+// ByFetchedAt orders the results by the fetched_at field.
+func ByFetchedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFetchedAt, opts...).ToFunc()
+}
+
+// ByMetadata orders the results by the metadata field.
+func ByMetadata(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMetadata, opts...).ToFunc()
 }

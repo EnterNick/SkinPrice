@@ -48,6 +48,62 @@ func (_c *SourceStateCreate) SetNillableAPITokenEncrypted(v *string) *SourceStat
 	return _c
 }
 
+// SetStatus sets the "status" field.
+func (_c *SourceStateCreate) SetStatus(v string) *SourceStateCreate {
+	_c.mutation.SetStatus(v)
+	return _c
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (_c *SourceStateCreate) SetNillableStatus(v *string) *SourceStateCreate {
+	if v != nil {
+		_c.SetStatus(*v)
+	}
+	return _c
+}
+
+// SetLastSuccessAt sets the "last_success_at" field.
+func (_c *SourceStateCreate) SetLastSuccessAt(v time.Time) *SourceStateCreate {
+	_c.mutation.SetLastSuccessAt(v)
+	return _c
+}
+
+// SetNillableLastSuccessAt sets the "last_success_at" field if the given value is not nil.
+func (_c *SourceStateCreate) SetNillableLastSuccessAt(v *time.Time) *SourceStateCreate {
+	if v != nil {
+		_c.SetLastSuccessAt(*v)
+	}
+	return _c
+}
+
+// SetLastError sets the "last_error" field.
+func (_c *SourceStateCreate) SetLastError(v string) *SourceStateCreate {
+	_c.mutation.SetLastError(v)
+	return _c
+}
+
+// SetNillableLastError sets the "last_error" field if the given value is not nil.
+func (_c *SourceStateCreate) SetNillableLastError(v *string) *SourceStateCreate {
+	if v != nil {
+		_c.SetLastError(*v)
+	}
+	return _c
+}
+
+// SetLastErrorAt sets the "last_error_at" field.
+func (_c *SourceStateCreate) SetLastErrorAt(v time.Time) *SourceStateCreate {
+	_c.mutation.SetLastErrorAt(v)
+	return _c
+}
+
+// SetNillableLastErrorAt sets the "last_error_at" field if the given value is not nil.
+func (_c *SourceStateCreate) SetNillableLastErrorAt(v *time.Time) *SourceStateCreate {
+	if v != nil {
+		_c.SetLastErrorAt(*v)
+	}
+	return _c
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (_c *SourceStateCreate) SetUpdatedAt(v time.Time) *SourceStateCreate {
 	_c.mutation.SetUpdatedAt(v)
@@ -105,6 +161,14 @@ func (_c *SourceStateCreate) defaults() {
 		v := sourcestate.DefaultAPITokenEncrypted
 		_c.mutation.SetAPITokenEncrypted(v)
 	}
+	if _, ok := _c.mutation.Status(); !ok {
+		v := sourcestate.DefaultStatus
+		_c.mutation.SetStatus(v)
+	}
+	if _, ok := _c.mutation.LastError(); !ok {
+		v := sourcestate.DefaultLastError
+		_c.mutation.SetLastError(v)
+	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := sourcestate.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
@@ -123,6 +187,12 @@ func (_c *SourceStateCreate) check() error {
 	}
 	if _, ok := _c.mutation.APITokenEncrypted(); !ok {
 		return &ValidationError{Name: "api_token_encrypted", err: errors.New(`ent: missing required field "SourceState.api_token_encrypted"`)}
+	}
+	if _, ok := _c.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "SourceState.status"`)}
+	}
+	if _, ok := _c.mutation.LastError(); !ok {
+		return &ValidationError{Name: "last_error", err: errors.New(`ent: missing required field "SourceState.last_error"`)}
 	}
 	return nil
 }
@@ -157,6 +227,22 @@ func (_c *SourceStateCreate) createSpec() (*SourceState, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.APITokenEncrypted(); ok {
 		_spec.SetField(sourcestate.FieldAPITokenEncrypted, field.TypeString, value)
 		_node.APITokenEncrypted = value
+	}
+	if value, ok := _c.mutation.Status(); ok {
+		_spec.SetField(sourcestate.FieldStatus, field.TypeString, value)
+		_node.Status = value
+	}
+	if value, ok := _c.mutation.LastSuccessAt(); ok {
+		_spec.SetField(sourcestate.FieldLastSuccessAt, field.TypeTime, value)
+		_node.LastSuccessAt = &value
+	}
+	if value, ok := _c.mutation.LastError(); ok {
+		_spec.SetField(sourcestate.FieldLastError, field.TypeString, value)
+		_node.LastError = value
+	}
+	if value, ok := _c.mutation.LastErrorAt(); ok {
+		_spec.SetField(sourcestate.FieldLastErrorAt, field.TypeTime, value)
+		_node.LastErrorAt = &value
 	}
 	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(sourcestate.FieldUpdatedAt, field.TypeTime, value)

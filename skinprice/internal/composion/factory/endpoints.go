@@ -14,6 +14,7 @@ import (
 	presenterskins "SkinPrice/skinprice/internal/presenters/skins"
 	"SkinPrice/skinprice/internal/shared/logx"
 	sharedcrypto "SkinPrice/skinprice/internal/shared/utils/crypto"
+	"context"
 )
 
 func (f *Factory) buildEndpoints() error {
@@ -36,25 +37,35 @@ func (f *Factory) buildEndpoints() error {
 	searchNewSkinsUC := skins.SearchNewSkins{Storage: steamStorage}
 	saveSkinUC := skins.SaveSkin{Repository: savedSkinsRepository, LisSkinsPages: lisSkinsStorage, CSTMPages: cstmStorage}
 	getSavedSkinsUC := skins.GetSavedSkins{Repository: savedSkinsRepository}
+	sourceStateStorage := &adapterdbsourcestate.Storage{Conn: f.dbConnection}
 	priceCollector := skins.DefaultSavedSkinPriceCollector{
-		SteamSource:    steamStorage,
-		LisSkinsSource: lisSkinsStorage,
-		CSTMSource:     cstmStorage,
-		LisSkinsPages:  lisSkinsStorage,
-		CSTMPages:      cstmStorage,
+		Sources: []skins.PriceSource{
+			skins.ReaderPriceSource{SourceID: "steam", SourceLabel: "Steam", Reader: steamStorage},
+			skins.ReaderPriceSource{SourceID: "lisskins", SourceLabel: "LisSkins", Reader: lisSkinsStorage, Pages: lisSkinsStorage, CurrencyOverride: skins.LisSkinsCurrency},
+			skins.ReaderPriceSource{SourceID: "cstm", SourceLabel: "CS TM", Reader: cstmStorage, Pages: cstmStorage},
+		},
+		SourceState: sourceStateStorage,
 	}
 	updateSavedSkinPriceUC := skins.UpdateSavedSkinPrice{
 		Repository: savedSkinsRepository,
 		Collector:  priceCollector,
 	}
+	refreshQueue := skins.NewRefreshQueue(updateSavedSkinPriceUC)
+	refreshCtx, refreshCancel := context.WithCancel(context.Background())
+	refreshQueue.Run(refreshCtx)
+	f.refreshQueue = refreshQueue
+	f.refreshCancel = refreshCancel
+	queuedUpdateSavedSkinPriceUC := skins.QueuedSavedSkinPriceUpdater{
+		Queue: refreshQueue,
+		Kind:  skins.RefreshTaskManual,
+	}
 	updateAllSavedSkinsPricesUC := skins.UpdateAllSavedSkinsPrices{
 		Repository:       savedSkinsRepository,
-		UpdateOne:        updateSavedSkinPriceUC,
+		UpdateOne:        queuedUpdateSavedSkinPriceUC,
 		BatchUpdateDelay: cfg.BulkPriceUpdateDelay,
 	}
 	deleteSavedSkinUC := skins.DeleteSavedSkin{Repository: savedSkinsRepository}
 
-	sourceStateStorage := &adapterdbsourcestate.Storage{Conn: f.dbConnection}
 	tokenCipher, err := f.buildTokenCipher(cfg)
 	if err != nil {
 		return err
@@ -69,16 +80,26 @@ func (f *Factory) buildEndpoints() error {
 	getAppSettingsUC := appsettings.GetAppSettings{Storage: appSettingsStorage}
 	saveAppSettingsUC := appsettings.SaveAppSettings{Storage: appSettingsStorage}
 
+	getSourceStatesUC := skins.ListSourceStates{Storage: sourceStateStorage}
+	getDiagnosticsUC := skins.GetDiagnostics{
+		SourceStates: sourceStateStorage,
+		Version:      "dev",
+		DatabasePath: f.dbConnection.DatabasePath(),
+		LogPath:      cfg.LogFilePath,
+	}
+
 	f.skinsEndpoints = presenterskins.NewEndpoints(presenterskins.EndpointDeps{
 		SearchNewSkins:            searchNewSkinsUC,
 		SaveSkin:                  saveSkinUC,
 		GetSavedSkins:             getSavedSkinsUC,
-		UpdateSavedSkinPrice:      updateSavedSkinPriceUC,
+		UpdateSavedSkinPrice:      queuedUpdateSavedSkinPriceUC,
 		UpdateAllSavedSkinsPrices: updateAllSavedSkinsPricesUC,
 		DeleteSavedSkin:           deleteSavedSkinUC,
 		SaveLisSkinsToken:         saveLisSkinsTokenUC,
 		HasLisSkinsToken:          hasLisSkinsTokenUC,
 		ClearLisSkinsToken:        clearLisSkinsTokenUC,
+		GetPriceSourceStates:      getSourceStatesUC,
+		GetDiagnostics:            getDiagnosticsUC,
 	})
 	f.settingsEndpoints = presentersettings.NewEndpoints(presentersettings.EndpointDeps{
 		GetAppSettings:  getAppSettingsUC,

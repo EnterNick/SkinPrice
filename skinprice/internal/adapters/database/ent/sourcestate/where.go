@@ -64,6 +64,26 @@ func APITokenEncrypted(v string) predicate.SourceState {
 	return predicate.SourceState(sql.FieldEQ(FieldAPITokenEncrypted, v))
 }
 
+// Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
+func Status(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldEQ(FieldStatus, v))
+}
+
+// LastSuccessAt applies equality check predicate on the "last_success_at" field. It's identical to LastSuccessAtEQ.
+func LastSuccessAt(v time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldEQ(FieldLastSuccessAt, v))
+}
+
+// LastError applies equality check predicate on the "last_error" field. It's identical to LastErrorEQ.
+func LastError(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldEQ(FieldLastError, v))
+}
+
+// LastErrorAt applies equality check predicate on the "last_error_at" field. It's identical to LastErrorAtEQ.
+func LastErrorAt(v time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldEQ(FieldLastErrorAt, v))
+}
+
 // UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
 func UpdatedAt(v time.Time) predicate.SourceState {
 	return predicate.SourceState(sql.FieldEQ(FieldUpdatedAt, v))
@@ -197,6 +217,236 @@ func APITokenEncryptedEqualFold(v string) predicate.SourceState {
 // APITokenEncryptedContainsFold applies the ContainsFold predicate on the "api_token_encrypted" field.
 func APITokenEncryptedContainsFold(v string) predicate.SourceState {
 	return predicate.SourceState(sql.FieldContainsFold(FieldAPITokenEncrypted, v))
+}
+
+// StatusEQ applies the EQ predicate on the "status" field.
+func StatusEQ(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldEQ(FieldStatus, v))
+}
+
+// StatusNEQ applies the NEQ predicate on the "status" field.
+func StatusNEQ(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldNEQ(FieldStatus, v))
+}
+
+// StatusIn applies the In predicate on the "status" field.
+func StatusIn(vs ...string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldIn(FieldStatus, vs...))
+}
+
+// StatusNotIn applies the NotIn predicate on the "status" field.
+func StatusNotIn(vs ...string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldNotIn(FieldStatus, vs...))
+}
+
+// StatusGT applies the GT predicate on the "status" field.
+func StatusGT(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldGT(FieldStatus, v))
+}
+
+// StatusGTE applies the GTE predicate on the "status" field.
+func StatusGTE(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldGTE(FieldStatus, v))
+}
+
+// StatusLT applies the LT predicate on the "status" field.
+func StatusLT(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldLT(FieldStatus, v))
+}
+
+// StatusLTE applies the LTE predicate on the "status" field.
+func StatusLTE(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldLTE(FieldStatus, v))
+}
+
+// StatusContains applies the Contains predicate on the "status" field.
+func StatusContains(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldContains(FieldStatus, v))
+}
+
+// StatusHasPrefix applies the HasPrefix predicate on the "status" field.
+func StatusHasPrefix(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldHasPrefix(FieldStatus, v))
+}
+
+// StatusHasSuffix applies the HasSuffix predicate on the "status" field.
+func StatusHasSuffix(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldHasSuffix(FieldStatus, v))
+}
+
+// StatusEqualFold applies the EqualFold predicate on the "status" field.
+func StatusEqualFold(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldEqualFold(FieldStatus, v))
+}
+
+// StatusContainsFold applies the ContainsFold predicate on the "status" field.
+func StatusContainsFold(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldContainsFold(FieldStatus, v))
+}
+
+// LastSuccessAtEQ applies the EQ predicate on the "last_success_at" field.
+func LastSuccessAtEQ(v time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldEQ(FieldLastSuccessAt, v))
+}
+
+// LastSuccessAtNEQ applies the NEQ predicate on the "last_success_at" field.
+func LastSuccessAtNEQ(v time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldNEQ(FieldLastSuccessAt, v))
+}
+
+// LastSuccessAtIn applies the In predicate on the "last_success_at" field.
+func LastSuccessAtIn(vs ...time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldIn(FieldLastSuccessAt, vs...))
+}
+
+// LastSuccessAtNotIn applies the NotIn predicate on the "last_success_at" field.
+func LastSuccessAtNotIn(vs ...time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldNotIn(FieldLastSuccessAt, vs...))
+}
+
+// LastSuccessAtGT applies the GT predicate on the "last_success_at" field.
+func LastSuccessAtGT(v time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldGT(FieldLastSuccessAt, v))
+}
+
+// LastSuccessAtGTE applies the GTE predicate on the "last_success_at" field.
+func LastSuccessAtGTE(v time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldGTE(FieldLastSuccessAt, v))
+}
+
+// LastSuccessAtLT applies the LT predicate on the "last_success_at" field.
+func LastSuccessAtLT(v time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldLT(FieldLastSuccessAt, v))
+}
+
+// LastSuccessAtLTE applies the LTE predicate on the "last_success_at" field.
+func LastSuccessAtLTE(v time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldLTE(FieldLastSuccessAt, v))
+}
+
+// LastSuccessAtIsNil applies the IsNil predicate on the "last_success_at" field.
+func LastSuccessAtIsNil() predicate.SourceState {
+	return predicate.SourceState(sql.FieldIsNull(FieldLastSuccessAt))
+}
+
+// LastSuccessAtNotNil applies the NotNil predicate on the "last_success_at" field.
+func LastSuccessAtNotNil() predicate.SourceState {
+	return predicate.SourceState(sql.FieldNotNull(FieldLastSuccessAt))
+}
+
+// LastErrorEQ applies the EQ predicate on the "last_error" field.
+func LastErrorEQ(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldEQ(FieldLastError, v))
+}
+
+// LastErrorNEQ applies the NEQ predicate on the "last_error" field.
+func LastErrorNEQ(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldNEQ(FieldLastError, v))
+}
+
+// LastErrorIn applies the In predicate on the "last_error" field.
+func LastErrorIn(vs ...string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldIn(FieldLastError, vs...))
+}
+
+// LastErrorNotIn applies the NotIn predicate on the "last_error" field.
+func LastErrorNotIn(vs ...string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldNotIn(FieldLastError, vs...))
+}
+
+// LastErrorGT applies the GT predicate on the "last_error" field.
+func LastErrorGT(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldGT(FieldLastError, v))
+}
+
+// LastErrorGTE applies the GTE predicate on the "last_error" field.
+func LastErrorGTE(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldGTE(FieldLastError, v))
+}
+
+// LastErrorLT applies the LT predicate on the "last_error" field.
+func LastErrorLT(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldLT(FieldLastError, v))
+}
+
+// LastErrorLTE applies the LTE predicate on the "last_error" field.
+func LastErrorLTE(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldLTE(FieldLastError, v))
+}
+
+// LastErrorContains applies the Contains predicate on the "last_error" field.
+func LastErrorContains(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldContains(FieldLastError, v))
+}
+
+// LastErrorHasPrefix applies the HasPrefix predicate on the "last_error" field.
+func LastErrorHasPrefix(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldHasPrefix(FieldLastError, v))
+}
+
+// LastErrorHasSuffix applies the HasSuffix predicate on the "last_error" field.
+func LastErrorHasSuffix(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldHasSuffix(FieldLastError, v))
+}
+
+// LastErrorEqualFold applies the EqualFold predicate on the "last_error" field.
+func LastErrorEqualFold(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldEqualFold(FieldLastError, v))
+}
+
+// LastErrorContainsFold applies the ContainsFold predicate on the "last_error" field.
+func LastErrorContainsFold(v string) predicate.SourceState {
+	return predicate.SourceState(sql.FieldContainsFold(FieldLastError, v))
+}
+
+// LastErrorAtEQ applies the EQ predicate on the "last_error_at" field.
+func LastErrorAtEQ(v time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldEQ(FieldLastErrorAt, v))
+}
+
+// LastErrorAtNEQ applies the NEQ predicate on the "last_error_at" field.
+func LastErrorAtNEQ(v time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldNEQ(FieldLastErrorAt, v))
+}
+
+// LastErrorAtIn applies the In predicate on the "last_error_at" field.
+func LastErrorAtIn(vs ...time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldIn(FieldLastErrorAt, vs...))
+}
+
+// LastErrorAtNotIn applies the NotIn predicate on the "last_error_at" field.
+func LastErrorAtNotIn(vs ...time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldNotIn(FieldLastErrorAt, vs...))
+}
+
+// LastErrorAtGT applies the GT predicate on the "last_error_at" field.
+func LastErrorAtGT(v time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldGT(FieldLastErrorAt, v))
+}
+
+// LastErrorAtGTE applies the GTE predicate on the "last_error_at" field.
+func LastErrorAtGTE(v time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldGTE(FieldLastErrorAt, v))
+}
+
+// LastErrorAtLT applies the LT predicate on the "last_error_at" field.
+func LastErrorAtLT(v time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldLT(FieldLastErrorAt, v))
+}
+
+// LastErrorAtLTE applies the LTE predicate on the "last_error_at" field.
+func LastErrorAtLTE(v time.Time) predicate.SourceState {
+	return predicate.SourceState(sql.FieldLTE(FieldLastErrorAt, v))
+}
+
+// LastErrorAtIsNil applies the IsNil predicate on the "last_error_at" field.
+func LastErrorAtIsNil() predicate.SourceState {
+	return predicate.SourceState(sql.FieldIsNull(FieldLastErrorAt))
+}
+
+// LastErrorAtNotNil applies the NotNil predicate on the "last_error_at" field.
+func LastErrorAtNotNil() predicate.SourceState {
+	return predicate.SourceState(sql.FieldNotNull(FieldLastErrorAt))
 }
 
 // UpdatedAtEQ applies the EQ predicate on the "updated_at" field.

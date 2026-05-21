@@ -258,6 +258,18 @@ func (_q *PriceSnapshotQuery) Clone() *PriceSnapshotQuery {
 
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		MarketHashName string `json:"market_hash_name,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.PriceSnapshot.Query().
+//		GroupBy(pricesnapshot.FieldMarketHashName).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
 func (_q *PriceSnapshotQuery) GroupBy(field string, fields ...string) *PriceSnapshotGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
 	grbuild := &PriceSnapshotGroupBy{build: _q}
@@ -269,6 +281,16 @@ func (_q *PriceSnapshotQuery) GroupBy(field string, fields ...string) *PriceSnap
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		MarketHashName string `json:"market_hash_name,omitempty"`
+//	}
+//
+//	client.PriceSnapshot.Query().
+//		Select(pricesnapshot.FieldMarketHashName).
+//		Scan(ctx, &v)
 func (_q *PriceSnapshotQuery) Select(fields ...string) *PriceSnapshotSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
 	sbuild := &PriceSnapshotSelect{PriceSnapshotQuery: _q}

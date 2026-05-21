@@ -17,46 +17,103 @@
           "title": "Универсальная модель источников цен",
           "description": "1. Ввести общий интерфейс PriceSource\n2. Перевести Steam и LisSkins на общий контракт\n3. Убрать жёсткую привязку UI к двум источникам",
           "order": 0,
-          "status": "todo",
+          "status": "done",
           "priority": "high",
           "createdAt": "2026-05-21T12:00:00.000Z",
-          "updatedAt": "2026-05-21T12:00:00.000Z"
+          "updatedAt": "2026-05-21T12:04:30.562Z",
+          "completedAt": "2026-05-21T12:04:30.562Z"
         },
         {
           "id": "27ab5a7e-6c7b-4f62-930b-4bcb833680cc",
           "title": "Миграции локальной БД",
           "description": "1. Подключить механизм миграций SQLite/ent\n2. Добавить таблицу schema_migrations\n3. Подготовить первые миграции для текущих сущностей",
           "order": 1,
-          "status": "todo",
+          "status": "done",
           "priority": "high",
           "createdAt": "2026-05-21T12:00:00.000Z",
-          "updatedAt": "2026-05-21T12:00:00.000Z"
+          "updatedAt": "2026-05-21T12:04:31.235Z",
+          "completedAt": "2026-05-21T12:04:31.235Z"
         },
         {
           "id": "50accc68-c134-4a21-956f-d544e36d1132",
           "title": "Статусы источников данных",
           "description": "1. Добавить SourceState\n2. Хранить последний успешный sync\n3. Хранить последнюю ошибку источника\n4. Отображать статус в UI",
           "order": 2,
-          "status": "todo",
+          "status": "done",
           "priority": "high",
           "createdAt": "2026-05-21T12:00:00.000Z",
-          "updatedAt": "2026-05-21T12:00:00.000Z"
+          "updatedAt": "2026-05-21T12:04:32.284Z",
+          "completedAt": "2026-05-21T12:04:32.284Z"
         },
         {
           "id": "68802afc-7ae6-42a8-9e78-f3c399c4b442",
           "title": "Очередь обновления цен",
           "description": "1. Добавить RefreshQueue\n2. Разделить ручное и автоматическое обновление\n3. Добавить приоритеты задач\n4. Добавить отмену задач при закрытии приложения",
           "order": 3,
-          "status": "todo",
+          "status": "done",
           "priority": "high",
           "createdAt": "2026-05-21T12:00:00.000Z",
-          "updatedAt": "2026-05-21T12:00:00.000Z"
+          "updatedAt": "2026-05-21T12:04:34.984Z",
+          "completedAt": "2026-05-21T12:04:34.984Z"
         },
         {
           "id": "bf2851ab-ab13-4c86-be5b-96576590bae5",
           "title": "Диагностика и логи",
           "description": "1. Настроить структурные логи\n2. Добавить экран/секцию диагностики\n3. Показывать версию приложения, путь до БД и последние ошибки",
           "order": 4,
+          "status": "done",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:04:35.700Z",
+          "completedAt": "2026-05-21T12:04:35.700Z"
+        }
+      ],
+      "createdAt": "2026-05-21T12:00:00.000Z",
+      "updatedAt": "2026-05-21T12:04:35.700Z"
+    },
+    {
+      "id": "5e8ea31b-050a-4ba4-ad41-df54172c9267",
+      "title": "Главная страница с N источниками",
+      "description": "Переработать главную таблицу так, чтобы она поддерживала любое количество источников цен.",
+      "order": 1,
+      "status": "todo",
+      "priority": "high",
+      "items": [
+        {
+          "id": "f24228f2-4490-481f-858f-d8909a29a164",
+          "title": "Отображение N источников на главной",
+          "description": "1. Сделать динамические колонки источников\n2. Поддержать Steam, LisSkins и CsTm",
+          "order": 0,
+          "status": "todo",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T11:55:09.255Z"
+        },
+        {
+          "id": "237e9fe9-b471-45c5-81af-93dc07629b0b",
+          "title": "Вкладка \"sell price\"",
+          "description": "1. Сделать переключатель на главной странице (Купить/Продать)\nОпределить best sell price, если доступно (Только для CS TM, Steam)\n2. Подсветить лучший вариант в таблице",
+          "order": 1,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T11:57:42.599Z",
+          "updatedAt": "2026-05-21T12:17:36.165Z"
+        },
+        {
+          "id": "95f90e54-bde0-4563-a6d9-43ed15ad27ff",
+          "title": "Расчёт лучшей цены",
+          "description": "1. Определить best buy price\n2. Подсветить лучший источник в таблице",
+          "order": 2,
+          "status": "todo",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T11:58:00.481Z"
+        },
+        {
+          "id": "66cdd39d-387f-48b5-ad51-ef0c103ce065",
+          "title": "Расчёт spread между площадками",
+          "description": "1. Добавить абсолютную разницу\n2. Добавить процентную разницу\n3. Добавить сортировку по spread",
+          "order": 3,
           "status": "todo",
           "priority": "high",
           "createdAt": "2026-05-21T12:00:00.000Z",
@@ -64,13 +121,57 @@
         }
       ],
       "createdAt": "2026-05-21T12:00:00.000Z",
-      "updatedAt": "2026-05-21T12:00:00.000Z"
+      "updatedAt": "2026-05-21T12:17:36.165Z"
+    },
+    {
+      "id": "50a67c6b-d0a4-4e7f-8fd0-8dcc5128749a",
+      "title": "Интеграция с CsTm",
+      "description": "Добавить market.csgo.com / CsTm как третий источник цен.",
+      "order": 2,
+      "status": "todo",
+      "priority": "high",
+      "items": [
+        {
+          "id": "66bf5a43-7b89-4a89-8968-4434779f2f42",
+          "title": "Реализовать CsTm adapter",
+          "description": "1. Добавить HTTP-клиент\n2. Реализовать получение цены по market_hash_name\n3. Нормализовать ответ к PriceQuote",
+          "order": 0,
+          "status": "done",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T11:40:21.000Z",
+          "completedAt": "2026-05-21T11:40:21.000Z"
+        },
+        {
+          "id": "598c85de-e3f6-4448-a33e-27c79951f7b1",
+          "title": "Добавить обработку ошибок CsTm",
+          "description": "1. Обработать invalid token\n2. Обработать rate limit\n3. Обработать недоступность API\n4. Записывать ошибки в SourceState",
+          "order": 1,
+          "status": "todo",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "bb9bf044-2f13-4d80-9ca1-4a90fc84d3be",
+          "title": "Добавить тесты CsTm adapter",
+          "description": "1. Подготовить mock responses\n2. Проверить успешный ответ\n3. Проверить ошибки API\n4. Проверить нормализацию валюты и цены",
+          "order": 2,
+          "status": "done",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T11:40:21.000Z",
+          "completedAt": "2026-05-21T11:40:21.000Z"
+        }
+      ],
+      "createdAt": "2026-05-21T12:00:00.000Z",
+      "updatedAt": "2026-05-21T11:40:21.000Z"
     },
     {
       "id": "42a031cb-85c4-46a5-a34e-4b7c38bd1d0c",
       "title": "Сохранение истории цен",
       "description": "Начать сохранять price snapshots для последующей аналитики, графиков и расчёта min/max.",
-      "order": 1,
+      "order": 3,
       "status": "todo",
       "priority": "high",
       "items": [
@@ -108,100 +209,6 @@
           "id": "8a37a9cf-bea6-4a05-b94e-78c5ac1f39ba",
           "title": "Добавить политику хранения истории",
           "description": "1. Определить срок хранения сырых snapshots\n2. Добавить очистку старых данных\n3. Подготовить основу для дневных агрегатов",
-          "order": 3,
-          "status": "todo",
-          "priority": "high",
-          "createdAt": "2026-05-21T12:00:00.000Z",
-          "updatedAt": "2026-05-21T12:00:00.000Z"
-        }
-      ],
-      "createdAt": "2026-05-21T12:00:00.000Z",
-      "updatedAt": "2026-05-21T12:00:00.000Z"
-    },
-    {
-      "id": "50a67c6b-d0a4-4e7f-8fd0-8dcc5128749a",
-      "title": "Интеграция с CsTm",
-      "description": "Добавить market.csgo.com / CsTm как третий источник цен.",
-      "order": 2,
-      "status": "todo",
-      "priority": "high",
-      "items": [
-        {
-          "id": "66bf5a43-7b89-4a89-8968-4434779f2f42",
-          "title": "Реализовать CsTm adapter",
-          "description": "1. Добавить HTTP-клиент\n2. Реализовать получение цены по market_hash_name\n3. Нормализовать ответ к PriceQuote",
-          "order": 0,
-          "status": "done",
-          "priority": "high",
-          "createdAt": "2026-05-21T12:00:00.000Z",
-          "updatedAt": "2026-05-21T11:40:21.000Z"
-        },
-        {
-          "id": "598c85de-e3f6-4448-a33e-27c79951f7b1",
-          "title": "Добавить обработку ошибок CsTm",
-          "description": "1. Обработать invalid token\n2. Обработать rate limit\n3. Обработать недоступность API\n4. Записывать ошибки в SourceState",
-          "order": 1,
-          "status": "todo",
-          "priority": "high",
-          "createdAt": "2026-05-21T12:00:00.000Z",
-          "updatedAt": "2026-05-21T12:00:00.000Z"
-        },
-        {
-          "id": "bb9bf044-2f13-4d80-9ca1-4a90fc84d3be",
-          "title": "Добавить тесты CsTm adapter",
-          "description": "1. Подготовить mock responses\n2. Проверить успешный ответ\n3. Проверить ошибки API\n4. Проверить нормализацию валюты и цены",
-          "order": 2,
-          "status": "done",
-          "priority": "high",
-          "createdAt": "2026-05-21T12:00:00.000Z",
-          "updatedAt": "2026-05-21T11:40:21.000Z"
-        }
-      ],
-      "createdAt": "2026-05-21T12:00:00.000Z",
-      "updatedAt": "2026-05-21T11:40:21.000Z"
-    },
-    {
-      "id": "5e8ea31b-050a-4ba4-ad41-df54172c9267",
-      "title": "Главная страница с N источниками",
-      "description": "Переработать главную таблицу так, чтобы она поддерживала любое количество источников цен.",
-      "order": 3,
-      "status": "todo",
-      "priority": "high",
-      "items": [
-        {
-          "id": "f24228f2-4490-481f-858f-d8909a29a164",
-          "title": "Отображение N источников на главной",
-          "description": "1. Сделать динамические колонки источников\n2. Поддержать Steam, LisSkins и CsTm\n3. Корректно показывать отсутствие цены",
-          "order": 0,
-          "status": "todo",
-          "priority": "high",
-          "createdAt": "2026-05-21T12:00:00.000Z",
-          "updatedAt": "2026-05-21T12:00:00.000Z"
-        },
-        {
-          "id": "95f90e54-bde0-4563-a6d9-43ed15ad27ff",
-          "title": "Расчёт лучшей цены",
-          "description": "1. Определить best buy price\n2. Определить best sell price, если доступно\n3. Подсветить лучший источник в таблице",
-          "order": 1,
-          "status": "todo",
-          "priority": "high",
-          "createdAt": "2026-05-21T12:00:00.000Z",
-          "updatedAt": "2026-05-21T12:00:00.000Z"
-        },
-        {
-          "id": "66cdd39d-387f-48b5-ad51-ef0c103ce065",
-          "title": "Расчёт spread между площадками",
-          "description": "1. Добавить абсолютную разницу\n2. Добавить процентную разницу\n3. Добавить сортировку по spread",
-          "order": 2,
-          "status": "todo",
-          "priority": "high",
-          "createdAt": "2026-05-21T12:00:00.000Z",
-          "updatedAt": "2026-05-21T12:00:00.000Z"
-        },
-        {
-          "id": "4c016389-32dc-4bbf-a68f-fe50b598a215",
-          "title": "Улучшенные фильтры и сортировка",
-          "description": "1. Добавить фильтр по источнику\n2. Добавить фильтр по статусу данных\n3. Добавить сортировку по цене, spread и updated_at",
           "order": 3,
           "status": "todo",
           "priority": "high",
@@ -732,5 +739,5 @@
     }
   ],
   "createdAt": "2026-05-21T11:32:30.450Z",
-  "updatedAt": "2026-05-21T11:40:21.000Z"
+  "updatedAt": "2026-05-21T12:17:36.165Z"
 }

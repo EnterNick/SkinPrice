@@ -10,6 +10,10 @@ export function DeleteSavedSkin(arg1:skins.DeleteSavedSkinRequest):Promise<void>
 
 export function GetAppSettings():Promise<settings.AppSettingsResponse>;
 
+export function GetDiagnostics():Promise<skins.DiagnosticsResponse>;
+
+export function GetPriceSourceStates():Promise<skins.PriceSourceStatesResponse>;
+
 export function GetSavedSkins(arg1:skins.GetSavedSkinsFilter):Promise<skins.SavedSkinsResponse>;
 
 export function HasLisSkinsToken():Promise<skins.LisSkinsTokenStatusResponse>;

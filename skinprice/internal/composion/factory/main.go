@@ -2,9 +2,11 @@ package factory
 
 import (
 	"SkinPrice/skinprice/internal/adapters/database"
+	"SkinPrice/skinprice/internal/application/skins"
 	presentersettings "SkinPrice/skinprice/internal/presenters/settings"
 	presenterskins "SkinPrice/skinprice/internal/presenters/skins"
 	"SkinPrice/skinprice/internal/shared/logx"
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -14,6 +16,8 @@ type Factory struct {
 	dbConnection      *database.Connection
 	skinsEndpoints    *presenterskins.Endpoints
 	settingsEndpoints *presentersettings.Endpoints
+	refreshQueue      *skins.DefaultRefreshQueue
+	refreshCancel     context.CancelFunc
 	logger            *slog.Logger
 }
 
@@ -44,6 +48,12 @@ func NewFactory(logger *slog.Logger) (*Factory, error) {
 func (f *Factory) Close() error {
 	var closeErr error
 
+	if f.refreshQueue != nil {
+		if f.refreshCancel != nil {
+			f.refreshCancel()
+		}
+		f.refreshQueue.Shutdown()
+	}
 	if f.dbConnection != nil {
 		if err := f.dbConnection.Close(); err != nil {
 			f.logger.Error("failed to close database connection", logx.ErrAttrs(err)...)

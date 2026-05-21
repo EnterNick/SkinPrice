@@ -1,4 +1,4 @@
-import { ClearLisSkinsToken, DeleteSavedSkin, GetAppSettings, GetSavedSkins, HasLisSkinsToken, SaveAppSettings, SaveSkin, SearchNewSkins, SetLisSkinsToken, UpdateAllSavedSkinsPrices, UpdateSavedSkinPrice } from "../../../wailsjs/go/main/App";
+import { ClearLisSkinsToken, DeleteSavedSkin, GetAppSettings, GetDiagnostics, GetSavedSkins, HasLisSkinsToken, SaveAppSettings, SaveSkin, SearchNewSkins, SetLisSkinsToken, UpdateAllSavedSkinsPrices, UpdateSavedSkinPrice } from "../../../wailsjs/go/main/App";
 import type { skins } from "../../../wailsjs/go/models";
 import { toApiError } from "../../../shared/api/errors";
 import {
@@ -14,10 +14,12 @@ import { applyTypographySettings } from "../../../shared/lib/settings/appTypogra
 import { toSkinNameColor } from "../../../shared/lib/skinNameColor";
 import type {
   BulkPriceUpdateResult,
+  Diagnostics,
   FontFamilyOptionValue,
   NewSkin,
   NewSkinsSearchParams,
   PaginatedResult,
+  PriceSnapshot,
   PriceUpdateResult,
   SaveSkinResult,
   SavedSkin,
@@ -43,10 +45,28 @@ const normalizeImageUrl = (imageUrl?: string, pageUrl?: string): string => {
   return `https://community.akamai.steamstatic.com/economy/image/${imageUrl}`;
 };
 
+const SOURCE_LABELS: Record<string, string> = {
+  steam: "Steam",
+  lisskins: "LisSkins",
+  cstm: "CS TM",
+};
+
+const mapPriceSnapshot = (item: skins.PriceSnapshotItem): PriceSnapshot => ({
+  source: item.source,
+  sourceLabel: item.source_label || SOURCE_LABELS[item.source] || item.source,
+  pageUrl: item.page_url,
+  priceText: item.price_text,
+  priceCents: item.price_cents,
+  currency: normalizeCurrency(item.currency),
+  fetchedAt: item.fetched_at,
+  status: item.status,
+});
+
 const mapSavedSkin = (item: skins.SavedSkinItem): SavedSkin => {
   const steamPageUrl = item.steam_page_url;
   const lisSkinsPageUrl = item.lisskins_page_url;
   const csTmPageUrl = item.cstm_page_url;
+  const prices = (item.prices ?? []).map(mapPriceSnapshot);
 
   return {
     id: item.market_hash_name,
@@ -66,6 +86,7 @@ const mapSavedSkin = (item: skins.SavedSkinItem): SavedSkin => {
     lisSkinsUpdatedAt: item.lisskins_updated_at,
     csTmPriceText: item.cstm_price_text,
     csTmUpdatedAt: item.cstm_updated_at,
+    prices,
   };
 };
 
@@ -81,6 +102,7 @@ const mapNewSkin = (item: skins.NewSkinItem): NewSkin => ({
   priceText: item.price_text,
   priceCents: item.price_cents,
   sellListings: item.sell_listings,
+  prices: [],
 });
 
 const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> => {
@@ -211,6 +233,7 @@ export const updateSkinPrice = async (skinId: string, currency: SavedSkinCurrenc
       csTmPriceText: response.cstm_price_text,
       csTmUpdatedAt: response.cstm_updated_at,
       currency: normalizeCurrency(response.currency),
+      prices: (response.prices ?? []).map(mapPriceSnapshot),
     };
   } catch (err) {
     logClientEvent("error", "updateSkinPrice failed", "skinApi", {
@@ -271,6 +294,31 @@ export const deleteSavedSkin = async (skinId: string): Promise<void> => {
     logClientEvent("error", "deleteSavedSkin failed", "skinApi", {
       operation: "deleteSavedSkin",
       skinId,
+      error: err instanceof Error ? err.message : String(err ?? ""),
+    });
+    throw toApiError(err);
+  }
+};
+
+export const getDiagnostics = async (): Promise<Diagnostics> => {
+  try {
+    const response = await GetDiagnostics();
+    return {
+      version: response.version,
+      databasePath: response.database_path,
+      logPath: response.log_path,
+      sources: (response.sources ?? []).map((source) => ({
+        source: source.source,
+        status: source.status,
+        lastSuccessAt: source.last_success_at,
+        lastError: source.last_error,
+        lastErrorAt: source.last_error_at,
+        updatedAt: source.updated_at,
+      })),
+    };
+  } catch (err) {
+    logClientEvent("error", "getDiagnostics failed", "skinApi", {
+      operation: "getDiagnostics",
       error: err instanceof Error ? err.message : String(err ?? ""),
     });
     throw toApiError(err);

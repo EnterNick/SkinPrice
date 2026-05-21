@@ -3,6 +3,7 @@ package skins
 import (
 	"SkinPrice/skinprice/internal/adapters/database"
 	"SkinPrice/skinprice/internal/adapters/database/ent"
+	entpricesnapshot "SkinPrice/skinprice/internal/adapters/database/ent/pricesnapshot"
 	entskin "SkinPrice/skinprice/internal/adapters/database/ent/skin"
 	"SkinPrice/skinprice/internal/application"
 	appskins "SkinPrice/skinprice/internal/application/skins"
@@ -53,8 +54,16 @@ func (s *Storage) GetSavedList(ctx context.Context, params *application.Paginati
 	}
 
 	result := make([]appskins.SavedSkin, 0, len(items))
+	names := make([]string, 0, len(items))
 	for _, item := range items {
-		result = append(result, mapSavedSkin(item))
+		names = append(names, item.MarketHashName)
+	}
+	latestByName, err := s.latestSnapshotsBySkin(ctx, names)
+	if err != nil {
+		return appskins.SavedSkinsList{}, err
+	}
+	for _, item := range items {
+		result = append(result, mapSavedSkin(item, latestByName[item.MarketHashName]))
 	}
 	return appskins.SavedSkinsList{Items: result, TotalCount: totalCount, Offset: params.Offset, Limit: params.Limit}, nil
 }
@@ -69,7 +78,11 @@ func (s *Storage) GetSavedSkin(ctx context.Context, marketHashName string) (apps
 		}
 		return appskins.SavedSkin{}, errx.E("skins.repository.get", errx.CodeInternal, "failed to load saved skin", err)
 	}
-	return mapSavedSkin(item), nil
+	latestByName, err := s.latestSnapshotsBySkin(ctx, []string{marketHashName})
+	if err != nil {
+		return appskins.SavedSkin{}, err
+	}
+	return mapSavedSkin(item, latestByName[marketHashName]), nil
 }
 
 func (s *Storage) ListSavedSkinNames(ctx context.Context) ([]string, error) {
@@ -107,6 +120,30 @@ func (s *Storage) UpdateSavedSkinPrices(ctx context.Context, params appskins.Upd
 	if count == 0 {
 		return errx.E("skins.repository.update_prices.not_found", errx.CodeNotFound, "saved skin not found", nil)
 	}
+	for _, snapshot := range params.Prices {
+		if snapshot.Source == "" {
+			continue
+		}
+		fetchedAt := snapshot.FetchedAt
+		if fetchedAt.IsZero() {
+			fetchedAt = now
+		}
+		create := s.Conn.Client().PriceSnapshot.Create().
+			SetMarketHashName(params.MarketHashName).
+			SetSource(snapshot.Source).
+			SetSourceLabel(snapshot.SourceLabel).
+			SetPageURL(snapshot.PageURL).
+			SetPriceText(snapshot.PriceText).
+			SetCurrency(appskins.NormalizeCurrencyCode(snapshot.Currency)).
+			SetFetchedAt(fetchedAt.UTC()).
+			SetMetadata("")
+		if snapshot.PriceCents != nil {
+			create.SetPriceCents(*snapshot.PriceCents)
+		}
+		if _, err := create.Save(ctx); err != nil {
+			return errx.E("skins.repository.create_price_snapshot", errx.CodeInternal, "failed to save price snapshot", err)
+		}
+	}
 	return nil
 }
 
@@ -123,7 +160,7 @@ func (s *Storage) DeleteSavedSkin(ctx context.Context, params appskins.DeleteSav
 	return nil
 }
 
-func mapSavedSkin(item *ent.Skin) appskins.SavedSkin {
+func mapSavedSkin(item *ent.Skin, snapshots []appskins.PriceSnapshotView) appskins.SavedSkin {
 	saved := appskins.SavedSkin{
 		MarketHashName:    item.MarketHashName,
 		DisplayName:       item.DisplayName,
@@ -135,6 +172,7 @@ func mapSavedSkin(item *ent.Skin) appskins.SavedSkin {
 		LisSkinsPriceText: item.LisskinsPriceText,
 		CSTMPageURL:       item.CstmPageURL,
 		CSTMPriceText:     item.CstmPriceText,
+		Prices:            snapshots,
 		Currency:          appskins.NormalizeCurrencyCode(item.Currency),
 	}
 	if item.SteamUpdatedAt != nil {
@@ -151,6 +189,41 @@ func mapSavedSkin(item *ent.Skin) appskins.SavedSkin {
 	return saved
 }
 
+func (s *Storage) latestSnapshotsBySkin(ctx context.Context, names []string) (map[string][]appskins.PriceSnapshotView, error) {
+	result := make(map[string][]appskins.PriceSnapshotView, len(names))
+	if len(names) == 0 {
+		return result, nil
+	}
+	rows, err := s.Conn.Client().PriceSnapshot.Query().
+		Where(entpricesnapshot.MarketHashNameIn(names...)).
+		Order(ent.Desc(entpricesnapshot.FieldFetchedAt), ent.Desc(entpricesnapshot.FieldID)).
+		All(ctx)
+	if err != nil {
+		return nil, errx.E("skins.repository.snapshots.latest", errx.CodeInternal, "failed to load latest price snapshots", err)
+	}
+	seen := make(map[string]map[string]bool, len(names))
+	for _, row := range rows {
+		if seen[row.MarketHashName] == nil {
+			seen[row.MarketHashName] = make(map[string]bool)
+		}
+		if seen[row.MarketHashName][row.Source] {
+			continue
+		}
+		seen[row.MarketHashName][row.Source] = true
+		result[row.MarketHashName] = append(result[row.MarketHashName], appskins.PriceSnapshotView{
+			Source:      row.Source,
+			SourceLabel: row.SourceLabel,
+			PageURL:     row.PageURL,
+			PriceText:   row.PriceText,
+			PriceCents:  row.PriceCents,
+			Currency:    appskins.NormalizeCurrencyCode(row.Currency),
+			FetchedAt:   row.FetchedAt,
+			Status:      "ok",
+		})
+	}
+	return result, nil
+}
+
 func nullableTime(value time.Time) *time.Time {
 	if value.IsZero() {
 		return nil
@@ -163,6 +236,11 @@ func latestUpdatedAt(params appskins.UpdateSavedSkinPriceResult) time.Time {
 	for _, value := range []time.Time{params.SteamUpdatedAt, params.LisSkinsUpdatedAt, params.CSTMUpdatedAt} {
 		if !value.IsZero() && value.After(latest) {
 			latest = value
+		}
+	}
+	for _, snapshot := range params.Prices {
+		if !snapshot.FetchedAt.IsZero() && snapshot.FetchedAt.After(latest) {
+			latest = snapshot.FetchedAt
 		}
 	}
 	if latest.IsZero() {

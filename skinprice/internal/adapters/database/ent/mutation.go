@@ -5,6 +5,7 @@ package ent
 import (
 	"SkinPrice/skinprice/internal/adapters/database/ent/appsetting"
 	"SkinPrice/skinprice/internal/adapters/database/ent/predicate"
+	"SkinPrice/skinprice/internal/adapters/database/ent/pricesnapshot"
 	"SkinPrice/skinprice/internal/adapters/database/ent/skin"
 	"SkinPrice/skinprice/internal/adapters/database/ent/sourcestate"
 	"context"
@@ -492,13 +493,23 @@ func (m *AppSettingMutation) ResetEdge(name string) error {
 // PriceSnapshotMutation represents an operation that mutates the PriceSnapshot nodes in the graph.
 type PriceSnapshotMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*PriceSnapshot, error)
-	predicates    []predicate.PriceSnapshot
+	op               Op
+	typ              string
+	id               *int
+	market_hash_name *string
+	source           *string
+	source_label     *string
+	page_url         *string
+	price_text       *string
+	price_cents      *int64
+	addprice_cents   *int64
+	currency         *string
+	fetched_at       *time.Time
+	metadata         *string
+	clearedFields    map[string]struct{}
+	done             bool
+	oldValue         func(context.Context) (*PriceSnapshot, error)
+	predicates       []predicate.PriceSnapshot
 }
 
 var _ ent.Mutation = (*PriceSnapshotMutation)(nil)
@@ -599,6 +610,364 @@ func (m *PriceSnapshotMutation) IDs(ctx context.Context) ([]int, error) {
 	}
 }
 
+// SetMarketHashName sets the "market_hash_name" field.
+func (m *PriceSnapshotMutation) SetMarketHashName(s string) {
+	m.market_hash_name = &s
+}
+
+// MarketHashName returns the value of the "market_hash_name" field in the mutation.
+func (m *PriceSnapshotMutation) MarketHashName() (r string, exists bool) {
+	v := m.market_hash_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMarketHashName returns the old "market_hash_name" field's value of the PriceSnapshot entity.
+// If the PriceSnapshot object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PriceSnapshotMutation) OldMarketHashName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMarketHashName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMarketHashName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMarketHashName: %w", err)
+	}
+	return oldValue.MarketHashName, nil
+}
+
+// ResetMarketHashName resets all changes to the "market_hash_name" field.
+func (m *PriceSnapshotMutation) ResetMarketHashName() {
+	m.market_hash_name = nil
+}
+
+// SetSource sets the "source" field.
+func (m *PriceSnapshotMutation) SetSource(s string) {
+	m.source = &s
+}
+
+// Source returns the value of the "source" field in the mutation.
+func (m *PriceSnapshotMutation) Source() (r string, exists bool) {
+	v := m.source
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSource returns the old "source" field's value of the PriceSnapshot entity.
+// If the PriceSnapshot object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PriceSnapshotMutation) OldSource(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSource is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSource requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSource: %w", err)
+	}
+	return oldValue.Source, nil
+}
+
+// ResetSource resets all changes to the "source" field.
+func (m *PriceSnapshotMutation) ResetSource() {
+	m.source = nil
+}
+
+// SetSourceLabel sets the "source_label" field.
+func (m *PriceSnapshotMutation) SetSourceLabel(s string) {
+	m.source_label = &s
+}
+
+// SourceLabel returns the value of the "source_label" field in the mutation.
+func (m *PriceSnapshotMutation) SourceLabel() (r string, exists bool) {
+	v := m.source_label
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSourceLabel returns the old "source_label" field's value of the PriceSnapshot entity.
+// If the PriceSnapshot object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PriceSnapshotMutation) OldSourceLabel(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSourceLabel is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSourceLabel requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSourceLabel: %w", err)
+	}
+	return oldValue.SourceLabel, nil
+}
+
+// ResetSourceLabel resets all changes to the "source_label" field.
+func (m *PriceSnapshotMutation) ResetSourceLabel() {
+	m.source_label = nil
+}
+
+// SetPageURL sets the "page_url" field.
+func (m *PriceSnapshotMutation) SetPageURL(s string) {
+	m.page_url = &s
+}
+
+// PageURL returns the value of the "page_url" field in the mutation.
+func (m *PriceSnapshotMutation) PageURL() (r string, exists bool) {
+	v := m.page_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPageURL returns the old "page_url" field's value of the PriceSnapshot entity.
+// If the PriceSnapshot object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PriceSnapshotMutation) OldPageURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPageURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPageURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPageURL: %w", err)
+	}
+	return oldValue.PageURL, nil
+}
+
+// ResetPageURL resets all changes to the "page_url" field.
+func (m *PriceSnapshotMutation) ResetPageURL() {
+	m.page_url = nil
+}
+
+// SetPriceText sets the "price_text" field.
+func (m *PriceSnapshotMutation) SetPriceText(s string) {
+	m.price_text = &s
+}
+
+// PriceText returns the value of the "price_text" field in the mutation.
+func (m *PriceSnapshotMutation) PriceText() (r string, exists bool) {
+	v := m.price_text
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPriceText returns the old "price_text" field's value of the PriceSnapshot entity.
+// If the PriceSnapshot object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PriceSnapshotMutation) OldPriceText(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPriceText is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPriceText requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPriceText: %w", err)
+	}
+	return oldValue.PriceText, nil
+}
+
+// ResetPriceText resets all changes to the "price_text" field.
+func (m *PriceSnapshotMutation) ResetPriceText() {
+	m.price_text = nil
+}
+
+// SetPriceCents sets the "price_cents" field.
+func (m *PriceSnapshotMutation) SetPriceCents(i int64) {
+	m.price_cents = &i
+	m.addprice_cents = nil
+}
+
+// PriceCents returns the value of the "price_cents" field in the mutation.
+func (m *PriceSnapshotMutation) PriceCents() (r int64, exists bool) {
+	v := m.price_cents
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPriceCents returns the old "price_cents" field's value of the PriceSnapshot entity.
+// If the PriceSnapshot object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PriceSnapshotMutation) OldPriceCents(ctx context.Context) (v *int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPriceCents is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPriceCents requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPriceCents: %w", err)
+	}
+	return oldValue.PriceCents, nil
+}
+
+// AddPriceCents adds i to the "price_cents" field.
+func (m *PriceSnapshotMutation) AddPriceCents(i int64) {
+	if m.addprice_cents != nil {
+		*m.addprice_cents += i
+	} else {
+		m.addprice_cents = &i
+	}
+}
+
+// AddedPriceCents returns the value that was added to the "price_cents" field in this mutation.
+func (m *PriceSnapshotMutation) AddedPriceCents() (r int64, exists bool) {
+	v := m.addprice_cents
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearPriceCents clears the value of the "price_cents" field.
+func (m *PriceSnapshotMutation) ClearPriceCents() {
+	m.price_cents = nil
+	m.addprice_cents = nil
+	m.clearedFields[pricesnapshot.FieldPriceCents] = struct{}{}
+}
+
+// PriceCentsCleared returns if the "price_cents" field was cleared in this mutation.
+func (m *PriceSnapshotMutation) PriceCentsCleared() bool {
+	_, ok := m.clearedFields[pricesnapshot.FieldPriceCents]
+	return ok
+}
+
+// ResetPriceCents resets all changes to the "price_cents" field.
+func (m *PriceSnapshotMutation) ResetPriceCents() {
+	m.price_cents = nil
+	m.addprice_cents = nil
+	delete(m.clearedFields, pricesnapshot.FieldPriceCents)
+}
+
+// SetCurrency sets the "currency" field.
+func (m *PriceSnapshotMutation) SetCurrency(s string) {
+	m.currency = &s
+}
+
+// Currency returns the value of the "currency" field in the mutation.
+func (m *PriceSnapshotMutation) Currency() (r string, exists bool) {
+	v := m.currency
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCurrency returns the old "currency" field's value of the PriceSnapshot entity.
+// If the PriceSnapshot object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PriceSnapshotMutation) OldCurrency(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCurrency is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCurrency requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCurrency: %w", err)
+	}
+	return oldValue.Currency, nil
+}
+
+// ResetCurrency resets all changes to the "currency" field.
+func (m *PriceSnapshotMutation) ResetCurrency() {
+	m.currency = nil
+}
+
+// SetFetchedAt sets the "fetched_at" field.
+func (m *PriceSnapshotMutation) SetFetchedAt(t time.Time) {
+	m.fetched_at = &t
+}
+
+// FetchedAt returns the value of the "fetched_at" field in the mutation.
+func (m *PriceSnapshotMutation) FetchedAt() (r time.Time, exists bool) {
+	v := m.fetched_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFetchedAt returns the old "fetched_at" field's value of the PriceSnapshot entity.
+// If the PriceSnapshot object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PriceSnapshotMutation) OldFetchedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFetchedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFetchedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFetchedAt: %w", err)
+	}
+	return oldValue.FetchedAt, nil
+}
+
+// ResetFetchedAt resets all changes to the "fetched_at" field.
+func (m *PriceSnapshotMutation) ResetFetchedAt() {
+	m.fetched_at = nil
+}
+
+// SetMetadata sets the "metadata" field.
+func (m *PriceSnapshotMutation) SetMetadata(s string) {
+	m.metadata = &s
+}
+
+// Metadata returns the value of the "metadata" field in the mutation.
+func (m *PriceSnapshotMutation) Metadata() (r string, exists bool) {
+	v := m.metadata
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMetadata returns the old "metadata" field's value of the PriceSnapshot entity.
+// If the PriceSnapshot object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PriceSnapshotMutation) OldMetadata(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMetadata is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMetadata requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMetadata: %w", err)
+	}
+	return oldValue.Metadata, nil
+}
+
+// ResetMetadata resets all changes to the "metadata" field.
+func (m *PriceSnapshotMutation) ResetMetadata() {
+	m.metadata = nil
+}
+
 // Where appends a list predicates to the PriceSnapshotMutation builder.
 func (m *PriceSnapshotMutation) Where(ps ...predicate.PriceSnapshot) {
 	m.predicates = append(m.predicates, ps...)
@@ -633,7 +1002,34 @@ func (m *PriceSnapshotMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PriceSnapshotMutation) Fields() []string {
-	fields := make([]string, 0, 0)
+	fields := make([]string, 0, 9)
+	if m.market_hash_name != nil {
+		fields = append(fields, pricesnapshot.FieldMarketHashName)
+	}
+	if m.source != nil {
+		fields = append(fields, pricesnapshot.FieldSource)
+	}
+	if m.source_label != nil {
+		fields = append(fields, pricesnapshot.FieldSourceLabel)
+	}
+	if m.page_url != nil {
+		fields = append(fields, pricesnapshot.FieldPageURL)
+	}
+	if m.price_text != nil {
+		fields = append(fields, pricesnapshot.FieldPriceText)
+	}
+	if m.price_cents != nil {
+		fields = append(fields, pricesnapshot.FieldPriceCents)
+	}
+	if m.currency != nil {
+		fields = append(fields, pricesnapshot.FieldCurrency)
+	}
+	if m.fetched_at != nil {
+		fields = append(fields, pricesnapshot.FieldFetchedAt)
+	}
+	if m.metadata != nil {
+		fields = append(fields, pricesnapshot.FieldMetadata)
+	}
 	return fields
 }
 
@@ -641,6 +1037,26 @@ func (m *PriceSnapshotMutation) Fields() []string {
 // return value indicates that this field was not set, or was not defined in the
 // schema.
 func (m *PriceSnapshotMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case pricesnapshot.FieldMarketHashName:
+		return m.MarketHashName()
+	case pricesnapshot.FieldSource:
+		return m.Source()
+	case pricesnapshot.FieldSourceLabel:
+		return m.SourceLabel()
+	case pricesnapshot.FieldPageURL:
+		return m.PageURL()
+	case pricesnapshot.FieldPriceText:
+		return m.PriceText()
+	case pricesnapshot.FieldPriceCents:
+		return m.PriceCents()
+	case pricesnapshot.FieldCurrency:
+		return m.Currency()
+	case pricesnapshot.FieldFetchedAt:
+		return m.FetchedAt()
+	case pricesnapshot.FieldMetadata:
+		return m.Metadata()
+	}
 	return nil, false
 }
 
@@ -648,6 +1064,26 @@ func (m *PriceSnapshotMutation) Field(name string) (ent.Value, bool) {
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
 func (m *PriceSnapshotMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case pricesnapshot.FieldMarketHashName:
+		return m.OldMarketHashName(ctx)
+	case pricesnapshot.FieldSource:
+		return m.OldSource(ctx)
+	case pricesnapshot.FieldSourceLabel:
+		return m.OldSourceLabel(ctx)
+	case pricesnapshot.FieldPageURL:
+		return m.OldPageURL(ctx)
+	case pricesnapshot.FieldPriceText:
+		return m.OldPriceText(ctx)
+	case pricesnapshot.FieldPriceCents:
+		return m.OldPriceCents(ctx)
+	case pricesnapshot.FieldCurrency:
+		return m.OldCurrency(ctx)
+	case pricesnapshot.FieldFetchedAt:
+		return m.OldFetchedAt(ctx)
+	case pricesnapshot.FieldMetadata:
+		return m.OldMetadata(ctx)
+	}
 	return nil, fmt.Errorf("unknown PriceSnapshot field %s", name)
 }
 
@@ -656,6 +1092,69 @@ func (m *PriceSnapshotMutation) OldField(ctx context.Context, name string) (ent.
 // type.
 func (m *PriceSnapshotMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case pricesnapshot.FieldMarketHashName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMarketHashName(v)
+		return nil
+	case pricesnapshot.FieldSource:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSource(v)
+		return nil
+	case pricesnapshot.FieldSourceLabel:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSourceLabel(v)
+		return nil
+	case pricesnapshot.FieldPageURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPageURL(v)
+		return nil
+	case pricesnapshot.FieldPriceText:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPriceText(v)
+		return nil
+	case pricesnapshot.FieldPriceCents:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPriceCents(v)
+		return nil
+	case pricesnapshot.FieldCurrency:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCurrency(v)
+		return nil
+	case pricesnapshot.FieldFetchedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFetchedAt(v)
+		return nil
+	case pricesnapshot.FieldMetadata:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMetadata(v)
+		return nil
 	}
 	return fmt.Errorf("unknown PriceSnapshot field %s", name)
 }
@@ -663,13 +1162,21 @@ func (m *PriceSnapshotMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *PriceSnapshotMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addprice_cents != nil {
+		fields = append(fields, pricesnapshot.FieldPriceCents)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *PriceSnapshotMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case pricesnapshot.FieldPriceCents:
+		return m.AddedPriceCents()
+	}
 	return nil, false
 }
 
@@ -677,13 +1184,26 @@ func (m *PriceSnapshotMutation) AddedField(name string) (ent.Value, bool) {
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
 func (m *PriceSnapshotMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case pricesnapshot.FieldPriceCents:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddPriceCents(v)
+		return nil
+	}
 	return fmt.Errorf("unknown PriceSnapshot numeric field %s", name)
 }
 
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *PriceSnapshotMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(pricesnapshot.FieldPriceCents) {
+		fields = append(fields, pricesnapshot.FieldPriceCents)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -696,12 +1216,46 @@ func (m *PriceSnapshotMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *PriceSnapshotMutation) ClearField(name string) error {
+	switch name {
+	case pricesnapshot.FieldPriceCents:
+		m.ClearPriceCents()
+		return nil
+	}
 	return fmt.Errorf("unknown PriceSnapshot nullable field %s", name)
 }
 
 // ResetField resets all changes in the mutation for the field with the given name.
 // It returns an error if the field is not defined in the schema.
 func (m *PriceSnapshotMutation) ResetField(name string) error {
+	switch name {
+	case pricesnapshot.FieldMarketHashName:
+		m.ResetMarketHashName()
+		return nil
+	case pricesnapshot.FieldSource:
+		m.ResetSource()
+		return nil
+	case pricesnapshot.FieldSourceLabel:
+		m.ResetSourceLabel()
+		return nil
+	case pricesnapshot.FieldPageURL:
+		m.ResetPageURL()
+		return nil
+	case pricesnapshot.FieldPriceText:
+		m.ResetPriceText()
+		return nil
+	case pricesnapshot.FieldPriceCents:
+		m.ResetPriceCents()
+		return nil
+	case pricesnapshot.FieldCurrency:
+		m.ResetCurrency()
+		return nil
+	case pricesnapshot.FieldFetchedAt:
+		m.ResetFetchedAt()
+		return nil
+	case pricesnapshot.FieldMetadata:
+		m.ResetMetadata()
+		return nil
+	}
 	return fmt.Errorf("unknown PriceSnapshot field %s", name)
 }
 
@@ -2030,6 +2584,10 @@ type SourceStateMutation struct {
 	id                  *int
 	source              *string
 	api_token_encrypted *string
+	status              *string
+	last_success_at     *time.Time
+	last_error          *string
+	last_error_at       *time.Time
 	updated_at          *time.Time
 	clearedFields       map[string]struct{}
 	done                bool
@@ -2207,6 +2765,176 @@ func (m *SourceStateMutation) ResetAPITokenEncrypted() {
 	m.api_token_encrypted = nil
 }
 
+// SetStatus sets the "status" field.
+func (m *SourceStateMutation) SetStatus(s string) {
+	m.status = &s
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *SourceStateMutation) Status() (r string, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the SourceState entity.
+// If the SourceState object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SourceStateMutation) OldStatus(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *SourceStateMutation) ResetStatus() {
+	m.status = nil
+}
+
+// SetLastSuccessAt sets the "last_success_at" field.
+func (m *SourceStateMutation) SetLastSuccessAt(t time.Time) {
+	m.last_success_at = &t
+}
+
+// LastSuccessAt returns the value of the "last_success_at" field in the mutation.
+func (m *SourceStateMutation) LastSuccessAt() (r time.Time, exists bool) {
+	v := m.last_success_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLastSuccessAt returns the old "last_success_at" field's value of the SourceState entity.
+// If the SourceState object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SourceStateMutation) OldLastSuccessAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLastSuccessAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLastSuccessAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLastSuccessAt: %w", err)
+	}
+	return oldValue.LastSuccessAt, nil
+}
+
+// ClearLastSuccessAt clears the value of the "last_success_at" field.
+func (m *SourceStateMutation) ClearLastSuccessAt() {
+	m.last_success_at = nil
+	m.clearedFields[sourcestate.FieldLastSuccessAt] = struct{}{}
+}
+
+// LastSuccessAtCleared returns if the "last_success_at" field was cleared in this mutation.
+func (m *SourceStateMutation) LastSuccessAtCleared() bool {
+	_, ok := m.clearedFields[sourcestate.FieldLastSuccessAt]
+	return ok
+}
+
+// ResetLastSuccessAt resets all changes to the "last_success_at" field.
+func (m *SourceStateMutation) ResetLastSuccessAt() {
+	m.last_success_at = nil
+	delete(m.clearedFields, sourcestate.FieldLastSuccessAt)
+}
+
+// SetLastError sets the "last_error" field.
+func (m *SourceStateMutation) SetLastError(s string) {
+	m.last_error = &s
+}
+
+// LastError returns the value of the "last_error" field in the mutation.
+func (m *SourceStateMutation) LastError() (r string, exists bool) {
+	v := m.last_error
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLastError returns the old "last_error" field's value of the SourceState entity.
+// If the SourceState object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SourceStateMutation) OldLastError(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLastError is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLastError requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLastError: %w", err)
+	}
+	return oldValue.LastError, nil
+}
+
+// ResetLastError resets all changes to the "last_error" field.
+func (m *SourceStateMutation) ResetLastError() {
+	m.last_error = nil
+}
+
+// SetLastErrorAt sets the "last_error_at" field.
+func (m *SourceStateMutation) SetLastErrorAt(t time.Time) {
+	m.last_error_at = &t
+}
+
+// LastErrorAt returns the value of the "last_error_at" field in the mutation.
+func (m *SourceStateMutation) LastErrorAt() (r time.Time, exists bool) {
+	v := m.last_error_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLastErrorAt returns the old "last_error_at" field's value of the SourceState entity.
+// If the SourceState object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SourceStateMutation) OldLastErrorAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLastErrorAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLastErrorAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLastErrorAt: %w", err)
+	}
+	return oldValue.LastErrorAt, nil
+}
+
+// ClearLastErrorAt clears the value of the "last_error_at" field.
+func (m *SourceStateMutation) ClearLastErrorAt() {
+	m.last_error_at = nil
+	m.clearedFields[sourcestate.FieldLastErrorAt] = struct{}{}
+}
+
+// LastErrorAtCleared returns if the "last_error_at" field was cleared in this mutation.
+func (m *SourceStateMutation) LastErrorAtCleared() bool {
+	_, ok := m.clearedFields[sourcestate.FieldLastErrorAt]
+	return ok
+}
+
+// ResetLastErrorAt resets all changes to the "last_error_at" field.
+func (m *SourceStateMutation) ResetLastErrorAt() {
+	m.last_error_at = nil
+	delete(m.clearedFields, sourcestate.FieldLastErrorAt)
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (m *SourceStateMutation) SetUpdatedAt(t time.Time) {
 	m.updated_at = &t
@@ -2290,12 +3018,24 @@ func (m *SourceStateMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SourceStateMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 7)
 	if m.source != nil {
 		fields = append(fields, sourcestate.FieldSource)
 	}
 	if m.api_token_encrypted != nil {
 		fields = append(fields, sourcestate.FieldAPITokenEncrypted)
+	}
+	if m.status != nil {
+		fields = append(fields, sourcestate.FieldStatus)
+	}
+	if m.last_success_at != nil {
+		fields = append(fields, sourcestate.FieldLastSuccessAt)
+	}
+	if m.last_error != nil {
+		fields = append(fields, sourcestate.FieldLastError)
+	}
+	if m.last_error_at != nil {
+		fields = append(fields, sourcestate.FieldLastErrorAt)
 	}
 	if m.updated_at != nil {
 		fields = append(fields, sourcestate.FieldUpdatedAt)
@@ -2312,6 +3052,14 @@ func (m *SourceStateMutation) Field(name string) (ent.Value, bool) {
 		return m.Source()
 	case sourcestate.FieldAPITokenEncrypted:
 		return m.APITokenEncrypted()
+	case sourcestate.FieldStatus:
+		return m.Status()
+	case sourcestate.FieldLastSuccessAt:
+		return m.LastSuccessAt()
+	case sourcestate.FieldLastError:
+		return m.LastError()
+	case sourcestate.FieldLastErrorAt:
+		return m.LastErrorAt()
 	case sourcestate.FieldUpdatedAt:
 		return m.UpdatedAt()
 	}
@@ -2327,6 +3075,14 @@ func (m *SourceStateMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldSource(ctx)
 	case sourcestate.FieldAPITokenEncrypted:
 		return m.OldAPITokenEncrypted(ctx)
+	case sourcestate.FieldStatus:
+		return m.OldStatus(ctx)
+	case sourcestate.FieldLastSuccessAt:
+		return m.OldLastSuccessAt(ctx)
+	case sourcestate.FieldLastError:
+		return m.OldLastError(ctx)
+	case sourcestate.FieldLastErrorAt:
+		return m.OldLastErrorAt(ctx)
 	case sourcestate.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
 	}
@@ -2351,6 +3107,34 @@ func (m *SourceStateMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetAPITokenEncrypted(v)
+		return nil
+	case sourcestate.FieldStatus:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case sourcestate.FieldLastSuccessAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLastSuccessAt(v)
+		return nil
+	case sourcestate.FieldLastError:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLastError(v)
+		return nil
+	case sourcestate.FieldLastErrorAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLastErrorAt(v)
 		return nil
 	case sourcestate.FieldUpdatedAt:
 		v, ok := value.(time.Time)
@@ -2389,6 +3173,12 @@ func (m *SourceStateMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *SourceStateMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(sourcestate.FieldLastSuccessAt) {
+		fields = append(fields, sourcestate.FieldLastSuccessAt)
+	}
+	if m.FieldCleared(sourcestate.FieldLastErrorAt) {
+		fields = append(fields, sourcestate.FieldLastErrorAt)
+	}
 	if m.FieldCleared(sourcestate.FieldUpdatedAt) {
 		fields = append(fields, sourcestate.FieldUpdatedAt)
 	}
@@ -2406,6 +3196,12 @@ func (m *SourceStateMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *SourceStateMutation) ClearField(name string) error {
 	switch name {
+	case sourcestate.FieldLastSuccessAt:
+		m.ClearLastSuccessAt()
+		return nil
+	case sourcestate.FieldLastErrorAt:
+		m.ClearLastErrorAt()
+		return nil
 	case sourcestate.FieldUpdatedAt:
 		m.ClearUpdatedAt()
 		return nil
@@ -2422,6 +3218,18 @@ func (m *SourceStateMutation) ResetField(name string) error {
 		return nil
 	case sourcestate.FieldAPITokenEncrypted:
 		m.ResetAPITokenEncrypted()
+		return nil
+	case sourcestate.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case sourcestate.FieldLastSuccessAt:
+		m.ResetLastSuccessAt()
+		return nil
+	case sourcestate.FieldLastError:
+		m.ResetLastError()
+		return nil
+	case sourcestate.FieldLastErrorAt:
+		m.ResetLastErrorAt()
 		return nil
 	case sourcestate.FieldUpdatedAt:
 		m.ResetUpdatedAt()

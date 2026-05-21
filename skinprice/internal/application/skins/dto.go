@@ -66,10 +66,11 @@ type SavedSkinsList struct {
 }
 
 type SavedSkin struct {
-	MarketHashName    string
-	DisplayName       string
-	NameColor         string
-	IconURL           string
+	MarketHashName string
+	DisplayName    string
+	NameColor      string
+	IconURL        string
+
 	SteamPageURL      string
 	SteamPriceText    string
 	SteamUpdatedAt    time.Time
@@ -79,7 +80,9 @@ type SavedSkin struct {
 	CSTMPageURL       string
 	CSTMPriceText     string
 	CSTMUpdatedAt     time.Time
-	Currency          string
+
+	Prices   []PriceSnapshotView
+	Currency string
 }
 
 type UpdateSavedSkinPriceParams struct {
@@ -88,7 +91,9 @@ type UpdateSavedSkinPriceParams struct {
 }
 
 type UpdateSavedSkinPriceResult struct {
-	MarketHashName    string
+	MarketHashName string
+	Prices         []PriceSnapshotView
+
 	SteamPageURL      string
 	SteamPriceText    string
 	SteamUpdatedAt    time.Time
@@ -118,4 +123,55 @@ type UpdateAllSavedSkinsPricesResult struct {
 
 type DeleteSavedSkinParams struct {
 	MarketHashName string
+}
+
+type PriceQuote struct {
+	Source      string
+	SourceLabel string
+	PageURL     string
+	PriceText   string
+	PriceCents  *int64
+	Currency    string
+	FetchedAt   time.Time
+	Metadata    string
+}
+
+type PriceSnapshotView struct {
+	Source      string
+	SourceLabel string
+	PageURL     string
+	PriceText   string
+	PriceCents  *int64
+	Currency    string
+	FetchedAt   time.Time
+	Status      string
+}
+
+type SourceState struct {
+	Source        string
+	Status        string
+	LastSuccessAt time.Time
+	LastError     string
+	LastErrorAt   time.Time
+	UpdatedAt     time.Time
+}
+
+type RefreshTaskKind string
+
+const (
+	RefreshTaskManual RefreshTaskKind = "manual"
+	RefreshTaskAuto   RefreshTaskKind = "auto"
+)
+
+type RefreshTask struct {
+	MarketHashName string
+	Currency       string
+	Kind           RefreshTaskKind
+}
+
+type Diagnostics struct {
+	Version      string
+	DatabasePath string
+	LogPath      string
+	Sources      []SourceState
 }

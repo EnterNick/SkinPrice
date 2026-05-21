@@ -24,12 +24,33 @@ var (
 	// PriceSnapshotsColumns holds the columns for the "price_snapshots" table.
 	PriceSnapshotsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "market_hash_name", Type: field.TypeString, Default: ""},
+		{Name: "source", Type: field.TypeString, Default: ""},
+		{Name: "source_label", Type: field.TypeString, Default: ""},
+		{Name: "page_url", Type: field.TypeString, Default: ""},
+		{Name: "price_text", Type: field.TypeString, Default: ""},
+		{Name: "price_cents", Type: field.TypeInt64, Nullable: true},
+		{Name: "currency", Type: field.TypeString, Default: "1"},
+		{Name: "fetched_at", Type: field.TypeTime},
+		{Name: "metadata", Type: field.TypeString, Default: ""},
 	}
 	// PriceSnapshotsTable holds the schema information for the "price_snapshots" table.
 	PriceSnapshotsTable = &schema.Table{
 		Name:       "price_snapshots",
 		Columns:    PriceSnapshotsColumns,
 		PrimaryKey: []*schema.Column{PriceSnapshotsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "pricesnapshot_market_hash_name_source_fetched_at",
+				Unique:  false,
+				Columns: []*schema.Column{PriceSnapshotsColumns[1], PriceSnapshotsColumns[2], PriceSnapshotsColumns[8]},
+			},
+			{
+				Name:    "pricesnapshot_source_fetched_at",
+				Unique:  false,
+				Columns: []*schema.Column{PriceSnapshotsColumns[2], PriceSnapshotsColumns[8]},
+			},
+		},
 	}
 	// SkinsColumns holds the columns for the "skins" table.
 	SkinsColumns = []*schema.Column{
@@ -63,6 +84,10 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "source", Type: field.TypeString, Default: "lisskins"},
 		{Name: "api_token_encrypted", Type: field.TypeString, Default: ""},
+		{Name: "status", Type: field.TypeString, Default: "unknown"},
+		{Name: "last_success_at", Type: field.TypeTime, Nullable: true},
+		{Name: "last_error", Type: field.TypeString, Default: ""},
+		{Name: "last_error_at", Type: field.TypeTime, Nullable: true},
 		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
 	}
 	// SourceStatesTable holds the schema information for the "source_states" table.

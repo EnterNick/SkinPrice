@@ -3,6 +3,7 @@ package skins
 import (
 	"SkinPrice/skinprice/internal/application"
 	"context"
+	"time"
 )
 
 type NewSkinsStorage interface {
@@ -22,6 +23,12 @@ type MarketPriceReader interface {
 	GetByMarketHashName(ctx context.Context, marketHashName, currency string) (*NewSkin, error)
 }
 
+type PriceSource interface {
+	ID() string
+	Label() string
+	FetchPrice(ctx context.Context, marketHashName, currency string) (PriceQuote, error)
+}
+
 type MarketPageURLBuilder interface {
 	BuildMarketPageURL(marketHashName string) string
 }
@@ -38,4 +45,16 @@ type LisSkinsTokenStorage interface {
 	UpsertLisSkinsToken(ctx context.Context, encrypted string) error
 	GetLisSkinsToken(ctx context.Context) (string, error)
 	DeleteLisSkinsToken(ctx context.Context) error
+}
+
+type SourceStateStorage interface {
+	RecordSourceSuccess(ctx context.Context, source string, at time.Time) error
+	RecordSourceError(ctx context.Context, source string, message string, at time.Time) error
+	ListSourceStates(ctx context.Context) ([]SourceState, error)
+}
+
+type RefreshQueue interface {
+	Run(ctx context.Context)
+	Enqueue(ctx context.Context, task RefreshTask) (UpdateSavedSkinPriceResult, error)
+	Shutdown()
 }

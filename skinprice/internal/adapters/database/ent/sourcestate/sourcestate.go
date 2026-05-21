@@ -17,6 +17,14 @@ const (
 	FieldSource = "source"
 	// FieldAPITokenEncrypted holds the string denoting the api_token_encrypted field in the database.
 	FieldAPITokenEncrypted = "api_token_encrypted"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
+	// FieldLastSuccessAt holds the string denoting the last_success_at field in the database.
+	FieldLastSuccessAt = "last_success_at"
+	// FieldLastError holds the string denoting the last_error field in the database.
+	FieldLastError = "last_error"
+	// FieldLastErrorAt holds the string denoting the last_error_at field in the database.
+	FieldLastErrorAt = "last_error_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
 	// Table holds the table name of the sourcestate in the database.
@@ -28,6 +36,10 @@ var Columns = []string{
 	FieldID,
 	FieldSource,
 	FieldAPITokenEncrypted,
+	FieldStatus,
+	FieldLastSuccessAt,
+	FieldLastError,
+	FieldLastErrorAt,
 	FieldUpdatedAt,
 }
 
@@ -48,6 +60,10 @@ var (
 	SourceValidator func(string) error
 	// DefaultAPITokenEncrypted holds the default value on creation for the "api_token_encrypted" field.
 	DefaultAPITokenEncrypted string
+	// DefaultStatus holds the default value on creation for the "status" field.
+	DefaultStatus string
+	// DefaultLastError holds the default value on creation for the "last_error" field.
+	DefaultLastError string
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
 	DefaultUpdatedAt func() time.Time
 )
@@ -68,6 +84,26 @@ func BySource(opts ...sql.OrderTermOption) OrderOption {
 // ByAPITokenEncrypted orders the results by the api_token_encrypted field.
 func ByAPITokenEncrypted(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAPITokenEncrypted, opts...).ToFunc()
+}
+
+// ByStatus orders the results by the status field.
+func ByStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+}
+
+// ByLastSuccessAt orders the results by the last_success_at field.
+func ByLastSuccessAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLastSuccessAt, opts...).ToFunc()
+}
+
+// ByLastError orders the results by the last_error field.
+func ByLastError(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLastError, opts...).ToFunc()
+}
+
+// ByLastErrorAt orders the results by the last_error_at field.
+func ByLastErrorAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLastErrorAt, opts...).ToFunc()
 }
 
 // ByUpdatedAt orders the results by the updated_at field.

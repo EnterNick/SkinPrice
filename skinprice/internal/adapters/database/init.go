@@ -134,3 +134,10 @@ func (a *Connection) DB() *sql.DB {
 func (a *Connection) Dialect() string {
 	return a.cfg.EntDialect()
 }
+
+func (a *Connection) DatabasePath() string {
+	if a == nil || a.cfg == nil {
+		return ""
+	}
+	return a.cfg.DBName
+}

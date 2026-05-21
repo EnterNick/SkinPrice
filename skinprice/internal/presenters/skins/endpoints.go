@@ -40,6 +40,14 @@ type ClearLisSkinsTokenUseCase interface {
 	Execute(ctx context.Context) error
 }
 
+type GetPriceSourceStatesUseCase interface {
+	Execute(ctx context.Context) ([]appskins.SourceState, error)
+}
+
+type GetDiagnosticsUseCase interface {
+	Execute(ctx context.Context) (appskins.Diagnostics, error)
+}
+
 type Endpoints struct {
 	searchNewSkinsUC            SearchNewSkinsUseCase
 	saveSkinUC                  SaveSkinUseCase
@@ -50,6 +58,8 @@ type Endpoints struct {
 	saveLisSkinsTokenUC         SaveLisSkinsTokenUseCase
 	hasLisSkinsTokenUC          HasLisSkinsTokenUseCase
 	clearLisSkinsTokenUC        ClearLisSkinsTokenUseCase
+	getPriceSourceStatesUC      GetPriceSourceStatesUseCase
+	getDiagnosticsUC            GetDiagnosticsUseCase
 }
 
 type EndpointDeps struct {
@@ -62,6 +72,8 @@ type EndpointDeps struct {
 	SaveLisSkinsToken         SaveLisSkinsTokenUseCase
 	HasLisSkinsToken          HasLisSkinsTokenUseCase
 	ClearLisSkinsToken        ClearLisSkinsTokenUseCase
+	GetPriceSourceStates      GetPriceSourceStatesUseCase
+	GetDiagnostics            GetDiagnosticsUseCase
 }
 
 func NewEndpoints(deps EndpointDeps) *Endpoints {
@@ -75,6 +87,8 @@ func NewEndpoints(deps EndpointDeps) *Endpoints {
 		saveLisSkinsTokenUC:         deps.SaveLisSkinsToken,
 		hasLisSkinsTokenUC:          deps.HasLisSkinsToken,
 		clearLisSkinsTokenUC:        deps.ClearLisSkinsToken,
+		getPriceSourceStatesUC:      deps.GetPriceSourceStates,
+		getDiagnosticsUC:            deps.GetDiagnostics,
 	}
 }
 
@@ -158,6 +172,7 @@ func (e *Endpoints) GetSavedSkins(ctx context.Context, filter GetSavedSkinsFilte
 			CSTMPageURL:       item.CSTMPageURL,
 			CSTMPriceText:     item.CSTMPriceText,
 			CSTMUpdatedAt:     item.CSTMUpdatedAt,
+			Prices:            mapPriceSnapshots(item.Prices),
 			Currency:          item.Currency,
 		})
 	}
@@ -181,6 +196,7 @@ func (e *Endpoints) UpdateSavedSkinPrice(ctx context.Context, payload UpdateSave
 		CSTMPageURL:       result.CSTMPageURL,
 		CSTMPriceText:     result.CSTMPriceText,
 		CSTMUpdatedAt:     result.CSTMUpdatedAt,
+		Prices:            mapPriceSnapshots(result.Prices),
 		Currency:          result.Currency,
 	}, nil
 }
@@ -224,4 +240,63 @@ func (e *Endpoints) GetLisSkinsTokenStatus(ctx context.Context) (LisSkinsTokenSt
 
 func (e *Endpoints) ClearLisSkinsToken(ctx context.Context) error {
 	return e.clearLisSkinsTokenUC.Execute(ctx)
+}
+
+func (e *Endpoints) GetPriceSourceStates(ctx context.Context) (PriceSourceStatesResponse, error) {
+	if e.getPriceSourceStatesUC == nil {
+		return PriceSourceStatesResponse{}, nil
+	}
+	states, err := e.getPriceSourceStatesUC.Execute(ctx)
+	if err != nil {
+		return PriceSourceStatesResponse{}, err
+	}
+	return PriceSourceStatesResponse{Items: mapSourceStates(states)}, nil
+}
+
+func (e *Endpoints) GetDiagnostics(ctx context.Context) (DiagnosticsResponse, error) {
+	if e.getDiagnosticsUC == nil {
+		return DiagnosticsResponse{}, nil
+	}
+	diagnostics, err := e.getDiagnosticsUC.Execute(ctx)
+	if err != nil {
+		return DiagnosticsResponse{}, err
+	}
+	return DiagnosticsResponse{
+		Version:      diagnostics.Version,
+		DatabasePath: diagnostics.DatabasePath,
+		LogPath:      diagnostics.LogPath,
+		Sources:      mapSourceStates(diagnostics.Sources),
+	}, nil
+}
+
+func mapPriceSnapshots(items []appskins.PriceSnapshotView) []PriceSnapshotItem {
+	result := make([]PriceSnapshotItem, 0, len(items))
+	for _, item := range items {
+		result = append(result, PriceSnapshotItem{
+			Source:      item.Source,
+			SourceLabel: item.SourceLabel,
+			PageURL:     item.PageURL,
+			PriceText:   item.PriceText,
+			PriceCents:  item.PriceCents,
+			Currency:    item.Currency,
+			FetchedAt:   item.FetchedAt,
+			Status:      item.Status,
+		})
+	}
+	return result
+}
+
+func mapSourceStates(items []appskins.SourceState) []SourceStateItem {
+	result := make([]SourceStateItem, 0, len(items))
+	for _, item := range items {
+		result = append(result, SourceStateItem{
+			Source:        item.Source,
+			Status:        item.Status,
+			LastSuccessAt: item.LastSuccessAt,
+			LastError:     item.LastError,
+			LastErrorAt:   item.LastErrorAt,
+			UpdatedAt:     item.UpdatedAt,
+		})
+	}
+	return result
 }

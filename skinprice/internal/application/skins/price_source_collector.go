@@ -9,12 +9,9 @@ import (
 )
 
 type DefaultSavedSkinPriceCollector struct {
-	SteamSource    MarketPriceReader
-	LisSkinsSource MarketPriceReader
-	CSTMSource     MarketPriceReader
-	LisSkinsPages  MarketPageURLBuilder
-	CSTMPages      MarketPageURLBuilder
-	Now            func() time.Time
+	Sources     []PriceSource
+	SourceState SourceStateStorage
+	Now         func() time.Time
 }
 
 func (c DefaultSavedSkinPriceCollector) Collect(ctx context.Context, saved SavedSkin, params UpdateSavedSkinPriceParams) (UpdateSavedSkinPriceResult, error) {
@@ -30,105 +27,120 @@ func (c DefaultSavedSkinPriceCollector) Collect(ctx context.Context, saved Saved
 		CSTMPageURL:       saved.CSTMPageURL,
 		CSTMPriceText:     saved.CSTMPriceText,
 		CSTMUpdatedAt:     saved.CSTMUpdatedAt,
+		Prices:            append([]PriceSnapshotView(nil), saved.Prices...),
 		Currency:          currency,
 	}
 
 	updatedAny := false
-	steamErr := error(nil)
-	lisSkinsErr := error(nil)
-	cstmErr := error(nil)
+	var firstErr error
 	var mu sync.Mutex
 	var wg sync.WaitGroup
 
-	if c.SteamSource != nil {
+	for _, source := range c.Sources {
+		if source == nil {
+			continue
+		}
+		source := source
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			price, fetchErr := c.SteamSource.GetByMarketHashName(ctx, params.MarketHashName, currency)
+			quote, fetchErr := source.FetchPrice(ctx, params.MarketHashName, currency)
+			now := quote.FetchedAt
+			if now.IsZero() {
+				now = c.now()
+			}
 			mu.Lock()
 			defer mu.Unlock()
 			if fetchErr != nil {
-				steamErr = classifySourceError("skins.update_one.steam", "steam", fetchErr)
+				classified := classifySourceError("skins.update_one."+source.ID(), source.ID(), fetchErr)
+				if firstErr == nil {
+					firstErr = classified
+				}
+				c.recordSourceError(ctx, source.ID(), classified.Error(), c.now())
 				return
 			}
-			if price == nil {
-				steamErr = errx.E("skins.update_one.steam", errx.CodeExternal, "steam returned empty price", nil)
-				return
+			if quote.Source == "" {
+				quote.Source = source.ID()
 			}
-			updatedAny = true
-			result.SteamPageURL = FirstNonEmpty(price.PageURL, result.SteamPageURL)
-			result.SteamPriceText = NormalizePriceText(price, currency)
-			result.SteamUpdatedAt = c.now()
-		}()
-	}
-
-	if c.LisSkinsSource != nil {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			price, fetchErr := c.LisSkinsSource.GetByMarketHashName(ctx, params.MarketHashName, LisSkinsCurrency)
-			mu.Lock()
-			defer mu.Unlock()
-			if fetchErr != nil {
-				lisSkinsErr = classifySourceError("skins.update_one.lisskins", "lisskins", fetchErr)
-				return
+			if quote.SourceLabel == "" {
+				quote.SourceLabel = source.Label()
 			}
-			if price == nil {
-				lisSkinsErr = errx.E("skins.update_one.lisskins", errx.CodeExternal, "lisskins returned empty price", nil)
+			if quote.Currency == "" {
+				quote.Currency = currency
+			}
+			if quote.PriceText == "" && quote.PriceCents == nil {
+				classified := errx.E("skins.update_one."+source.ID(), errx.CodeExternal, source.ID()+" returned empty price", nil)
+				if firstErr == nil {
+					firstErr = classified
+				}
+				c.recordSourceError(ctx, source.ID(), classified.Error(), c.now())
 				return
 			}
 			updatedAny = true
-			fallbackURL := ""
-			if c.LisSkinsPages != nil {
-				fallbackURL = c.LisSkinsPages.BuildMarketPageURL(params.MarketHashName)
+			snapshot := PriceSnapshotView{
+				Source:      quote.Source,
+				SourceLabel: quote.SourceLabel,
+				PageURL:     quote.PageURL,
+				PriceText:   quote.PriceText,
+				PriceCents:  quote.PriceCents,
+				Currency:    NormalizeCurrencyCode(quote.Currency),
+				FetchedAt:   now,
+				Status:      "ok",
 			}
-			result.LisSkinsPageURL = FirstNonEmpty(price.PageURL, result.LisSkinsPageURL, fallbackURL)
-			result.LisSkinsPriceText = NormalizePriceText(price, LisSkinsCurrency)
-			result.LisSkinsUpdatedAt = c.now()
-		}()
-	}
-
-	if c.CSTMSource != nil {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			price, fetchErr := c.CSTMSource.GetByMarketHashName(ctx, params.MarketHashName, currency)
-			mu.Lock()
-			defer mu.Unlock()
-			if fetchErr != nil {
-				cstmErr = classifySourceError("skins.update_one.cstm", "cstm", fetchErr)
-				return
-			}
-			if price == nil {
-				cstmErr = errx.E("skins.update_one.cstm", errx.CodeExternal, "cstm returned empty price", nil)
-				return
-			}
-			updatedAny = true
-			fallbackURL := ""
-			if c.CSTMPages != nil {
-				fallbackURL = c.CSTMPages.BuildMarketPageURL(params.MarketHashName)
-			}
-			result.CSTMPageURL = FirstNonEmpty(price.PageURL, result.CSTMPageURL, fallbackURL)
-			result.CSTMPriceText = NormalizePriceText(price, currency)
-			result.CSTMUpdatedAt = c.now()
+			result.Prices = upsertSnapshotView(result.Prices, snapshot)
+			applyLegacySourcePrice(&result, snapshot)
+			c.recordSourceSuccess(ctx, source.ID(), now)
 		}()
 	}
 
 	wg.Wait()
 
 	if !updatedAny {
-		if steamErr != nil {
-			return UpdateSavedSkinPriceResult{}, steamErr
-		}
-		if lisSkinsErr != nil {
-			return UpdateSavedSkinPriceResult{}, lisSkinsErr
-		}
-		if cstmErr != nil {
-			return UpdateSavedSkinPriceResult{}, cstmErr
+		if firstErr != nil {
+			return UpdateSavedSkinPriceResult{}, firstErr
 		}
 		return UpdateSavedSkinPriceResult{}, errx.E("skins.update_one.no_sources", errx.CodeInternal, "no price sources configured", nil)
 	}
 	return result, nil
+}
+
+func (c DefaultSavedSkinPriceCollector) recordSourceSuccess(ctx context.Context, source string, at time.Time) {
+	if c.SourceState != nil {
+		_ = c.SourceState.RecordSourceSuccess(ctx, source, at)
+	}
+}
+
+func (c DefaultSavedSkinPriceCollector) recordSourceError(ctx context.Context, source, message string, at time.Time) {
+	if c.SourceState != nil {
+		_ = c.SourceState.RecordSourceError(ctx, source, message, at)
+	}
+}
+
+func upsertSnapshotView(items []PriceSnapshotView, next PriceSnapshotView) []PriceSnapshotView {
+	for i, item := range items {
+		if item.Source == next.Source {
+			items[i] = next
+			return items
+		}
+	}
+	return append(items, next)
+}
+
+func applyLegacySourcePrice(result *UpdateSavedSkinPriceResult, snapshot PriceSnapshotView) {
+	switch snapshot.Source {
+	case "steam":
+		result.SteamPageURL = snapshot.PageURL
+		result.SteamPriceText = snapshot.PriceText
+		result.SteamUpdatedAt = snapshot.FetchedAt
+	case "lisskins":
+		result.LisSkinsPageURL = snapshot.PageURL
+		result.LisSkinsPriceText = snapshot.PriceText
+		result.LisSkinsUpdatedAt = snapshot.FetchedAt
+	case "cstm":
+		result.CSTMPageURL = snapshot.PageURL
+		result.CSTMPriceText = snapshot.PriceText
+		result.CSTMUpdatedAt = snapshot.FetchedAt
+	}
 }
 
 func (c DefaultSavedSkinPriceCollector) now() time.Time {

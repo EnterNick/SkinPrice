@@ -1,7 +1,7 @@
 export type SavedSkinCurrency = "1" | "3" | "5";
 export type SavedSkinsViewMode = "table" | "cards";
 export type FontFamilyOptionValue = "inter" | "system" | "nunito" | "roboto" | "ibm-plex-sans" | "manrope" | "monocraft";
-export type SavedSkinsSortColumn = "title" | "steamPrice" | "lisSkinsPrice" | "csTmPrice";
+export type SavedSkinsSortColumn = "title" | "steamPrice" | "lisSkinsPrice" | "csTmPrice" | `source:${string}`;
 export type SavedSkinsSortDirection = "desc" | "asc";
 export type SavedSkinsSortState = {
   column: SavedSkinsSortColumn;
@@ -62,6 +62,18 @@ export type Skin = {
   steamUpdatedAt?: string;
   lisSkinsUpdatedAt?: string;
   csTmUpdatedAt?: string;
+  prices: PriceSnapshot[];
+};
+
+export type PriceSnapshot = {
+  source: string;
+  sourceLabel: string;
+  pageUrl: string;
+  priceText: string;
+  priceCents?: number;
+  currency?: SavedSkinCurrency;
+  fetchedAt?: string;
+  status?: string;
 };
 
 export type SavedSkin = Skin;
@@ -79,6 +91,7 @@ export type PriceUpdateResult = {
   csTmPriceText?: string;
   csTmUpdatedAt?: string;
   currency?: SavedSkinCurrency;
+  prices: PriceSnapshot[];
   updated: number;
 };
 
@@ -121,4 +134,20 @@ export type PaginatedResult<T> = {
   limit: number;
   offset: number;
   nextCursor?: string;
+};
+
+export type SourceState = {
+  source: string;
+  status: string;
+  lastSuccessAt?: string;
+  lastError?: string;
+  lastErrorAt?: string;
+  updatedAt?: string;
+};
+
+export type Diagnostics = {
+  version: string;
+  databasePath: string;
+  logPath: string;
+  sources: SourceState[];
 };

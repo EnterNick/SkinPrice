@@ -90,9 +90,11 @@ func newTestStorage(t *testing.T, steamReader appskins.MarketPriceReader, lisSki
 
 	repo := &Storage{Conn: connection}
 	collector := appskins.DefaultSavedSkinPriceCollector{
-		SteamSource:    steamReader,
-		LisSkinsSource: lisSkinsReader,
-		CSTMSource:     cstmReader,
+		Sources: []appskins.PriceSource{
+			appskins.ReaderPriceSource{SourceID: "steam", SourceLabel: "Steam", Reader: steamReader},
+			appskins.ReaderPriceSource{SourceID: "lisskins", SourceLabel: "LisSkins", Reader: lisSkinsReader, CurrencyOverride: appskins.LisSkinsCurrency},
+			appskins.ReaderPriceSource{SourceID: "cstm", SourceLabel: "CS TM", Reader: cstmReader},
+		},
 	}
 	updater := appskins.UpdateSavedSkinPrice{
 		Repository: repo,
