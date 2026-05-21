@@ -52,12 +52,14 @@ func main() {
 	slog.SetDefault(logger)
 
 	httpClient := &http.Client{
-		Timeout: 8 * time.Second,
+		Timeout: 20 * time.Second,
 		Transport: &http.Transport{
-			TLSHandshakeTimeout: 5 * time.Second,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ResponseHeaderTimeout: 10 * time.Second,
+			IdleConnTimeout:       30 * time.Second,
 		},
 	}
-	updateCtx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
+	updateCtx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
 	defer cancel()
 
 	service := appversion.Service{

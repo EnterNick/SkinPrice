@@ -78,7 +78,10 @@ type AppRunner interface {
 }
 
 type UpdatePrompter interface {
+	ShowCheckingForUpdates() (io.Closer, error)
 	ConfirmUpdate(currentVersion, newVersion string) (bool, error)
+	NotifyUpdateFailed(currentVersion string, updateErr error) error
+	NotifyUpdateSuccess(previousVersion, newVersion string) error
 }
 
 type Service struct {

@@ -9,6 +9,7 @@ RELEASE_ASSETS_DIR ?= $(RELEASE_DIR)/assets
 RELEASE_BUILD_DIR ?= ./bin
 WAILS ?= wails
 WAILS_BUILD_DIR ?= $(PROJECT_NAME)/build/bin
+WAILS_BUILD_FLAGS ?=
 
 DOCKER_FILENAME ?= docker-compose.dev.yaml
 
@@ -155,20 +156,20 @@ wails:
 
 release-build-linux: ## Build Linux app + launcher into $(RELEASE_BUILD_DIR)/linux
 	mkdir -p "$(RELEASE_BUILD_DIR)/linux"
-	cd "$(PROJECT_NAME)" && $(WAILS) build -clean -platform linux/amd64 -tags webkit2_41
+	cd "$(PROJECT_NAME)" && $(WAILS) build -clean $(WAILS_BUILD_FLAGS) -platform linux/amd64 -tags webkit2_41
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 $(GO) build -o "$(RELEASE_BUILD_DIR)/linux/launcher" ./skinprice/cmd/launcher
 	cp "$(WAILS_BUILD_DIR)/SkinPrice" "$(RELEASE_BUILD_DIR)/linux/skinprice"
 	chmod +x "$(RELEASE_BUILD_DIR)/linux/launcher" "$(RELEASE_BUILD_DIR)/linux/skinprice"
 
 release-build-windows: ## Build Windows app + launcher into $(RELEASE_BUILD_DIR)/windows
 	mkdir -p "$(RELEASE_BUILD_DIR)/windows"
-	cd "$(PROJECT_NAME)" && CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ $(WAILS) build -clean -platform windows/amd64
+	cd "$(PROJECT_NAME)" && CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ $(WAILS) build -clean $(WAILS_BUILD_FLAGS) -platform windows/amd64
 	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 $(GO) build -o "$(RELEASE_BUILD_DIR)/windows/launcher.exe" ./skinprice/cmd/launcher
 	cp "$(WAILS_BUILD_DIR)/SkinPrice.exe" "$(RELEASE_BUILD_DIR)/windows/SkinPrice.exe"
 
 release-build-binaries: ## Build Linux and Windows binaries required for release packaging into $(RELEASE_BUILD_DIR)
 	@$(MAKE) release-build-linux RELEASE_BUILD_DIR="$(RELEASE_BUILD_DIR)"
-	@$(MAKE) release-build-windows RELEASE_BUILD_DIR="$(RELEASE_BUILD_DIR)"
+	@$(MAKE) release-build-windows RELEASE_BUILD_DIR="$(RELEASE_BUILD_DIR)" WAILS_BUILD_FLAGS="-s -skipbindings"
 
 release-package-assets: ## Build release bootstrap/update packages from $(RELEASE_DIR)/linux and $(RELEASE_DIR)/windows
 	@if [ -z "$(RELEASE_VERSION)" ]; then \
