@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { UI_TEXT } from "../../shared/config/uiText";
 import { ClipboardSetText } from "../../wailsjs/runtime/runtime";
 import { openExternal } from "../../shared/lib/browser/openExternal";
@@ -27,6 +28,9 @@ const buildPriceTooltip = (source: string, updatedAt?: string) => {
 const buildSkinNameStyle = (nameColor?: string): React.CSSProperties | undefined =>
   nameColor ? { "--skin-name-color": nameColor } as React.CSSProperties : undefined;
 
+const ROW_ACTIONS_DROPDOWN_MIN_WIDTH = 0;
+const ROW_ACTIONS_DROPDOWN_MAX_WIDTH = 220;
+
 export const SavedSkinsCards: React.FC<SavedSkinsCardsProps> = ({
   items,
   isUpdatingAll,
@@ -35,14 +39,80 @@ export const SavedSkinsCards: React.FC<SavedSkinsCardsProps> = ({
   onRefreshOne,
   onDelete,
 }) => {
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [copiedSkinId, setCopiedSkinId] = useState<string | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
   const copiedResetTimeoutRef = useRef<number | null>(null);
+  const toggleRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element) || target.closest(".row-actions-menu") || target.closest(".row-actions-dropdown-portal")) return;
+      setOpenMenuId(null);
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpenMenuId(null);
+      }
+    };
+
+    window.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   useEffect(() => () => {
     if (copiedResetTimeoutRef.current !== null) {
       window.clearTimeout(copiedResetTimeoutRef.current);
     }
   }, []);
+
+  useEffect(() => {
+    if (!openMenuId) {
+      setMenuPosition(null);
+      return;
+    }
+
+    const updateMenuPosition = () => {
+      const toggle = toggleRefs.current[openMenuId];
+      if (!toggle) {
+        setMenuPosition(null);
+        return;
+      }
+
+      const rect = toggle.getBoundingClientRect();
+      const topBelow = rect.bottom + 8;
+      const topAbove = rect.top - 8;
+      const dropdownHeight = 96;
+      const showAbove = topBelow + dropdownHeight > window.innerHeight && rect.top > dropdownHeight + 16;
+      const nextTop = showAbove ? Math.max(8, topAbove - dropdownHeight) : topBelow;
+      const estimatedWidth = Math.min(
+        ROW_ACTIONS_DROPDOWN_MAX_WIDTH,
+        Math.max(ROW_ACTIONS_DROPDOWN_MIN_WIDTH, rect.width + 140),
+      );
+      const nextLeft = Math.min(
+        Math.max(8, rect.right - estimatedWidth),
+        Math.max(8, window.innerWidth - estimatedWidth - 8),
+      );
+
+      setMenuPosition({ top: nextTop, left: nextLeft });
+    };
+
+    updateMenuPosition();
+    window.addEventListener("resize", updateMenuPosition);
+    window.addEventListener("scroll", updateMenuPosition, true);
+
+    return () => {
+      window.removeEventListener("resize", updateMenuPosition);
+      window.removeEventListener("scroll", updateMenuPosition, true);
+    };
+  }, [openMenuId]);
 
   const handleCopyTitle = async (skin: SavedSkin) => {
     const copied = await ClipboardSetText(skin.title);
@@ -59,76 +129,109 @@ export const SavedSkinsCards: React.FC<SavedSkinsCardsProps> = ({
   };
 
   return (
-    <CardGrid
-      className="saved-skins-grid"
-      items={items}
-      renderItem={(skin) => {
-        const isUpdating = Boolean(updatingSkinIds[skin.id]);
-        const isDeleting = Boolean(deletingSkinIds[skin.id]);
-        const isBusy = isUpdating || isDeleting || isUpdatingAll;
+    <>
+      <CardGrid
+        className="saved-skins-grid"
+        items={items}
+        renderItem={(skin) => {
+          const isMenuOpen = openMenuId === skin.id;
 
-        return (
-          <article key={skin.id} className="saved-skin-card">
-            <div className="saved-skin-card-header">
-              <SkinThumb imageUrl={skin.imageUrl} title={skin.title} />
-              <button
-                className={`skin-title-button saved-skin-card-title${copiedSkinId === skin.id ? " skin-title-button-copied" : ""}`}
-                type="button"
-                title={copiedSkinId === skin.id ? "Скопировано" : "Скопировать название"}
-                style={buildSkinNameStyle(skin.nameColor)}
-                onClick={() => void handleCopyTitle(skin)}
-              >
-                {skin.title}
-              </button>
-            </div>
+          return (
+            <article key={skin.id} className="saved-skin-card">
+              <div className="saved-skin-card-top">
+                <div className="saved-skin-card-header">
+                  <SkinThumb imageUrl={skin.imageUrl} title={skin.title} />
+                  <button
+                    className={`skin-title-button saved-skin-card-title${copiedSkinId === skin.id ? " skin-title-button-copied" : ""}`}
+                    type="button"
+                    title={copiedSkinId === skin.id ? "Скопировано" : "Скопировать название"}
+                    style={buildSkinNameStyle(skin.nameColor)}
+                    onClick={() => void handleCopyTitle(skin)}
+                  >
+                    {skin.title}
+                  </button>
+                </div>
+                <div className="row-actions-menu" role="group">
+                  <button
+                    className="row-actions-toggle"
+                    type="button"
+                    ref={(node) => {
+                      toggleRefs.current[skin.id] = node;
+                    }}
+                    aria-label="Действия"
+                    aria-expanded={isMenuOpen}
+                    onClick={() => setOpenMenuId((current) => (current === skin.id ? null : skin.id))}
+                  >
+                    •••
+                  </button>
+                </div>
+              </div>
 
-            <div className="saved-skin-card-prices">
+              <div className="saved-skin-card-prices">
+                <button
+                  className="saved-skin-price-card"
+                  type="button"
+                  disabled={!skin.steamPageUrl}
+                  title={buildPriceTooltip(UI_TEXT.sourceSteamShort, skin.steamUpdatedAt)}
+                  onClick={() => openExternal(skin.steamPageUrl)}
+                >
+                  <span className="saved-skin-price-source">{UI_TEXT.steamPriceLabel}</span>
+                  <span className="saved-skin-price-value">{skin.steamPriceText || "-"}</span>
+                </button>
+                <button
+                  className="saved-skin-price-card"
+                  type="button"
+                  disabled={!skin.lisSkinsPageUrl}
+                  title={buildPriceTooltip(UI_TEXT.sourceLisSkinsShort, skin.lisSkinsUpdatedAt)}
+                  onClick={() => openExternal(skin.lisSkinsPageUrl)}
+                >
+                  <span className="saved-skin-price-source">{UI_TEXT.lisSkinsPriceLabel}</span>
+                  <span className="saved-skin-price-value">{skin.lisSkinsPriceText || "-"}</span>
+                </button>
+                <button
+                  className="saved-skin-price-card"
+                  type="button"
+                  disabled={!skin.csTmPageUrl}
+                  title={buildPriceTooltip(UI_TEXT.sourceCSTMShort, skin.csTmUpdatedAt)}
+                  onClick={() => openExternal(skin.csTmPageUrl)}
+                >
+                  <span className="saved-skin-price-source">{UI_TEXT.csTmPriceLabel}</span>
+                  <span className="saved-skin-price-value">{skin.csTmPriceText || "-"}</span>
+                </button>
+              </div>
+            </article>
+          );
+        }}
+      />
+      {openMenuId && menuPosition
+        ? createPortal(
+            <div className="row-actions-dropdown row-actions-dropdown-portal" style={{ top: `${menuPosition.top}px`, left: `${menuPosition.left}px` }}>
               <button
-                className="saved-skin-price-card"
+                className="row-actions-item"
                 type="button"
-                disabled={!skin.steamPageUrl}
-                title={buildPriceTooltip(UI_TEXT.sourceSteamShort, skin.steamUpdatedAt)}
-                onClick={() => openExternal(skin.steamPageUrl)}
+                disabled={Boolean(updatingSkinIds[openMenuId]) || isUpdatingAll || Boolean(deletingSkinIds[openMenuId])}
+                onClick={() => {
+                  setOpenMenuId(null);
+                  void onRefreshOne(openMenuId);
+                }}
               >
-                <span className="saved-skin-price-source">{UI_TEXT.steamPriceLabel}</span>
-                <span className="saved-skin-price-value">{skin.steamPriceText || "-"}</span>
-                <span className="saved-skin-price-updated">{formatUpdatedAt(skin.steamUpdatedAt)}</span>
+                {Boolean(updatingSkinIds[openMenuId]) ? UI_TEXT.updateOnePendingCompact : UI_TEXT.updateOne}
               </button>
               <button
-                className="saved-skin-price-card"
+                className="row-actions-item toolbar-button-danger-secondary secondary-danger"
                 type="button"
-                disabled={!skin.lisSkinsPageUrl}
-                title={buildPriceTooltip(UI_TEXT.sourceLisSkinsShort, skin.lisSkinsUpdatedAt)}
-                onClick={() => openExternal(skin.lisSkinsPageUrl)}
+                disabled={Boolean(updatingSkinIds[openMenuId]) || isUpdatingAll || Boolean(deletingSkinIds[openMenuId])}
+                onClick={() => {
+                  setOpenMenuId(null);
+                  void onDelete(openMenuId);
+                }}
               >
-                <span className="saved-skin-price-source">{UI_TEXT.lisSkinsPriceLabel}</span>
-                <span className="saved-skin-price-value">{skin.lisSkinsPriceText || "-"}</span>
-                <span className="saved-skin-price-updated">{formatUpdatedAt(skin.lisSkinsUpdatedAt)}</span>
+                {Boolean(deletingSkinIds[openMenuId]) ? UI_TEXT.deleteSkinPending : UI_TEXT.deleteSkin}
               </button>
-              <button
-                className="saved-skin-price-card"
-                type="button"
-                disabled={!skin.csTmPageUrl}
-                title={buildPriceTooltip(UI_TEXT.sourceCSTMShort, skin.csTmUpdatedAt)}
-                onClick={() => openExternal(skin.csTmPageUrl)}
-              >
-                <span className="saved-skin-price-source">{UI_TEXT.csTmPriceLabel}</span>
-                <span className="saved-skin-price-value">{skin.csTmPriceText || "-"}</span>
-                <span className="saved-skin-price-updated">{formatUpdatedAt(skin.csTmUpdatedAt)}</span>
-              </button>
-            </div>
-
-            <div className="saved-skin-card-actions">
-              <button className="toolbar-button toolbar-button-secondary" type="button" disabled={isBusy} onClick={() => void onRefreshOne(skin.id)}>
-                {isUpdating ? UI_TEXT.updateOnePendingCompact : UI_TEXT.updateOne}
-              </button>
-              <button className="toolbar-button toolbar-button-danger-secondary" type="button" disabled={isBusy} onClick={() => void onDelete(skin.id)}>
-                {isDeleting ? UI_TEXT.deleteSkinPending : UI_TEXT.deleteSkin}
-              </button>
-            </div>
-          </article>
-        );
-      }}
-    />
+            </div>,
+            document.body,
+          )
+        : null}
+    </>
   );
 };

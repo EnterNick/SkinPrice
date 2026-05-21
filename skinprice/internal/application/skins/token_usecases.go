@@ -2,6 +2,7 @@ package skins
 
 import (
 	"SkinPrice/skinprice/internal/shared/errx"
+	"context"
 	"errors"
 	"strings"
 )
@@ -18,7 +19,7 @@ type SaveLisSkinsToken struct {
 	Cipher  TokenCipher
 }
 
-func (uc SaveLisSkinsToken) Execute(token string) error {
+func (uc SaveLisSkinsToken) Execute(ctx context.Context, token string) error {
 	normalized, err := normalizeLisSkinsToken(token)
 	if err != nil {
 		return err
@@ -27,7 +28,7 @@ func (uc SaveLisSkinsToken) Execute(token string) error {
 	if err != nil {
 		return errx.E("save_lisskins_token.encrypt", errx.CodeInternal, "failed to save lisskins token", err)
 	}
-	if err = uc.Storage.UpsertLisSkinsToken(encrypted); err != nil {
+	if err = uc.Storage.UpsertLisSkinsToken(ctx, encrypted); err != nil {
 		return errx.E("save_lisskins_token.upsert", errx.CodeInternal, "failed to save lisskins token", err)
 	}
 	return nil
@@ -38,8 +39,8 @@ type GetLisSkinsToken struct {
 	Cipher  TokenCipher
 }
 
-func (uc GetLisSkinsToken) Execute() (string, error) {
-	encrypted, err := uc.Storage.GetLisSkinsToken()
+func (uc GetLisSkinsToken) Execute(ctx context.Context) (string, error) {
+	encrypted, err := uc.Storage.GetLisSkinsToken(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -54,8 +55,8 @@ type HasLisSkinsToken struct {
 	Storage LisSkinsTokenStorage
 }
 
-func (uc HasLisSkinsToken) Execute() (bool, error) {
-	_, err := uc.Storage.GetLisSkinsToken()
+func (uc HasLisSkinsToken) Execute(ctx context.Context) (bool, error) {
+	_, err := uc.Storage.GetLisSkinsToken(ctx)
 	if err == nil {
 		return true, nil
 	}
@@ -69,8 +70,8 @@ type ClearLisSkinsToken struct {
 	Storage LisSkinsTokenStorage
 }
 
-func (uc ClearLisSkinsToken) Execute() error {
-	if err := uc.Storage.DeleteLisSkinsToken(); err != nil {
+func (uc ClearLisSkinsToken) Execute(ctx context.Context) error {
+	if err := uc.Storage.DeleteLisSkinsToken(ctx); err != nil {
 		return errx.E("clear_lisskins_token.delete", errx.CodeInternal, "failed to clear lisskins token", err)
 	}
 	return nil

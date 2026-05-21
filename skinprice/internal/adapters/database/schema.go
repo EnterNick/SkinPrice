@@ -8,13 +8,8 @@ import (
 
 func EnsureSchema(connection *Connection) error {
 	ctx := context.Background()
-	query := sqliteSchemaQuery
-	if connection.Dialect() == "postgres" {
-		query = postgresSchemaQuery
-	}
-
-	if _, err := connection.DB().ExecContext(ctx, query); err != nil {
-		return fmt.Errorf("apply schema: %w", err)
+	if err := connection.Client().Schema.Create(ctx); err != nil {
+		return fmt.Errorf("apply ent schema: %w", err)
 	}
 	if err := ensureSourceStatesSchema(ctx, connection); err != nil {
 		return fmt.Errorf("ensure source_states schema: %w", err)
@@ -155,77 +150,3 @@ func isMissingColumnIgnored(err error) bool {
 		strings.Contains(message, "duplicate column name: cstm_price_text") ||
 		strings.Contains(message, "duplicate column name: cstm_updated_at")
 }
-
-const sqliteSchemaQuery = `
-CREATE TABLE IF NOT EXISTS skins (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	market_hash_name TEXT NOT NULL UNIQUE,
-	display_name TEXT NOT NULL,
-	name_color TEXT NOT NULL DEFAULT '',
-	icon_url TEXT NOT NULL DEFAULT '',
-	page_url TEXT NOT NULL DEFAULT '',
-	price_text TEXT NOT NULL DEFAULT '',
-	steam_page_url TEXT NOT NULL DEFAULT '',
-	steam_price_text TEXT NOT NULL DEFAULT '',
-	steam_updated_at DATETIME,
-	lisskins_page_url TEXT NOT NULL DEFAULT '',
-	lisskins_price_text TEXT NOT NULL DEFAULT '',
-	lisskins_updated_at DATETIME,
-	cstm_page_url TEXT NOT NULL DEFAULT '',
-	cstm_price_text TEXT NOT NULL DEFAULT '',
-	cstm_updated_at DATETIME,
-	currency TEXT NOT NULL DEFAULT '1',
-	updated_at DATETIME
-);
-
-CREATE TABLE IF NOT EXISTS source_states (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	source TEXT NOT NULL UNIQUE,
-	api_token_encrypted TEXT NOT NULL DEFAULT '',
-	updated_at DATETIME
-);
-
-CREATE TABLE IF NOT EXISTS app_settings (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	key TEXT NOT NULL UNIQUE,
-	value TEXT NOT NULL DEFAULT '',
-	updated_at DATETIME
-);
-`
-
-const postgresSchemaQuery = `
-CREATE TABLE IF NOT EXISTS skins (
-	id BIGSERIAL PRIMARY KEY,
-	market_hash_name TEXT NOT NULL UNIQUE,
-	display_name TEXT NOT NULL,
-	name_color TEXT NOT NULL DEFAULT '',
-	icon_url TEXT NOT NULL DEFAULT '',
-	page_url TEXT NOT NULL DEFAULT '',
-	price_text TEXT NOT NULL DEFAULT '',
-	steam_page_url TEXT NOT NULL DEFAULT '',
-	steam_price_text TEXT NOT NULL DEFAULT '',
-	steam_updated_at TIMESTAMPTZ,
-	lisskins_page_url TEXT NOT NULL DEFAULT '',
-	lisskins_price_text TEXT NOT NULL DEFAULT '',
-	lisskins_updated_at TIMESTAMPTZ,
-	cstm_page_url TEXT NOT NULL DEFAULT '',
-	cstm_price_text TEXT NOT NULL DEFAULT '',
-	cstm_updated_at TIMESTAMPTZ,
-	currency TEXT NOT NULL DEFAULT '1',
-	updated_at TIMESTAMPTZ
-);
-
-CREATE TABLE IF NOT EXISTS source_states (
-	id BIGSERIAL PRIMARY KEY,
-	source TEXT NOT NULL UNIQUE,
-	api_token_encrypted TEXT NOT NULL DEFAULT '',
-	updated_at TIMESTAMPTZ
-);
-
-CREATE TABLE IF NOT EXISTS app_settings (
-	id BIGSERIAL PRIMARY KEY,
-	key TEXT NOT NULL UNIQUE,
-	value TEXT NOT NULL DEFAULT '',
-	updated_at TIMESTAMPTZ
-);
-`

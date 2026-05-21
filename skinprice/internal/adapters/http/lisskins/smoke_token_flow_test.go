@@ -6,6 +6,7 @@ import (
 	"SkinPrice/skinprice/internal/application"
 	appskins "SkinPrice/skinprice/internal/application/skins"
 	sharedcrypto "SkinPrice/skinprice/internal/shared/utils/crypto"
+	"context"
 	"encoding/base64"
 	"errors"
 	"net/http"
@@ -30,7 +31,8 @@ func TestLisSkinsTokenSmokeFlow(t *testing.T) {
 
 	stateStorage := &sourcestate.Storage{Conn: conn}
 	hasUC := appskins.HasLisSkinsToken{Storage: stateStorage}
-	hasToken, err := hasUC.Execute()
+	ctx := context.Background()
+	hasToken, err := hasUC.Execute(ctx)
 	if err != nil || hasToken {
 		t.Fatalf("new user must have no token: has=%v err=%v", hasToken, err)
 	}
@@ -44,10 +46,10 @@ func TestLisSkinsTokenSmokeFlow(t *testing.T) {
 	getUC := appskins.GetLisSkinsToken{Storage: stateStorage, Cipher: cipher}
 
 	const plainToken = "tok_test_123456789"
-	if err = saveUC.Execute(plainToken); err != nil {
+	if err = saveUC.Execute(ctx, plainToken); err != nil {
 		t.Fatalf("save token: %v", err)
 	}
-	rawEncrypted, err := stateStorage.GetLisSkinsToken()
+	rawEncrypted, err := stateStorage.GetLisSkinsToken(ctx)
 	if err != nil {
 		t.Fatalf("read encrypted: %v", err)
 	}
@@ -71,10 +73,10 @@ func TestLisSkinsTokenSmokeFlow(t *testing.T) {
 
 	httpStorage := &Storage{Client: server.Client(), BaseURL: server.URL, TokenProvider: getUC}
 	pagination := &application.Pagination{Limit: 20, Offset: 0}
-	if _, err = httpStorage.GetList(appskins.SearchCriteria{}, pagination); err != nil {
+	if _, err = httpStorage.GetList(ctx, appskins.SearchCriteria{}, pagination); err != nil {
 		t.Fatalf("search should succeed: %v", err)
 	}
-	_, err = httpStorage.GetList(appskins.SearchCriteria{}, pagination)
+	_, err = httpStorage.GetList(ctx, appskins.SearchCriteria{}, pagination)
 	if !errors.Is(err, appskins.ErrLisSkinsTokenInvalid) {
 		t.Fatalf("expected invalid token branch, got: %v", err)
 	}

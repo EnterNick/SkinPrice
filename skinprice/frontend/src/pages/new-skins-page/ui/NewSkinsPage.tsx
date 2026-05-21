@@ -13,6 +13,8 @@ import { EmptyState, ErrorState, ToastAlert } from "../../../shared/ui/states/St
 import { NewSkinsResults } from "../../../widgets/new-skins-results/NewSkinsResults";
 import { NewSkinsSearchPanel } from "../../../widgets/new-skins-search-panel/NewSkinsSearchPanel";
 
+const FILTER_APPLY_DELAY_MS = 1500;
+
 export const NewSkinsPage: React.FC = () => {
   const navigate = useNavigate();
   const {
@@ -62,7 +64,7 @@ export const NewSkinsPage: React.FC = () => {
     const timeoutId = window.setTimeout(() => {
       setNotice(null);
       void loadNewSkins(searchParams);
-    }, 450);
+    }, FILTER_APPLY_DELAY_MS);
 
     return () => {
       window.clearTimeout(timeoutId);
@@ -84,12 +86,12 @@ export const NewSkinsPage: React.FC = () => {
       />
       <NewSkinsSearchPanel
         value={searchParams}
-        errorText={notice?.type === "error" ? notice.text : null}
+        errorText={null}
         disabled={false}
         onChange={setSearchParams}
         onReset={() => setSearchParams(DEFAULT_NEW_SKINS_SEARCH_PARAMS)}
       />
-      {notice && <ToastAlert type={notice.type} text={notice.text} />}
+      {notice && <ToastAlert type={notice.type} text={notice.text} onClose={() => setNotice(null)} />}
       {error && !loading && <ErrorState text={error} />}
       {!loading && !error && hasSearched && items.length === 0 && <EmptyState text={UI_TEXT.notFoundSearch} />}
       {!error && hasSearched && (

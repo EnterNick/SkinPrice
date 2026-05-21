@@ -16,8 +16,8 @@ type SourceState struct {
 // Fields of the SourceState.
 func (SourceState) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("source").NotEmpty(),
-		field.String("api_token_encrypted").NotEmpty(),
+		field.String("source").NotEmpty().Default("lisskins"),
+		field.String("api_token_encrypted").Default(""),
 		field.Time("updated_at").Optional().Nillable().Default(time.Now),
 	}
 }

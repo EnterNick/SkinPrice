@@ -316,7 +316,7 @@ export const SavedSkinsPage: React.FC = () => {
           </div>
         }
       />
-      {notice && <ToastAlert type={notice.type} text={notice.text} />}
+      {notice && <ToastAlert type={notice.type} text={notice.text} onClose={() => setNotice(null)} />}
       {items.length === 0 ? (
         <div className="empty-shell">
           <h3 className="empty-title">В коллекции пока нет скинов</h3>

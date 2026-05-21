@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"SkinPrice/skinprice/internal/adapters/database/ent/appsetting"
 	"SkinPrice/skinprice/internal/adapters/database/ent/pricesnapshot"
 	"SkinPrice/skinprice/internal/adapters/database/ent/skin"
 	"SkinPrice/skinprice/internal/adapters/database/ent/sourcestate"
@@ -76,6 +77,7 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
+			appsetting.Table:    appsetting.ValidColumn,
 			pricesnapshot.Table: pricesnapshot.ValidColumn,
 			skin.Table:          skin.ValidColumn,
 			sourcestate.Table:   sourcestate.ValidColumn,

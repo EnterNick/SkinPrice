@@ -6,6 +6,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// AppSetting is the predicate function for appsetting builders.
+type AppSetting func(*sql.Selector)
+
 // PriceSnapshot is the predicate function for pricesnapshot builders.
 type PriceSnapshot func(*sql.Selector)
 

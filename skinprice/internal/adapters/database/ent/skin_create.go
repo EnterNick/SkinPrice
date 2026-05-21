@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -28,6 +29,20 @@ func (_c *SkinCreate) SetMarketHashName(v string) *SkinCreate {
 // SetDisplayName sets the "display_name" field.
 func (_c *SkinCreate) SetDisplayName(v string) *SkinCreate {
 	_c.mutation.SetDisplayName(v)
+	return _c
+}
+
+// SetNameColor sets the "name_color" field.
+func (_c *SkinCreate) SetNameColor(v string) *SkinCreate {
+	_c.mutation.SetNameColor(v)
+	return _c
+}
+
+// SetNillableNameColor sets the "name_color" field if the given value is not nil.
+func (_c *SkinCreate) SetNillableNameColor(v *string) *SkinCreate {
+	if v != nil {
+		_c.SetNameColor(*v)
+	}
 	return _c
 }
 
@@ -59,6 +74,174 @@ func (_c *SkinCreate) SetNillablePageURL(v *string) *SkinCreate {
 	return _c
 }
 
+// SetPriceText sets the "price_text" field.
+func (_c *SkinCreate) SetPriceText(v string) *SkinCreate {
+	_c.mutation.SetPriceText(v)
+	return _c
+}
+
+// SetNillablePriceText sets the "price_text" field if the given value is not nil.
+func (_c *SkinCreate) SetNillablePriceText(v *string) *SkinCreate {
+	if v != nil {
+		_c.SetPriceText(*v)
+	}
+	return _c
+}
+
+// SetSteamPageURL sets the "steam_page_url" field.
+func (_c *SkinCreate) SetSteamPageURL(v string) *SkinCreate {
+	_c.mutation.SetSteamPageURL(v)
+	return _c
+}
+
+// SetNillableSteamPageURL sets the "steam_page_url" field if the given value is not nil.
+func (_c *SkinCreate) SetNillableSteamPageURL(v *string) *SkinCreate {
+	if v != nil {
+		_c.SetSteamPageURL(*v)
+	}
+	return _c
+}
+
+// SetSteamPriceText sets the "steam_price_text" field.
+func (_c *SkinCreate) SetSteamPriceText(v string) *SkinCreate {
+	_c.mutation.SetSteamPriceText(v)
+	return _c
+}
+
+// SetNillableSteamPriceText sets the "steam_price_text" field if the given value is not nil.
+func (_c *SkinCreate) SetNillableSteamPriceText(v *string) *SkinCreate {
+	if v != nil {
+		_c.SetSteamPriceText(*v)
+	}
+	return _c
+}
+
+// SetSteamUpdatedAt sets the "steam_updated_at" field.
+func (_c *SkinCreate) SetSteamUpdatedAt(v time.Time) *SkinCreate {
+	_c.mutation.SetSteamUpdatedAt(v)
+	return _c
+}
+
+// SetNillableSteamUpdatedAt sets the "steam_updated_at" field if the given value is not nil.
+func (_c *SkinCreate) SetNillableSteamUpdatedAt(v *time.Time) *SkinCreate {
+	if v != nil {
+		_c.SetSteamUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetLisskinsPageURL sets the "lisskins_page_url" field.
+func (_c *SkinCreate) SetLisskinsPageURL(v string) *SkinCreate {
+	_c.mutation.SetLisskinsPageURL(v)
+	return _c
+}
+
+// SetNillableLisskinsPageURL sets the "lisskins_page_url" field if the given value is not nil.
+func (_c *SkinCreate) SetNillableLisskinsPageURL(v *string) *SkinCreate {
+	if v != nil {
+		_c.SetLisskinsPageURL(*v)
+	}
+	return _c
+}
+
+// SetLisskinsPriceText sets the "lisskins_price_text" field.
+func (_c *SkinCreate) SetLisskinsPriceText(v string) *SkinCreate {
+	_c.mutation.SetLisskinsPriceText(v)
+	return _c
+}
+
+// SetNillableLisskinsPriceText sets the "lisskins_price_text" field if the given value is not nil.
+func (_c *SkinCreate) SetNillableLisskinsPriceText(v *string) *SkinCreate {
+	if v != nil {
+		_c.SetLisskinsPriceText(*v)
+	}
+	return _c
+}
+
+// SetLisskinsUpdatedAt sets the "lisskins_updated_at" field.
+func (_c *SkinCreate) SetLisskinsUpdatedAt(v time.Time) *SkinCreate {
+	_c.mutation.SetLisskinsUpdatedAt(v)
+	return _c
+}
+
+// SetNillableLisskinsUpdatedAt sets the "lisskins_updated_at" field if the given value is not nil.
+func (_c *SkinCreate) SetNillableLisskinsUpdatedAt(v *time.Time) *SkinCreate {
+	if v != nil {
+		_c.SetLisskinsUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetCstmPageURL sets the "cstm_page_url" field.
+func (_c *SkinCreate) SetCstmPageURL(v string) *SkinCreate {
+	_c.mutation.SetCstmPageURL(v)
+	return _c
+}
+
+// SetNillableCstmPageURL sets the "cstm_page_url" field if the given value is not nil.
+func (_c *SkinCreate) SetNillableCstmPageURL(v *string) *SkinCreate {
+	if v != nil {
+		_c.SetCstmPageURL(*v)
+	}
+	return _c
+}
+
+// SetCstmPriceText sets the "cstm_price_text" field.
+func (_c *SkinCreate) SetCstmPriceText(v string) *SkinCreate {
+	_c.mutation.SetCstmPriceText(v)
+	return _c
+}
+
+// SetNillableCstmPriceText sets the "cstm_price_text" field if the given value is not nil.
+func (_c *SkinCreate) SetNillableCstmPriceText(v *string) *SkinCreate {
+	if v != nil {
+		_c.SetCstmPriceText(*v)
+	}
+	return _c
+}
+
+// SetCstmUpdatedAt sets the "cstm_updated_at" field.
+func (_c *SkinCreate) SetCstmUpdatedAt(v time.Time) *SkinCreate {
+	_c.mutation.SetCstmUpdatedAt(v)
+	return _c
+}
+
+// SetNillableCstmUpdatedAt sets the "cstm_updated_at" field if the given value is not nil.
+func (_c *SkinCreate) SetNillableCstmUpdatedAt(v *time.Time) *SkinCreate {
+	if v != nil {
+		_c.SetCstmUpdatedAt(*v)
+	}
+	return _c
+}
+
+// SetCurrency sets the "currency" field.
+func (_c *SkinCreate) SetCurrency(v string) *SkinCreate {
+	_c.mutation.SetCurrency(v)
+	return _c
+}
+
+// SetNillableCurrency sets the "currency" field if the given value is not nil.
+func (_c *SkinCreate) SetNillableCurrency(v *string) *SkinCreate {
+	if v != nil {
+		_c.SetCurrency(*v)
+	}
+	return _c
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (_c *SkinCreate) SetUpdatedAt(v time.Time) *SkinCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_c *SkinCreate) SetNillableUpdatedAt(v *time.Time) *SkinCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
+	}
+	return _c
+}
+
 // Mutation returns the SkinMutation object of the builder.
 func (_c *SkinCreate) Mutation() *SkinMutation {
 	return _c.mutation
@@ -66,6 +249,7 @@ func (_c *SkinCreate) Mutation() *SkinMutation {
 
 // Save creates the Skin in the database.
 func (_c *SkinCreate) Save(ctx context.Context) (*Skin, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -91,6 +275,58 @@ func (_c *SkinCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *SkinCreate) defaults() {
+	if _, ok := _c.mutation.NameColor(); !ok {
+		v := skin.DefaultNameColor
+		_c.mutation.SetNameColor(v)
+	}
+	if _, ok := _c.mutation.IconURL(); !ok {
+		v := skin.DefaultIconURL
+		_c.mutation.SetIconURL(v)
+	}
+	if _, ok := _c.mutation.PageURL(); !ok {
+		v := skin.DefaultPageURL
+		_c.mutation.SetPageURL(v)
+	}
+	if _, ok := _c.mutation.PriceText(); !ok {
+		v := skin.DefaultPriceText
+		_c.mutation.SetPriceText(v)
+	}
+	if _, ok := _c.mutation.SteamPageURL(); !ok {
+		v := skin.DefaultSteamPageURL
+		_c.mutation.SetSteamPageURL(v)
+	}
+	if _, ok := _c.mutation.SteamPriceText(); !ok {
+		v := skin.DefaultSteamPriceText
+		_c.mutation.SetSteamPriceText(v)
+	}
+	if _, ok := _c.mutation.LisskinsPageURL(); !ok {
+		v := skin.DefaultLisskinsPageURL
+		_c.mutation.SetLisskinsPageURL(v)
+	}
+	if _, ok := _c.mutation.LisskinsPriceText(); !ok {
+		v := skin.DefaultLisskinsPriceText
+		_c.mutation.SetLisskinsPriceText(v)
+	}
+	if _, ok := _c.mutation.CstmPageURL(); !ok {
+		v := skin.DefaultCstmPageURL
+		_c.mutation.SetCstmPageURL(v)
+	}
+	if _, ok := _c.mutation.CstmPriceText(); !ok {
+		v := skin.DefaultCstmPriceText
+		_c.mutation.SetCstmPriceText(v)
+	}
+	if _, ok := _c.mutation.Currency(); !ok {
+		v := skin.DefaultCurrency
+		_c.mutation.SetCurrency(v)
+	}
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		v := skin.DefaultUpdatedAt()
+		_c.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *SkinCreate) check() error {
 	if _, ok := _c.mutation.MarketHashName(); !ok {
@@ -108,6 +344,39 @@ func (_c *SkinCreate) check() error {
 		if err := skin.DisplayNameValidator(v); err != nil {
 			return &ValidationError{Name: "display_name", err: fmt.Errorf(`ent: validator failed for field "Skin.display_name": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.NameColor(); !ok {
+		return &ValidationError{Name: "name_color", err: errors.New(`ent: missing required field "Skin.name_color"`)}
+	}
+	if _, ok := _c.mutation.IconURL(); !ok {
+		return &ValidationError{Name: "icon_url", err: errors.New(`ent: missing required field "Skin.icon_url"`)}
+	}
+	if _, ok := _c.mutation.PageURL(); !ok {
+		return &ValidationError{Name: "page_url", err: errors.New(`ent: missing required field "Skin.page_url"`)}
+	}
+	if _, ok := _c.mutation.PriceText(); !ok {
+		return &ValidationError{Name: "price_text", err: errors.New(`ent: missing required field "Skin.price_text"`)}
+	}
+	if _, ok := _c.mutation.SteamPageURL(); !ok {
+		return &ValidationError{Name: "steam_page_url", err: errors.New(`ent: missing required field "Skin.steam_page_url"`)}
+	}
+	if _, ok := _c.mutation.SteamPriceText(); !ok {
+		return &ValidationError{Name: "steam_price_text", err: errors.New(`ent: missing required field "Skin.steam_price_text"`)}
+	}
+	if _, ok := _c.mutation.LisskinsPageURL(); !ok {
+		return &ValidationError{Name: "lisskins_page_url", err: errors.New(`ent: missing required field "Skin.lisskins_page_url"`)}
+	}
+	if _, ok := _c.mutation.LisskinsPriceText(); !ok {
+		return &ValidationError{Name: "lisskins_price_text", err: errors.New(`ent: missing required field "Skin.lisskins_price_text"`)}
+	}
+	if _, ok := _c.mutation.CstmPageURL(); !ok {
+		return &ValidationError{Name: "cstm_page_url", err: errors.New(`ent: missing required field "Skin.cstm_page_url"`)}
+	}
+	if _, ok := _c.mutation.CstmPriceText(); !ok {
+		return &ValidationError{Name: "cstm_price_text", err: errors.New(`ent: missing required field "Skin.cstm_price_text"`)}
+	}
+	if _, ok := _c.mutation.Currency(); !ok {
+		return &ValidationError{Name: "currency", err: errors.New(`ent: missing required field "Skin.currency"`)}
 	}
 	return nil
 }
@@ -143,6 +412,10 @@ func (_c *SkinCreate) createSpec() (*Skin, *sqlgraph.CreateSpec) {
 		_spec.SetField(skin.FieldDisplayName, field.TypeString, value)
 		_node.DisplayName = value
 	}
+	if value, ok := _c.mutation.NameColor(); ok {
+		_spec.SetField(skin.FieldNameColor, field.TypeString, value)
+		_node.NameColor = value
+	}
 	if value, ok := _c.mutation.IconURL(); ok {
 		_spec.SetField(skin.FieldIconURL, field.TypeString, value)
 		_node.IconURL = value
@@ -150,6 +423,54 @@ func (_c *SkinCreate) createSpec() (*Skin, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.PageURL(); ok {
 		_spec.SetField(skin.FieldPageURL, field.TypeString, value)
 		_node.PageURL = value
+	}
+	if value, ok := _c.mutation.PriceText(); ok {
+		_spec.SetField(skin.FieldPriceText, field.TypeString, value)
+		_node.PriceText = value
+	}
+	if value, ok := _c.mutation.SteamPageURL(); ok {
+		_spec.SetField(skin.FieldSteamPageURL, field.TypeString, value)
+		_node.SteamPageURL = value
+	}
+	if value, ok := _c.mutation.SteamPriceText(); ok {
+		_spec.SetField(skin.FieldSteamPriceText, field.TypeString, value)
+		_node.SteamPriceText = value
+	}
+	if value, ok := _c.mutation.SteamUpdatedAt(); ok {
+		_spec.SetField(skin.FieldSteamUpdatedAt, field.TypeTime, value)
+		_node.SteamUpdatedAt = &value
+	}
+	if value, ok := _c.mutation.LisskinsPageURL(); ok {
+		_spec.SetField(skin.FieldLisskinsPageURL, field.TypeString, value)
+		_node.LisskinsPageURL = value
+	}
+	if value, ok := _c.mutation.LisskinsPriceText(); ok {
+		_spec.SetField(skin.FieldLisskinsPriceText, field.TypeString, value)
+		_node.LisskinsPriceText = value
+	}
+	if value, ok := _c.mutation.LisskinsUpdatedAt(); ok {
+		_spec.SetField(skin.FieldLisskinsUpdatedAt, field.TypeTime, value)
+		_node.LisskinsUpdatedAt = &value
+	}
+	if value, ok := _c.mutation.CstmPageURL(); ok {
+		_spec.SetField(skin.FieldCstmPageURL, field.TypeString, value)
+		_node.CstmPageURL = value
+	}
+	if value, ok := _c.mutation.CstmPriceText(); ok {
+		_spec.SetField(skin.FieldCstmPriceText, field.TypeString, value)
+		_node.CstmPriceText = value
+	}
+	if value, ok := _c.mutation.CstmUpdatedAt(); ok {
+		_spec.SetField(skin.FieldCstmUpdatedAt, field.TypeTime, value)
+		_node.CstmUpdatedAt = &value
+	}
+	if value, ok := _c.mutation.Currency(); ok {
+		_spec.SetField(skin.FieldCurrency, field.TypeString, value)
+		_node.Currency = value
+	}
+	if value, ok := _c.mutation.UpdatedAt(); ok {
+		_spec.SetField(skin.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = &value
 	}
 	return _node, _spec
 }
@@ -172,6 +493,7 @@ func (_c *SkinCreateBulk) Save(ctx context.Context) ([]*Skin, error) {
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*SkinMutation)
 				if !ok {

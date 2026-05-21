@@ -8,6 +8,19 @@ import (
 )
 
 var (
+	// AppSettingsColumns holds the columns for the "app_settings" table.
+	AppSettingsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "key", Type: field.TypeString, Unique: true},
+		{Name: "value", Type: field.TypeString, Default: ""},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
+	}
+	// AppSettingsTable holds the schema information for the "app_settings" table.
+	AppSettingsTable = &schema.Table{
+		Name:       "app_settings",
+		Columns:    AppSettingsColumns,
+		PrimaryKey: []*schema.Column{AppSettingsColumns[0]},
+	}
 	// PriceSnapshotsColumns holds the columns for the "price_snapshots" table.
 	PriceSnapshotsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -23,8 +36,21 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "market_hash_name", Type: field.TypeString, Unique: true},
 		{Name: "display_name", Type: field.TypeString},
-		{Name: "icon_url", Type: field.TypeString, Nullable: true},
-		{Name: "page_url", Type: field.TypeString, Nullable: true},
+		{Name: "name_color", Type: field.TypeString, Default: ""},
+		{Name: "icon_url", Type: field.TypeString, Default: ""},
+		{Name: "page_url", Type: field.TypeString, Default: ""},
+		{Name: "price_text", Type: field.TypeString, Default: ""},
+		{Name: "steam_page_url", Type: field.TypeString, Default: ""},
+		{Name: "steam_price_text", Type: field.TypeString, Default: ""},
+		{Name: "steam_updated_at", Type: field.TypeTime, Nullable: true},
+		{Name: "lisskins_page_url", Type: field.TypeString, Default: ""},
+		{Name: "lisskins_price_text", Type: field.TypeString, Default: ""},
+		{Name: "lisskins_updated_at", Type: field.TypeTime, Nullable: true},
+		{Name: "cstm_page_url", Type: field.TypeString, Default: ""},
+		{Name: "cstm_price_text", Type: field.TypeString, Default: ""},
+		{Name: "cstm_updated_at", Type: field.TypeTime, Nullable: true},
+		{Name: "currency", Type: field.TypeString, Default: "1"},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
 	}
 	// SkinsTable holds the schema information for the "skins" table.
 	SkinsTable = &schema.Table{
@@ -35,8 +61,8 @@ var (
 	// SourceStatesColumns holds the columns for the "source_states" table.
 	SourceStatesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "source", Type: field.TypeString},
-		{Name: "api_token_encrypted", Type: field.TypeString},
+		{Name: "source", Type: field.TypeString, Default: "lisskins"},
+		{Name: "api_token_encrypted", Type: field.TypeString, Default: ""},
 		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
 	}
 	// SourceStatesTable holds the schema information for the "source_states" table.
@@ -64,6 +90,7 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		AppSettingsTable,
 		PriceSnapshotsTable,
 		SkinsTable,
 		SourceStatesTable,

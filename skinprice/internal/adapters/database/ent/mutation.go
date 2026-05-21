@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"SkinPrice/skinprice/internal/adapters/database/ent/appsetting"
 	"SkinPrice/skinprice/internal/adapters/database/ent/predicate"
 	"SkinPrice/skinprice/internal/adapters/database/ent/skin"
 	"SkinPrice/skinprice/internal/adapters/database/ent/sourcestate"
@@ -25,11 +26,468 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
+	TypeAppSetting    = "AppSetting"
 	TypePriceSnapshot = "PriceSnapshot"
 	TypeSkin          = "Skin"
 	TypeSourceState   = "SourceState"
 	TypeWatchlistItem = "WatchlistItem"
 )
+
+// AppSettingMutation represents an operation that mutates the AppSetting nodes in the graph.
+type AppSettingMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *int
+	key           *string
+	value         *string
+	updated_at    *time.Time
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*AppSetting, error)
+	predicates    []predicate.AppSetting
+}
+
+var _ ent.Mutation = (*AppSettingMutation)(nil)
+
+// appsettingOption allows management of the mutation configuration using functional options.
+type appsettingOption func(*AppSettingMutation)
+
+// newAppSettingMutation creates new mutation for the AppSetting entity.
+func newAppSettingMutation(c config, op Op, opts ...appsettingOption) *AppSettingMutation {
+	m := &AppSettingMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeAppSetting,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withAppSettingID sets the ID field of the mutation.
+func withAppSettingID(id int) appsettingOption {
+	return func(m *AppSettingMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *AppSetting
+		)
+		m.oldValue = func(ctx context.Context) (*AppSetting, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().AppSetting.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withAppSetting sets the old AppSetting of the mutation.
+func withAppSetting(node *AppSetting) appsettingOption {
+	return func(m *AppSettingMutation) {
+		m.oldValue = func(context.Context) (*AppSetting, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m AppSettingMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m AppSettingMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *AppSettingMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *AppSettingMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().AppSetting.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetKey sets the "key" field.
+func (m *AppSettingMutation) SetKey(s string) {
+	m.key = &s
+}
+
+// Key returns the value of the "key" field in the mutation.
+func (m *AppSettingMutation) Key() (r string, exists bool) {
+	v := m.key
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldKey returns the old "key" field's value of the AppSetting entity.
+// If the AppSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AppSettingMutation) OldKey(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldKey is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldKey requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldKey: %w", err)
+	}
+	return oldValue.Key, nil
+}
+
+// ResetKey resets all changes to the "key" field.
+func (m *AppSettingMutation) ResetKey() {
+	m.key = nil
+}
+
+// SetValue sets the "value" field.
+func (m *AppSettingMutation) SetValue(s string) {
+	m.value = &s
+}
+
+// Value returns the value of the "value" field in the mutation.
+func (m *AppSettingMutation) Value() (r string, exists bool) {
+	v := m.value
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldValue returns the old "value" field's value of the AppSetting entity.
+// If the AppSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AppSettingMutation) OldValue(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldValue is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldValue requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldValue: %w", err)
+	}
+	return oldValue.Value, nil
+}
+
+// ResetValue resets all changes to the "value" field.
+func (m *AppSettingMutation) ResetValue() {
+	m.value = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *AppSettingMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *AppSettingMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the AppSetting entity.
+// If the AppSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AppSettingMutation) OldUpdatedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ClearUpdatedAt clears the value of the "updated_at" field.
+func (m *AppSettingMutation) ClearUpdatedAt() {
+	m.updated_at = nil
+	m.clearedFields[appsetting.FieldUpdatedAt] = struct{}{}
+}
+
+// UpdatedAtCleared returns if the "updated_at" field was cleared in this mutation.
+func (m *AppSettingMutation) UpdatedAtCleared() bool {
+	_, ok := m.clearedFields[appsetting.FieldUpdatedAt]
+	return ok
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *AppSettingMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+	delete(m.clearedFields, appsetting.FieldUpdatedAt)
+}
+
+// Where appends a list predicates to the AppSettingMutation builder.
+func (m *AppSettingMutation) Where(ps ...predicate.AppSetting) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the AppSettingMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *AppSettingMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.AppSetting, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *AppSettingMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *AppSettingMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (AppSetting).
+func (m *AppSettingMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *AppSettingMutation) Fields() []string {
+	fields := make([]string, 0, 3)
+	if m.key != nil {
+		fields = append(fields, appsetting.FieldKey)
+	}
+	if m.value != nil {
+		fields = append(fields, appsetting.FieldValue)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, appsetting.FieldUpdatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *AppSettingMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case appsetting.FieldKey:
+		return m.Key()
+	case appsetting.FieldValue:
+		return m.Value()
+	case appsetting.FieldUpdatedAt:
+		return m.UpdatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *AppSettingMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case appsetting.FieldKey:
+		return m.OldKey(ctx)
+	case appsetting.FieldValue:
+		return m.OldValue(ctx)
+	case appsetting.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown AppSetting field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *AppSettingMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case appsetting.FieldKey:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetKey(v)
+		return nil
+	case appsetting.FieldValue:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetValue(v)
+		return nil
+	case appsetting.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown AppSetting field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *AppSettingMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *AppSettingMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *AppSettingMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown AppSetting numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *AppSettingMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(appsetting.FieldUpdatedAt) {
+		fields = append(fields, appsetting.FieldUpdatedAt)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *AppSettingMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *AppSettingMutation) ClearField(name string) error {
+	switch name {
+	case appsetting.FieldUpdatedAt:
+		m.ClearUpdatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown AppSetting nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *AppSettingMutation) ResetField(name string) error {
+	switch name {
+	case appsetting.FieldKey:
+		m.ResetKey()
+		return nil
+	case appsetting.FieldValue:
+		m.ResetValue()
+		return nil
+	case appsetting.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown AppSetting field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *AppSettingMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *AppSettingMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *AppSettingMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *AppSettingMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *AppSettingMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *AppSettingMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *AppSettingMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown AppSetting unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *AppSettingMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown AppSetting edge %s", name)
+}
 
 // PriceSnapshotMutation represents an operation that mutates the PriceSnapshot nodes in the graph.
 type PriceSnapshotMutation struct {
@@ -298,17 +756,30 @@ func (m *PriceSnapshotMutation) ResetEdge(name string) error {
 // SkinMutation represents an operation that mutates the Skin nodes in the graph.
 type SkinMutation struct {
 	config
-	op               Op
-	typ              string
-	id               *int
-	market_hash_name *string
-	display_name     *string
-	icon_url         *string
-	page_url         *string
-	clearedFields    map[string]struct{}
-	done             bool
-	oldValue         func(context.Context) (*Skin, error)
-	predicates       []predicate.Skin
+	op                  Op
+	typ                 string
+	id                  *int
+	market_hash_name    *string
+	display_name        *string
+	name_color          *string
+	icon_url            *string
+	page_url            *string
+	price_text          *string
+	steam_page_url      *string
+	steam_price_text    *string
+	steam_updated_at    *time.Time
+	lisskins_page_url   *string
+	lisskins_price_text *string
+	lisskins_updated_at *time.Time
+	cstm_page_url       *string
+	cstm_price_text     *string
+	cstm_updated_at     *time.Time
+	currency            *string
+	updated_at          *time.Time
+	clearedFields       map[string]struct{}
+	done                bool
+	oldValue            func(context.Context) (*Skin, error)
+	predicates          []predicate.Skin
 }
 
 var _ ent.Mutation = (*SkinMutation)(nil)
@@ -481,6 +952,42 @@ func (m *SkinMutation) ResetDisplayName() {
 	m.display_name = nil
 }
 
+// SetNameColor sets the "name_color" field.
+func (m *SkinMutation) SetNameColor(s string) {
+	m.name_color = &s
+}
+
+// NameColor returns the value of the "name_color" field in the mutation.
+func (m *SkinMutation) NameColor() (r string, exists bool) {
+	v := m.name_color
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNameColor returns the old "name_color" field's value of the Skin entity.
+// If the Skin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SkinMutation) OldNameColor(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNameColor is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNameColor requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNameColor: %w", err)
+	}
+	return oldValue.NameColor, nil
+}
+
+// ResetNameColor resets all changes to the "name_color" field.
+func (m *SkinMutation) ResetNameColor() {
+	m.name_color = nil
+}
+
 // SetIconURL sets the "icon_url" field.
 func (m *SkinMutation) SetIconURL(s string) {
 	m.icon_url = &s
@@ -512,22 +1019,9 @@ func (m *SkinMutation) OldIconURL(ctx context.Context) (v string, err error) {
 	return oldValue.IconURL, nil
 }
 
-// ClearIconURL clears the value of the "icon_url" field.
-func (m *SkinMutation) ClearIconURL() {
-	m.icon_url = nil
-	m.clearedFields[skin.FieldIconURL] = struct{}{}
-}
-
-// IconURLCleared returns if the "icon_url" field was cleared in this mutation.
-func (m *SkinMutation) IconURLCleared() bool {
-	_, ok := m.clearedFields[skin.FieldIconURL]
-	return ok
-}
-
 // ResetIconURL resets all changes to the "icon_url" field.
 func (m *SkinMutation) ResetIconURL() {
 	m.icon_url = nil
-	delete(m.clearedFields, skin.FieldIconURL)
 }
 
 // SetPageURL sets the "page_url" field.
@@ -561,22 +1055,493 @@ func (m *SkinMutation) OldPageURL(ctx context.Context) (v string, err error) {
 	return oldValue.PageURL, nil
 }
 
-// ClearPageURL clears the value of the "page_url" field.
-func (m *SkinMutation) ClearPageURL() {
-	m.page_url = nil
-	m.clearedFields[skin.FieldPageURL] = struct{}{}
-}
-
-// PageURLCleared returns if the "page_url" field was cleared in this mutation.
-func (m *SkinMutation) PageURLCleared() bool {
-	_, ok := m.clearedFields[skin.FieldPageURL]
-	return ok
-}
-
 // ResetPageURL resets all changes to the "page_url" field.
 func (m *SkinMutation) ResetPageURL() {
 	m.page_url = nil
-	delete(m.clearedFields, skin.FieldPageURL)
+}
+
+// SetPriceText sets the "price_text" field.
+func (m *SkinMutation) SetPriceText(s string) {
+	m.price_text = &s
+}
+
+// PriceText returns the value of the "price_text" field in the mutation.
+func (m *SkinMutation) PriceText() (r string, exists bool) {
+	v := m.price_text
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPriceText returns the old "price_text" field's value of the Skin entity.
+// If the Skin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SkinMutation) OldPriceText(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPriceText is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPriceText requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPriceText: %w", err)
+	}
+	return oldValue.PriceText, nil
+}
+
+// ResetPriceText resets all changes to the "price_text" field.
+func (m *SkinMutation) ResetPriceText() {
+	m.price_text = nil
+}
+
+// SetSteamPageURL sets the "steam_page_url" field.
+func (m *SkinMutation) SetSteamPageURL(s string) {
+	m.steam_page_url = &s
+}
+
+// SteamPageURL returns the value of the "steam_page_url" field in the mutation.
+func (m *SkinMutation) SteamPageURL() (r string, exists bool) {
+	v := m.steam_page_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSteamPageURL returns the old "steam_page_url" field's value of the Skin entity.
+// If the Skin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SkinMutation) OldSteamPageURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSteamPageURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSteamPageURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSteamPageURL: %w", err)
+	}
+	return oldValue.SteamPageURL, nil
+}
+
+// ResetSteamPageURL resets all changes to the "steam_page_url" field.
+func (m *SkinMutation) ResetSteamPageURL() {
+	m.steam_page_url = nil
+}
+
+// SetSteamPriceText sets the "steam_price_text" field.
+func (m *SkinMutation) SetSteamPriceText(s string) {
+	m.steam_price_text = &s
+}
+
+// SteamPriceText returns the value of the "steam_price_text" field in the mutation.
+func (m *SkinMutation) SteamPriceText() (r string, exists bool) {
+	v := m.steam_price_text
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSteamPriceText returns the old "steam_price_text" field's value of the Skin entity.
+// If the Skin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SkinMutation) OldSteamPriceText(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSteamPriceText is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSteamPriceText requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSteamPriceText: %w", err)
+	}
+	return oldValue.SteamPriceText, nil
+}
+
+// ResetSteamPriceText resets all changes to the "steam_price_text" field.
+func (m *SkinMutation) ResetSteamPriceText() {
+	m.steam_price_text = nil
+}
+
+// SetSteamUpdatedAt sets the "steam_updated_at" field.
+func (m *SkinMutation) SetSteamUpdatedAt(t time.Time) {
+	m.steam_updated_at = &t
+}
+
+// SteamUpdatedAt returns the value of the "steam_updated_at" field in the mutation.
+func (m *SkinMutation) SteamUpdatedAt() (r time.Time, exists bool) {
+	v := m.steam_updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSteamUpdatedAt returns the old "steam_updated_at" field's value of the Skin entity.
+// If the Skin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SkinMutation) OldSteamUpdatedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSteamUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSteamUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSteamUpdatedAt: %w", err)
+	}
+	return oldValue.SteamUpdatedAt, nil
+}
+
+// ClearSteamUpdatedAt clears the value of the "steam_updated_at" field.
+func (m *SkinMutation) ClearSteamUpdatedAt() {
+	m.steam_updated_at = nil
+	m.clearedFields[skin.FieldSteamUpdatedAt] = struct{}{}
+}
+
+// SteamUpdatedAtCleared returns if the "steam_updated_at" field was cleared in this mutation.
+func (m *SkinMutation) SteamUpdatedAtCleared() bool {
+	_, ok := m.clearedFields[skin.FieldSteamUpdatedAt]
+	return ok
+}
+
+// ResetSteamUpdatedAt resets all changes to the "steam_updated_at" field.
+func (m *SkinMutation) ResetSteamUpdatedAt() {
+	m.steam_updated_at = nil
+	delete(m.clearedFields, skin.FieldSteamUpdatedAt)
+}
+
+// SetLisskinsPageURL sets the "lisskins_page_url" field.
+func (m *SkinMutation) SetLisskinsPageURL(s string) {
+	m.lisskins_page_url = &s
+}
+
+// LisskinsPageURL returns the value of the "lisskins_page_url" field in the mutation.
+func (m *SkinMutation) LisskinsPageURL() (r string, exists bool) {
+	v := m.lisskins_page_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLisskinsPageURL returns the old "lisskins_page_url" field's value of the Skin entity.
+// If the Skin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SkinMutation) OldLisskinsPageURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLisskinsPageURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLisskinsPageURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLisskinsPageURL: %w", err)
+	}
+	return oldValue.LisskinsPageURL, nil
+}
+
+// ResetLisskinsPageURL resets all changes to the "lisskins_page_url" field.
+func (m *SkinMutation) ResetLisskinsPageURL() {
+	m.lisskins_page_url = nil
+}
+
+// SetLisskinsPriceText sets the "lisskins_price_text" field.
+func (m *SkinMutation) SetLisskinsPriceText(s string) {
+	m.lisskins_price_text = &s
+}
+
+// LisskinsPriceText returns the value of the "lisskins_price_text" field in the mutation.
+func (m *SkinMutation) LisskinsPriceText() (r string, exists bool) {
+	v := m.lisskins_price_text
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLisskinsPriceText returns the old "lisskins_price_text" field's value of the Skin entity.
+// If the Skin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SkinMutation) OldLisskinsPriceText(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLisskinsPriceText is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLisskinsPriceText requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLisskinsPriceText: %w", err)
+	}
+	return oldValue.LisskinsPriceText, nil
+}
+
+// ResetLisskinsPriceText resets all changes to the "lisskins_price_text" field.
+func (m *SkinMutation) ResetLisskinsPriceText() {
+	m.lisskins_price_text = nil
+}
+
+// SetLisskinsUpdatedAt sets the "lisskins_updated_at" field.
+func (m *SkinMutation) SetLisskinsUpdatedAt(t time.Time) {
+	m.lisskins_updated_at = &t
+}
+
+// LisskinsUpdatedAt returns the value of the "lisskins_updated_at" field in the mutation.
+func (m *SkinMutation) LisskinsUpdatedAt() (r time.Time, exists bool) {
+	v := m.lisskins_updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLisskinsUpdatedAt returns the old "lisskins_updated_at" field's value of the Skin entity.
+// If the Skin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SkinMutation) OldLisskinsUpdatedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLisskinsUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLisskinsUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLisskinsUpdatedAt: %w", err)
+	}
+	return oldValue.LisskinsUpdatedAt, nil
+}
+
+// ClearLisskinsUpdatedAt clears the value of the "lisskins_updated_at" field.
+func (m *SkinMutation) ClearLisskinsUpdatedAt() {
+	m.lisskins_updated_at = nil
+	m.clearedFields[skin.FieldLisskinsUpdatedAt] = struct{}{}
+}
+
+// LisskinsUpdatedAtCleared returns if the "lisskins_updated_at" field was cleared in this mutation.
+func (m *SkinMutation) LisskinsUpdatedAtCleared() bool {
+	_, ok := m.clearedFields[skin.FieldLisskinsUpdatedAt]
+	return ok
+}
+
+// ResetLisskinsUpdatedAt resets all changes to the "lisskins_updated_at" field.
+func (m *SkinMutation) ResetLisskinsUpdatedAt() {
+	m.lisskins_updated_at = nil
+	delete(m.clearedFields, skin.FieldLisskinsUpdatedAt)
+}
+
+// SetCstmPageURL sets the "cstm_page_url" field.
+func (m *SkinMutation) SetCstmPageURL(s string) {
+	m.cstm_page_url = &s
+}
+
+// CstmPageURL returns the value of the "cstm_page_url" field in the mutation.
+func (m *SkinMutation) CstmPageURL() (r string, exists bool) {
+	v := m.cstm_page_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCstmPageURL returns the old "cstm_page_url" field's value of the Skin entity.
+// If the Skin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SkinMutation) OldCstmPageURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCstmPageURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCstmPageURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCstmPageURL: %w", err)
+	}
+	return oldValue.CstmPageURL, nil
+}
+
+// ResetCstmPageURL resets all changes to the "cstm_page_url" field.
+func (m *SkinMutation) ResetCstmPageURL() {
+	m.cstm_page_url = nil
+}
+
+// SetCstmPriceText sets the "cstm_price_text" field.
+func (m *SkinMutation) SetCstmPriceText(s string) {
+	m.cstm_price_text = &s
+}
+
+// CstmPriceText returns the value of the "cstm_price_text" field in the mutation.
+func (m *SkinMutation) CstmPriceText() (r string, exists bool) {
+	v := m.cstm_price_text
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCstmPriceText returns the old "cstm_price_text" field's value of the Skin entity.
+// If the Skin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SkinMutation) OldCstmPriceText(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCstmPriceText is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCstmPriceText requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCstmPriceText: %w", err)
+	}
+	return oldValue.CstmPriceText, nil
+}
+
+// ResetCstmPriceText resets all changes to the "cstm_price_text" field.
+func (m *SkinMutation) ResetCstmPriceText() {
+	m.cstm_price_text = nil
+}
+
+// SetCstmUpdatedAt sets the "cstm_updated_at" field.
+func (m *SkinMutation) SetCstmUpdatedAt(t time.Time) {
+	m.cstm_updated_at = &t
+}
+
+// CstmUpdatedAt returns the value of the "cstm_updated_at" field in the mutation.
+func (m *SkinMutation) CstmUpdatedAt() (r time.Time, exists bool) {
+	v := m.cstm_updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCstmUpdatedAt returns the old "cstm_updated_at" field's value of the Skin entity.
+// If the Skin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SkinMutation) OldCstmUpdatedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCstmUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCstmUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCstmUpdatedAt: %w", err)
+	}
+	return oldValue.CstmUpdatedAt, nil
+}
+
+// ClearCstmUpdatedAt clears the value of the "cstm_updated_at" field.
+func (m *SkinMutation) ClearCstmUpdatedAt() {
+	m.cstm_updated_at = nil
+	m.clearedFields[skin.FieldCstmUpdatedAt] = struct{}{}
+}
+
+// CstmUpdatedAtCleared returns if the "cstm_updated_at" field was cleared in this mutation.
+func (m *SkinMutation) CstmUpdatedAtCleared() bool {
+	_, ok := m.clearedFields[skin.FieldCstmUpdatedAt]
+	return ok
+}
+
+// ResetCstmUpdatedAt resets all changes to the "cstm_updated_at" field.
+func (m *SkinMutation) ResetCstmUpdatedAt() {
+	m.cstm_updated_at = nil
+	delete(m.clearedFields, skin.FieldCstmUpdatedAt)
+}
+
+// SetCurrency sets the "currency" field.
+func (m *SkinMutation) SetCurrency(s string) {
+	m.currency = &s
+}
+
+// Currency returns the value of the "currency" field in the mutation.
+func (m *SkinMutation) Currency() (r string, exists bool) {
+	v := m.currency
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCurrency returns the old "currency" field's value of the Skin entity.
+// If the Skin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SkinMutation) OldCurrency(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCurrency is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCurrency requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCurrency: %w", err)
+	}
+	return oldValue.Currency, nil
+}
+
+// ResetCurrency resets all changes to the "currency" field.
+func (m *SkinMutation) ResetCurrency() {
+	m.currency = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *SkinMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *SkinMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the Skin entity.
+// If the Skin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SkinMutation) OldUpdatedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ClearUpdatedAt clears the value of the "updated_at" field.
+func (m *SkinMutation) ClearUpdatedAt() {
+	m.updated_at = nil
+	m.clearedFields[skin.FieldUpdatedAt] = struct{}{}
+}
+
+// UpdatedAtCleared returns if the "updated_at" field was cleared in this mutation.
+func (m *SkinMutation) UpdatedAtCleared() bool {
+	_, ok := m.clearedFields[skin.FieldUpdatedAt]
+	return ok
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *SkinMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+	delete(m.clearedFields, skin.FieldUpdatedAt)
 }
 
 // Where appends a list predicates to the SkinMutation builder.
@@ -613,18 +1578,57 @@ func (m *SkinMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SkinMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 17)
 	if m.market_hash_name != nil {
 		fields = append(fields, skin.FieldMarketHashName)
 	}
 	if m.display_name != nil {
 		fields = append(fields, skin.FieldDisplayName)
 	}
+	if m.name_color != nil {
+		fields = append(fields, skin.FieldNameColor)
+	}
 	if m.icon_url != nil {
 		fields = append(fields, skin.FieldIconURL)
 	}
 	if m.page_url != nil {
 		fields = append(fields, skin.FieldPageURL)
+	}
+	if m.price_text != nil {
+		fields = append(fields, skin.FieldPriceText)
+	}
+	if m.steam_page_url != nil {
+		fields = append(fields, skin.FieldSteamPageURL)
+	}
+	if m.steam_price_text != nil {
+		fields = append(fields, skin.FieldSteamPriceText)
+	}
+	if m.steam_updated_at != nil {
+		fields = append(fields, skin.FieldSteamUpdatedAt)
+	}
+	if m.lisskins_page_url != nil {
+		fields = append(fields, skin.FieldLisskinsPageURL)
+	}
+	if m.lisskins_price_text != nil {
+		fields = append(fields, skin.FieldLisskinsPriceText)
+	}
+	if m.lisskins_updated_at != nil {
+		fields = append(fields, skin.FieldLisskinsUpdatedAt)
+	}
+	if m.cstm_page_url != nil {
+		fields = append(fields, skin.FieldCstmPageURL)
+	}
+	if m.cstm_price_text != nil {
+		fields = append(fields, skin.FieldCstmPriceText)
+	}
+	if m.cstm_updated_at != nil {
+		fields = append(fields, skin.FieldCstmUpdatedAt)
+	}
+	if m.currency != nil {
+		fields = append(fields, skin.FieldCurrency)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, skin.FieldUpdatedAt)
 	}
 	return fields
 }
@@ -638,10 +1642,36 @@ func (m *SkinMutation) Field(name string) (ent.Value, bool) {
 		return m.MarketHashName()
 	case skin.FieldDisplayName:
 		return m.DisplayName()
+	case skin.FieldNameColor:
+		return m.NameColor()
 	case skin.FieldIconURL:
 		return m.IconURL()
 	case skin.FieldPageURL:
 		return m.PageURL()
+	case skin.FieldPriceText:
+		return m.PriceText()
+	case skin.FieldSteamPageURL:
+		return m.SteamPageURL()
+	case skin.FieldSteamPriceText:
+		return m.SteamPriceText()
+	case skin.FieldSteamUpdatedAt:
+		return m.SteamUpdatedAt()
+	case skin.FieldLisskinsPageURL:
+		return m.LisskinsPageURL()
+	case skin.FieldLisskinsPriceText:
+		return m.LisskinsPriceText()
+	case skin.FieldLisskinsUpdatedAt:
+		return m.LisskinsUpdatedAt()
+	case skin.FieldCstmPageURL:
+		return m.CstmPageURL()
+	case skin.FieldCstmPriceText:
+		return m.CstmPriceText()
+	case skin.FieldCstmUpdatedAt:
+		return m.CstmUpdatedAt()
+	case skin.FieldCurrency:
+		return m.Currency()
+	case skin.FieldUpdatedAt:
+		return m.UpdatedAt()
 	}
 	return nil, false
 }
@@ -655,10 +1685,36 @@ func (m *SkinMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldMarketHashName(ctx)
 	case skin.FieldDisplayName:
 		return m.OldDisplayName(ctx)
+	case skin.FieldNameColor:
+		return m.OldNameColor(ctx)
 	case skin.FieldIconURL:
 		return m.OldIconURL(ctx)
 	case skin.FieldPageURL:
 		return m.OldPageURL(ctx)
+	case skin.FieldPriceText:
+		return m.OldPriceText(ctx)
+	case skin.FieldSteamPageURL:
+		return m.OldSteamPageURL(ctx)
+	case skin.FieldSteamPriceText:
+		return m.OldSteamPriceText(ctx)
+	case skin.FieldSteamUpdatedAt:
+		return m.OldSteamUpdatedAt(ctx)
+	case skin.FieldLisskinsPageURL:
+		return m.OldLisskinsPageURL(ctx)
+	case skin.FieldLisskinsPriceText:
+		return m.OldLisskinsPriceText(ctx)
+	case skin.FieldLisskinsUpdatedAt:
+		return m.OldLisskinsUpdatedAt(ctx)
+	case skin.FieldCstmPageURL:
+		return m.OldCstmPageURL(ctx)
+	case skin.FieldCstmPriceText:
+		return m.OldCstmPriceText(ctx)
+	case skin.FieldCstmUpdatedAt:
+		return m.OldCstmUpdatedAt(ctx)
+	case skin.FieldCurrency:
+		return m.OldCurrency(ctx)
+	case skin.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown Skin field %s", name)
 }
@@ -682,6 +1738,13 @@ func (m *SkinMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDisplayName(v)
 		return nil
+	case skin.FieldNameColor:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNameColor(v)
+		return nil
 	case skin.FieldIconURL:
 		v, ok := value.(string)
 		if !ok {
@@ -695,6 +1758,90 @@ func (m *SkinMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPageURL(v)
+		return nil
+	case skin.FieldPriceText:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPriceText(v)
+		return nil
+	case skin.FieldSteamPageURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSteamPageURL(v)
+		return nil
+	case skin.FieldSteamPriceText:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSteamPriceText(v)
+		return nil
+	case skin.FieldSteamUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSteamUpdatedAt(v)
+		return nil
+	case skin.FieldLisskinsPageURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLisskinsPageURL(v)
+		return nil
+	case skin.FieldLisskinsPriceText:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLisskinsPriceText(v)
+		return nil
+	case skin.FieldLisskinsUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLisskinsUpdatedAt(v)
+		return nil
+	case skin.FieldCstmPageURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCstmPageURL(v)
+		return nil
+	case skin.FieldCstmPriceText:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCstmPriceText(v)
+		return nil
+	case skin.FieldCstmUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCstmUpdatedAt(v)
+		return nil
+	case skin.FieldCurrency:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCurrency(v)
+		return nil
+	case skin.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Skin field %s", name)
@@ -726,11 +1873,17 @@ func (m *SkinMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *SkinMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(skin.FieldIconURL) {
-		fields = append(fields, skin.FieldIconURL)
+	if m.FieldCleared(skin.FieldSteamUpdatedAt) {
+		fields = append(fields, skin.FieldSteamUpdatedAt)
 	}
-	if m.FieldCleared(skin.FieldPageURL) {
-		fields = append(fields, skin.FieldPageURL)
+	if m.FieldCleared(skin.FieldLisskinsUpdatedAt) {
+		fields = append(fields, skin.FieldLisskinsUpdatedAt)
+	}
+	if m.FieldCleared(skin.FieldCstmUpdatedAt) {
+		fields = append(fields, skin.FieldCstmUpdatedAt)
+	}
+	if m.FieldCleared(skin.FieldUpdatedAt) {
+		fields = append(fields, skin.FieldUpdatedAt)
 	}
 	return fields
 }
@@ -746,11 +1899,17 @@ func (m *SkinMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *SkinMutation) ClearField(name string) error {
 	switch name {
-	case skin.FieldIconURL:
-		m.ClearIconURL()
+	case skin.FieldSteamUpdatedAt:
+		m.ClearSteamUpdatedAt()
 		return nil
-	case skin.FieldPageURL:
-		m.ClearPageURL()
+	case skin.FieldLisskinsUpdatedAt:
+		m.ClearLisskinsUpdatedAt()
+		return nil
+	case skin.FieldCstmUpdatedAt:
+		m.ClearCstmUpdatedAt()
+		return nil
+	case skin.FieldUpdatedAt:
+		m.ClearUpdatedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Skin nullable field %s", name)
@@ -766,11 +1925,50 @@ func (m *SkinMutation) ResetField(name string) error {
 	case skin.FieldDisplayName:
 		m.ResetDisplayName()
 		return nil
+	case skin.FieldNameColor:
+		m.ResetNameColor()
+		return nil
 	case skin.FieldIconURL:
 		m.ResetIconURL()
 		return nil
 	case skin.FieldPageURL:
 		m.ResetPageURL()
+		return nil
+	case skin.FieldPriceText:
+		m.ResetPriceText()
+		return nil
+	case skin.FieldSteamPageURL:
+		m.ResetSteamPageURL()
+		return nil
+	case skin.FieldSteamPriceText:
+		m.ResetSteamPriceText()
+		return nil
+	case skin.FieldSteamUpdatedAt:
+		m.ResetSteamUpdatedAt()
+		return nil
+	case skin.FieldLisskinsPageURL:
+		m.ResetLisskinsPageURL()
+		return nil
+	case skin.FieldLisskinsPriceText:
+		m.ResetLisskinsPriceText()
+		return nil
+	case skin.FieldLisskinsUpdatedAt:
+		m.ResetLisskinsUpdatedAt()
+		return nil
+	case skin.FieldCstmPageURL:
+		m.ResetCstmPageURL()
+		return nil
+	case skin.FieldCstmPriceText:
+		m.ResetCstmPriceText()
+		return nil
+	case skin.FieldCstmUpdatedAt:
+		m.ResetCstmUpdatedAt()
+		return nil
+	case skin.FieldCurrency:
+		m.ResetCurrency()
+		return nil
+	case skin.FieldUpdatedAt:
+		m.ResetUpdatedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Skin field %s", name)

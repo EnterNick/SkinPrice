@@ -48,11 +48,11 @@ type priceListEnvelope struct {
 	Prices  []priceListItem `json:"prices"`
 }
 
-func (s *Storage) GetByMarketHashName(marketHashName, currency string) (*skins.NewSkin, error) {
+func (s *Storage) GetByMarketHashName(ctx context.Context, marketHashName, currency string) (*skins.NewSkin, error) {
 	logger := logx.WithComponent(s.Logger, "cstm_storage")
 	startedAt := time.Now()
 	code := currencyToPriceListCode(currency)
-	items, err := s.getPriceList(code)
+	items, err := s.getPriceList(ctx, code)
 	if err != nil {
 		logger.Error("cstm price lookup failed",
 			append([]any{
@@ -99,7 +99,7 @@ func (s *Storage) GetByMarketHashName(marketHashName, currency string) (*skins.N
 	return skin, nil
 }
 
-func (s *Storage) getPriceList(currencyCode string) (map[string]priceListItem, error) {
+func (s *Storage) getPriceList(ctx context.Context, currencyCode string) (map[string]priceListItem, error) {
 	now := time.Now()
 	s.mu.RLock()
 	if entry, ok := s.cache[currencyCode]; ok && now.Before(entry.expiresAt) {
@@ -118,7 +118,7 @@ func (s *Storage) getPriceList(currencyCode string) (map[string]priceListItem, e
 		return entry.items, nil
 	}
 
-	items, err := s.fetchPriceList(currencyCode)
+	items, err := s.fetchPriceList(ctx, currencyCode)
 	if err != nil {
 		return nil, err
 	}
@@ -129,9 +129,9 @@ func (s *Storage) getPriceList(currencyCode string) (map[string]priceListItem, e
 	return items, nil
 }
 
-func (s *Storage) fetchPriceList(currencyCode string) (map[string]priceListItem, error) {
+func (s *Storage) fetchPriceList(ctx context.Context, currencyCode string) (map[string]priceListItem, error) {
 	endpoint := fmt.Sprintf("%s/api/v2/prices/%s.json", strings.TrimRight(s.BaseURL, "/"), currencyCode)
-	ctx, cancel := context.WithTimeout(context.Background(), requestTimeoutOrDefault(s.RequestTimeout))
+	ctx, cancel := context.WithTimeout(ctx, requestTimeoutOrDefault(s.RequestTimeout))
 	defer cancel()
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
@@ -213,6 +213,10 @@ func decodePriceList(rawBody []byte) ([]priceListItem, error) {
 
 func BuildMarketPageURL(baseURL, marketHashName string) string {
 	return strings.TrimRight(baseURL, "/") + "/en/" + url.PathEscape(marketHashName)
+}
+
+func (s *Storage) BuildMarketPageURL(marketHashName string) string {
+	return BuildMarketPageURL(s.BaseURL, marketHashName)
 }
 
 func currencyToPriceListCode(currency string) string {

@@ -3,6 +3,8 @@
 package skin
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
 )
 
@@ -15,10 +17,36 @@ const (
 	FieldMarketHashName = "market_hash_name"
 	// FieldDisplayName holds the string denoting the display_name field in the database.
 	FieldDisplayName = "display_name"
+	// FieldNameColor holds the string denoting the name_color field in the database.
+	FieldNameColor = "name_color"
 	// FieldIconURL holds the string denoting the icon_url field in the database.
 	FieldIconURL = "icon_url"
 	// FieldPageURL holds the string denoting the page_url field in the database.
 	FieldPageURL = "page_url"
+	// FieldPriceText holds the string denoting the price_text field in the database.
+	FieldPriceText = "price_text"
+	// FieldSteamPageURL holds the string denoting the steam_page_url field in the database.
+	FieldSteamPageURL = "steam_page_url"
+	// FieldSteamPriceText holds the string denoting the steam_price_text field in the database.
+	FieldSteamPriceText = "steam_price_text"
+	// FieldSteamUpdatedAt holds the string denoting the steam_updated_at field in the database.
+	FieldSteamUpdatedAt = "steam_updated_at"
+	// FieldLisskinsPageURL holds the string denoting the lisskins_page_url field in the database.
+	FieldLisskinsPageURL = "lisskins_page_url"
+	// FieldLisskinsPriceText holds the string denoting the lisskins_price_text field in the database.
+	FieldLisskinsPriceText = "lisskins_price_text"
+	// FieldLisskinsUpdatedAt holds the string denoting the lisskins_updated_at field in the database.
+	FieldLisskinsUpdatedAt = "lisskins_updated_at"
+	// FieldCstmPageURL holds the string denoting the cstm_page_url field in the database.
+	FieldCstmPageURL = "cstm_page_url"
+	// FieldCstmPriceText holds the string denoting the cstm_price_text field in the database.
+	FieldCstmPriceText = "cstm_price_text"
+	// FieldCstmUpdatedAt holds the string denoting the cstm_updated_at field in the database.
+	FieldCstmUpdatedAt = "cstm_updated_at"
+	// FieldCurrency holds the string denoting the currency field in the database.
+	FieldCurrency = "currency"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
 	// Table holds the table name of the skin in the database.
 	Table = "skins"
 )
@@ -28,8 +56,21 @@ var Columns = []string{
 	FieldID,
 	FieldMarketHashName,
 	FieldDisplayName,
+	FieldNameColor,
 	FieldIconURL,
 	FieldPageURL,
+	FieldPriceText,
+	FieldSteamPageURL,
+	FieldSteamPriceText,
+	FieldSteamUpdatedAt,
+	FieldLisskinsPageURL,
+	FieldLisskinsPriceText,
+	FieldLisskinsUpdatedAt,
+	FieldCstmPageURL,
+	FieldCstmPriceText,
+	FieldCstmUpdatedAt,
+	FieldCurrency,
+	FieldUpdatedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -47,6 +88,30 @@ var (
 	MarketHashNameValidator func(string) error
 	// DisplayNameValidator is a validator for the "display_name" field. It is called by the builders before save.
 	DisplayNameValidator func(string) error
+	// DefaultNameColor holds the default value on creation for the "name_color" field.
+	DefaultNameColor string
+	// DefaultIconURL holds the default value on creation for the "icon_url" field.
+	DefaultIconURL string
+	// DefaultPageURL holds the default value on creation for the "page_url" field.
+	DefaultPageURL string
+	// DefaultPriceText holds the default value on creation for the "price_text" field.
+	DefaultPriceText string
+	// DefaultSteamPageURL holds the default value on creation for the "steam_page_url" field.
+	DefaultSteamPageURL string
+	// DefaultSteamPriceText holds the default value on creation for the "steam_price_text" field.
+	DefaultSteamPriceText string
+	// DefaultLisskinsPageURL holds the default value on creation for the "lisskins_page_url" field.
+	DefaultLisskinsPageURL string
+	// DefaultLisskinsPriceText holds the default value on creation for the "lisskins_price_text" field.
+	DefaultLisskinsPriceText string
+	// DefaultCstmPageURL holds the default value on creation for the "cstm_page_url" field.
+	DefaultCstmPageURL string
+	// DefaultCstmPriceText holds the default value on creation for the "cstm_price_text" field.
+	DefaultCstmPriceText string
+	// DefaultCurrency holds the default value on creation for the "currency" field.
+	DefaultCurrency string
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
 )
 
 // OrderOption defines the ordering options for the Skin queries.
@@ -67,6 +132,11 @@ func ByDisplayName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDisplayName, opts...).ToFunc()
 }
 
+// ByNameColor orders the results by the name_color field.
+func ByNameColor(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldNameColor, opts...).ToFunc()
+}
+
 // ByIconURL orders the results by the icon_url field.
 func ByIconURL(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIconURL, opts...).ToFunc()
@@ -75,4 +145,64 @@ func ByIconURL(opts ...sql.OrderTermOption) OrderOption {
 // ByPageURL orders the results by the page_url field.
 func ByPageURL(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPageURL, opts...).ToFunc()
+}
+
+// ByPriceText orders the results by the price_text field.
+func ByPriceText(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPriceText, opts...).ToFunc()
+}
+
+// BySteamPageURL orders the results by the steam_page_url field.
+func BySteamPageURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSteamPageURL, opts...).ToFunc()
+}
+
+// BySteamPriceText orders the results by the steam_price_text field.
+func BySteamPriceText(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSteamPriceText, opts...).ToFunc()
+}
+
+// BySteamUpdatedAt orders the results by the steam_updated_at field.
+func BySteamUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSteamUpdatedAt, opts...).ToFunc()
+}
+
+// ByLisskinsPageURL orders the results by the lisskins_page_url field.
+func ByLisskinsPageURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLisskinsPageURL, opts...).ToFunc()
+}
+
+// ByLisskinsPriceText orders the results by the lisskins_price_text field.
+func ByLisskinsPriceText(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLisskinsPriceText, opts...).ToFunc()
+}
+
+// ByLisskinsUpdatedAt orders the results by the lisskins_updated_at field.
+func ByLisskinsUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLisskinsUpdatedAt, opts...).ToFunc()
+}
+
+// ByCstmPageURL orders the results by the cstm_page_url field.
+func ByCstmPageURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCstmPageURL, opts...).ToFunc()
+}
+
+// ByCstmPriceText orders the results by the cstm_price_text field.
+func ByCstmPriceText(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCstmPriceText, opts...).ToFunc()
+}
+
+// ByCstmUpdatedAt orders the results by the cstm_updated_at field.
+func ByCstmUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCstmUpdatedAt, opts...).ToFunc()
+}
+
+// ByCurrency orders the results by the currency field.
+func ByCurrency(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCurrency, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
 }

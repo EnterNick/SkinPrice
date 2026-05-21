@@ -25,7 +25,7 @@ type Storage struct {
 }
 
 type LisSkinsTokenProvider interface {
-	Execute() (string, error)
+	Execute(ctx context.Context) (string, error)
 }
 
 const lisSkinsAuthHeader = "Authorization"
@@ -74,12 +74,12 @@ type marketSearchItem struct {
 
 const requestTimeout = 8 * time.Second
 
-func (s *Storage) GetList(criteria skins.SearchCriteria, params *application.Pagination) (skins.NewSkinsList, error) {
+func (s *Storage) GetList(ctx context.Context, criteria skins.SearchCriteria, params *application.Pagination) (skins.NewSkinsList, error) {
 	logger := logx.WithComponent(s.Logger, "lisskins_storage")
 	startedAt := time.Now()
 	q := buildLisSkinsMarketSearchParams(criteria, params, "")
 	endpoint := fmt.Sprintf("%s/market/search?%s", s.BaseURL, q.Encode())
-	payload, err := s.fetch(endpoint)
+	payload, err := s.fetch(ctx, endpoint)
 	if err != nil {
 		logger.Error("lisskins search failed",
 			append([]any{
@@ -117,12 +117,12 @@ func (s *Storage) GetList(criteria skins.SearchCriteria, params *application.Pag
 	}, nil
 }
 
-func (s *Storage) GetByMarketHashName(marketHashName, currency string) (*skins.NewSkin, error) {
+func (s *Storage) GetByMarketHashName(ctx context.Context, marketHashName, currency string) (*skins.NewSkin, error) {
 	logger := logx.WithComponent(s.Logger, "lisskins_storage")
 	startedAt := time.Now()
 	q := buildLisSkinsMarketSearchParams(skins.SearchCriteria{MarketHashName: &marketHashName}, &application.Pagination{Limit: 20, Offset: 0}, currency)
 	endpoint := fmt.Sprintf("%s/market/search?%s", s.BaseURL, q.Encode())
-	payload, err := s.fetch(endpoint)
+	payload, err := s.fetch(ctx, endpoint)
 	if err != nil {
 		logger.Error("lisskins price search failed",
 			append([]any{
@@ -183,16 +183,16 @@ func matchesMarketHashName(expected string, item marketSearchItem) bool {
 	return false
 }
 
-func (s *Storage) fetch(endpoint string) (_ marketSearchResponse, err error) {
+func (s *Storage) fetch(ctx context.Context, endpoint string) (_ marketSearchResponse, err error) {
 	token := ""
 	if s.TokenProvider != nil {
-		token, err = s.TokenProvider.Execute()
+		token, err = s.TokenProvider.Execute(ctx)
 		if err != nil {
 			return marketSearchResponse{}, err
 		}
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
+	ctx, cancel := context.WithTimeout(ctx, requestTimeout)
 	defer cancel()
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
@@ -304,6 +304,10 @@ func mapItem(item marketSearchItem) skins.NewSkin {
 
 func BuildMarketPageURL(name string) string {
 	return fmt.Sprintf("%s/market/csgo/%s/", lisSkinsMarketBaseURL, buildLisSkinsItemSlug(name))
+}
+
+func (s *Storage) BuildMarketPageURL(name string) string {
+	return BuildMarketPageURL(name)
 }
 
 func firstNonEmpty(values ...string) string {

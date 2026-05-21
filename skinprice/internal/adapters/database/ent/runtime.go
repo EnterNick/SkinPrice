@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"SkinPrice/skinprice/internal/adapters/database/ent/appsetting"
 	"SkinPrice/skinprice/internal/adapters/database/ent/schema"
 	"SkinPrice/skinprice/internal/adapters/database/ent/skin"
 	"SkinPrice/skinprice/internal/adapters/database/ent/sourcestate"
@@ -13,6 +14,20 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	appsettingFields := schema.AppSetting{}.Fields()
+	_ = appsettingFields
+	// appsettingDescKey is the schema descriptor for key field.
+	appsettingDescKey := appsettingFields[0].Descriptor()
+	// appsetting.KeyValidator is a validator for the "key" field. It is called by the builders before save.
+	appsetting.KeyValidator = appsettingDescKey.Validators[0].(func(string) error)
+	// appsettingDescValue is the schema descriptor for value field.
+	appsettingDescValue := appsettingFields[1].Descriptor()
+	// appsetting.DefaultValue holds the default value on creation for the value field.
+	appsetting.DefaultValue = appsettingDescValue.Default.(string)
+	// appsettingDescUpdatedAt is the schema descriptor for updated_at field.
+	appsettingDescUpdatedAt := appsettingFields[2].Descriptor()
+	// appsetting.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	appsetting.DefaultUpdatedAt = appsettingDescUpdatedAt.Default.(func() time.Time)
 	skinFields := schema.Skin{}.Fields()
 	_ = skinFields
 	// skinDescMarketHashName is the schema descriptor for market_hash_name field.
@@ -23,16 +38,66 @@ func init() {
 	skinDescDisplayName := skinFields[1].Descriptor()
 	// skin.DisplayNameValidator is a validator for the "display_name" field. It is called by the builders before save.
 	skin.DisplayNameValidator = skinDescDisplayName.Validators[0].(func(string) error)
+	// skinDescNameColor is the schema descriptor for name_color field.
+	skinDescNameColor := skinFields[2].Descriptor()
+	// skin.DefaultNameColor holds the default value on creation for the name_color field.
+	skin.DefaultNameColor = skinDescNameColor.Default.(string)
+	// skinDescIconURL is the schema descriptor for icon_url field.
+	skinDescIconURL := skinFields[3].Descriptor()
+	// skin.DefaultIconURL holds the default value on creation for the icon_url field.
+	skin.DefaultIconURL = skinDescIconURL.Default.(string)
+	// skinDescPageURL is the schema descriptor for page_url field.
+	skinDescPageURL := skinFields[4].Descriptor()
+	// skin.DefaultPageURL holds the default value on creation for the page_url field.
+	skin.DefaultPageURL = skinDescPageURL.Default.(string)
+	// skinDescPriceText is the schema descriptor for price_text field.
+	skinDescPriceText := skinFields[5].Descriptor()
+	// skin.DefaultPriceText holds the default value on creation for the price_text field.
+	skin.DefaultPriceText = skinDescPriceText.Default.(string)
+	// skinDescSteamPageURL is the schema descriptor for steam_page_url field.
+	skinDescSteamPageURL := skinFields[6].Descriptor()
+	// skin.DefaultSteamPageURL holds the default value on creation for the steam_page_url field.
+	skin.DefaultSteamPageURL = skinDescSteamPageURL.Default.(string)
+	// skinDescSteamPriceText is the schema descriptor for steam_price_text field.
+	skinDescSteamPriceText := skinFields[7].Descriptor()
+	// skin.DefaultSteamPriceText holds the default value on creation for the steam_price_text field.
+	skin.DefaultSteamPriceText = skinDescSteamPriceText.Default.(string)
+	// skinDescLisskinsPageURL is the schema descriptor for lisskins_page_url field.
+	skinDescLisskinsPageURL := skinFields[9].Descriptor()
+	// skin.DefaultLisskinsPageURL holds the default value on creation for the lisskins_page_url field.
+	skin.DefaultLisskinsPageURL = skinDescLisskinsPageURL.Default.(string)
+	// skinDescLisskinsPriceText is the schema descriptor for lisskins_price_text field.
+	skinDescLisskinsPriceText := skinFields[10].Descriptor()
+	// skin.DefaultLisskinsPriceText holds the default value on creation for the lisskins_price_text field.
+	skin.DefaultLisskinsPriceText = skinDescLisskinsPriceText.Default.(string)
+	// skinDescCstmPageURL is the schema descriptor for cstm_page_url field.
+	skinDescCstmPageURL := skinFields[12].Descriptor()
+	// skin.DefaultCstmPageURL holds the default value on creation for the cstm_page_url field.
+	skin.DefaultCstmPageURL = skinDescCstmPageURL.Default.(string)
+	// skinDescCstmPriceText is the schema descriptor for cstm_price_text field.
+	skinDescCstmPriceText := skinFields[13].Descriptor()
+	// skin.DefaultCstmPriceText holds the default value on creation for the cstm_price_text field.
+	skin.DefaultCstmPriceText = skinDescCstmPriceText.Default.(string)
+	// skinDescCurrency is the schema descriptor for currency field.
+	skinDescCurrency := skinFields[15].Descriptor()
+	// skin.DefaultCurrency holds the default value on creation for the currency field.
+	skin.DefaultCurrency = skinDescCurrency.Default.(string)
+	// skinDescUpdatedAt is the schema descriptor for updated_at field.
+	skinDescUpdatedAt := skinFields[16].Descriptor()
+	// skin.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	skin.DefaultUpdatedAt = skinDescUpdatedAt.Default.(func() time.Time)
 	sourcestateFields := schema.SourceState{}.Fields()
 	_ = sourcestateFields
 	// sourcestateDescSource is the schema descriptor for source field.
 	sourcestateDescSource := sourcestateFields[0].Descriptor()
+	// sourcestate.DefaultSource holds the default value on creation for the source field.
+	sourcestate.DefaultSource = sourcestateDescSource.Default.(string)
 	// sourcestate.SourceValidator is a validator for the "source" field. It is called by the builders before save.
 	sourcestate.SourceValidator = sourcestateDescSource.Validators[0].(func(string) error)
 	// sourcestateDescAPITokenEncrypted is the schema descriptor for api_token_encrypted field.
 	sourcestateDescAPITokenEncrypted := sourcestateFields[1].Descriptor()
-	// sourcestate.APITokenEncryptedValidator is a validator for the "api_token_encrypted" field. It is called by the builders before save.
-	sourcestate.APITokenEncryptedValidator = sourcestateDescAPITokenEncrypted.Validators[0].(func(string) error)
+	// sourcestate.DefaultAPITokenEncrypted holds the default value on creation for the api_token_encrypted field.
+	sourcestate.DefaultAPITokenEncrypted = sourcestateDescAPITokenEncrypted.Default.(string)
 	// sourcestateDescUpdatedAt is the schema descriptor for updated_at field.
 	sourcestateDescUpdatedAt := sourcestateFields[2].Descriptor()
 	// sourcestate.DefaultUpdatedAt holds the default value on creation for the updated_at field.

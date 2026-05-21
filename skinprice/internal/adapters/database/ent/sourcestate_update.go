@@ -115,11 +115,6 @@ func (_u *SourceStateUpdate) check() error {
 			return &ValidationError{Name: "source", err: fmt.Errorf(`ent: validator failed for field "SourceState.source": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.APITokenEncrypted(); ok {
-		if err := sourcestate.APITokenEncryptedValidator(v); err != nil {
-			return &ValidationError{Name: "api_token_encrypted", err: fmt.Errorf(`ent: validator failed for field "SourceState.api_token_encrypted": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -265,11 +260,6 @@ func (_u *SourceStateUpdateOne) check() error {
 	if v, ok := _u.mutation.Source(); ok {
 		if err := sourcestate.SourceValidator(v); err != nil {
 			return &ValidationError{Name: "source", err: fmt.Errorf(`ent: validator failed for field "SourceState.source": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.APITokenEncrypted(); ok {
-		if err := sourcestate.APITokenEncryptedValidator(v); err != nil {
-			return &ValidationError{Name: "api_token_encrypted", err: fmt.Errorf(`ent: validator failed for field "SourceState.api_token_encrypted": %w`, err)}
 		}
 	}
 	return nil

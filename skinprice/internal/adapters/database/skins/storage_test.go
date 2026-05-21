@@ -7,6 +7,7 @@ import (
 	"context"
 	"sync"
 	"testing"
+	"time"
 )
 
 type fakeMarketStorage struct {
@@ -18,7 +19,7 @@ type fakeMarketStorage struct {
 	beforeFetch func()
 }
 
-func (f fakeMarketStorage) GetByMarketHashName(marketHashName, currency string) (*appskins.NewSkin, error) {
+func (f fakeMarketStorage) GetByMarketHashName(_ context.Context, marketHashName, currency string) (*appskins.NewSkin, error) {
 	if f.beforeFetch != nil {
 		f.beforeFetch()
 	}
@@ -43,7 +44,33 @@ func priceCentsPtr(value int64, ok bool) *int64 {
 	return &value
 }
 
-func newTestStorage(t *testing.T, steamReader marketPriceReader, lisSkinsReader marketPriceReader, cstmReader marketPriceReader) *Storage {
+type testStorage struct {
+	*Storage
+	updater appskins.UpdateSavedSkinPrice
+	bulk    appskins.UpdateAllSavedSkinsPrices
+}
+
+func (s *testStorage) Save(params appskins.SaveSkinParams) (appskins.SaveSkinResult, error) {
+	return s.Storage.Save(context.Background(), params)
+}
+
+func (s *testStorage) GetSavedList(params *application.Pagination) (appskins.SavedSkinsList, error) {
+	return s.Storage.GetSavedList(context.Background(), params)
+}
+
+func (s *testStorage) UpdateSavedSkinPrice(params appskins.UpdateSavedSkinPriceParams) (appskins.UpdateSavedSkinPriceResult, error) {
+	return s.updater.Execute(context.Background(), params)
+}
+
+func (s *testStorage) UpdateAllSavedSkinsPrices(params appskins.UpdateAllSavedSkinsPricesParams) (appskins.UpdateAllSavedSkinsPricesResult, error) {
+	return s.bulk.Execute(context.Background(), params)
+}
+
+func (s *testStorage) DeleteSavedSkin(params appskins.DeleteSavedSkinParams) error {
+	return s.Storage.DeleteSavedSkin(context.Background(), params)
+}
+
+func newTestStorage(t *testing.T, steamReader appskins.MarketPriceReader, lisSkinsReader appskins.MarketPriceReader, cstmReader appskins.MarketPriceReader) *testStorage {
 	t.Helper()
 
 	connection, err := database.New(&database.Config{
@@ -61,23 +88,37 @@ func newTestStorage(t *testing.T, steamReader marketPriceReader, lisSkinsReader 
 		t.Fatalf("ensure schema: %v", err)
 	}
 
-	return &Storage{
-		Conn:            connection,
-		SteamStorage:    steamReader,
-		LisSkinsStorage: lisSkinsReader,
-		CSTMStorage:     cstmReader,
+	repo := &Storage{Conn: connection}
+	collector := appskins.DefaultSavedSkinPriceCollector{
+		SteamSource:    steamReader,
+		LisSkinsSource: lisSkinsReader,
+		CSTMSource:     cstmReader,
+	}
+	updater := appskins.UpdateSavedSkinPrice{
+		Repository: repo,
+		Collector:  collector,
+	}
+	return &testStorage{
+		Storage: repo,
+		updater: updater,
+		bulk: appskins.UpdateAllSavedSkinsPrices{
+			Repository: repo,
+			UpdateOne:  updater,
+		},
 	}
 }
 
-func saveFixtureSkin(t *testing.T, storage *Storage, hash string) {
+func saveFixtureSkin(t *testing.T, storage *testStorage, hash string) {
 	t.Helper()
 
 	if _, err := storage.Save(appskins.SaveSkinParams{
-		MarketHashName: hash,
-		DisplayName:    hash,
-		NameColor:      "8847ff",
-		IconURL:        "icon",
-		PageURL:        "page",
+		MarketHashName:  hash,
+		DisplayName:     hash,
+		NameColor:       "8847ff",
+		IconURL:         "icon",
+		PageURL:         "page",
+		LisSkinsPageURL: "lis-page",
+		CSTMPageURL:     "cstm-page",
 	}); err != nil {
 		t.Fatalf("save fixture skin: %v", err)
 	}
@@ -408,5 +449,20 @@ func TestDeleteSavedSkinRemovesRecord(t *testing.T) {
 	}
 	if len(list.Items) != 0 {
 		t.Fatalf("expected empty list after delete, got %d items", len(list.Items))
+	}
+}
+
+func TestLatestUpdatedAtReturnsMaximumSourceTimestamp(t *testing.T) {
+	oldest := time.Date(2026, 5, 21, 10, 0, 0, 0, time.UTC)
+	newest := oldest.Add(2 * time.Hour)
+	middle := oldest.Add(time.Hour)
+
+	result := latestUpdatedAt(appskins.UpdateSavedSkinPriceResult{
+		SteamUpdatedAt:    oldest,
+		LisSkinsUpdatedAt: newest,
+		CSTMUpdatedAt:     middle,
+	})
+	if !result.Equal(newest) {
+		t.Fatalf("expected latest source timestamp %v, got %v", newest, result)
 	}
 }

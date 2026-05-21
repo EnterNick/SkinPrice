@@ -30,7 +30,8 @@ const buildSkinNameStyle = (nameColor?: string): React.CSSProperties | undefined
   nameColor ? { "--skin-name-color": nameColor } as React.CSSProperties : undefined;
 
 const getSortArrow = (direction: SavedSkinsSortDirection) => (direction === "desc" ? "↓" : "↑");
-const ROW_ACTIONS_DROPDOWN_WIDTH = 180;
+const ROW_ACTIONS_DROPDOWN_MIN_WIDTH = 0;
+const ROW_ACTIONS_DROPDOWN_MAX_WIDTH = 220;
 
 export const SavedSkinsTable: React.FC<SavedSkinsTableProps> = ({
   items,
@@ -95,9 +96,13 @@ export const SavedSkinsTable: React.FC<SavedSkinsTableProps> = ({
       const dropdownHeight = 96;
       const showAbove = topBelow + dropdownHeight > window.innerHeight && rect.top > dropdownHeight + 16;
       const nextTop = showAbove ? Math.max(8, topAbove - dropdownHeight) : topBelow;
+      const estimatedWidth = Math.min(
+        ROW_ACTIONS_DROPDOWN_MAX_WIDTH,
+        Math.max(ROW_ACTIONS_DROPDOWN_MIN_WIDTH, rect.width + 140),
+      );
       const nextLeft = Math.min(
-        Math.max(8, rect.right - ROW_ACTIONS_DROPDOWN_WIDTH),
-        Math.max(8, window.innerWidth - ROW_ACTIONS_DROPDOWN_WIDTH - 8),
+        Math.max(8, rect.right - estimatedWidth),
+        Math.max(8, window.innerWidth - estimatedWidth - 8),
       );
 
       setMenuPosition({ top: nextTop, left: nextLeft });

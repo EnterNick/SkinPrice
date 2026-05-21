@@ -26,9 +26,25 @@ func (_c *SourceStateCreate) SetSource(v string) *SourceStateCreate {
 	return _c
 }
 
+// SetNillableSource sets the "source" field if the given value is not nil.
+func (_c *SourceStateCreate) SetNillableSource(v *string) *SourceStateCreate {
+	if v != nil {
+		_c.SetSource(*v)
+	}
+	return _c
+}
+
 // SetAPITokenEncrypted sets the "api_token_encrypted" field.
 func (_c *SourceStateCreate) SetAPITokenEncrypted(v string) *SourceStateCreate {
 	_c.mutation.SetAPITokenEncrypted(v)
+	return _c
+}
+
+// SetNillableAPITokenEncrypted sets the "api_token_encrypted" field if the given value is not nil.
+func (_c *SourceStateCreate) SetNillableAPITokenEncrypted(v *string) *SourceStateCreate {
+	if v != nil {
+		_c.SetAPITokenEncrypted(*v)
+	}
 	return _c
 }
 
@@ -81,6 +97,14 @@ func (_c *SourceStateCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *SourceStateCreate) defaults() {
+	if _, ok := _c.mutation.Source(); !ok {
+		v := sourcestate.DefaultSource
+		_c.mutation.SetSource(v)
+	}
+	if _, ok := _c.mutation.APITokenEncrypted(); !ok {
+		v := sourcestate.DefaultAPITokenEncrypted
+		_c.mutation.SetAPITokenEncrypted(v)
+	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := sourcestate.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
@@ -99,11 +123,6 @@ func (_c *SourceStateCreate) check() error {
 	}
 	if _, ok := _c.mutation.APITokenEncrypted(); !ok {
 		return &ValidationError{Name: "api_token_encrypted", err: errors.New(`ent: missing required field "SourceState.api_token_encrypted"`)}
-	}
-	if v, ok := _c.mutation.APITokenEncrypted(); ok {
-		if err := sourcestate.APITokenEncryptedValidator(v); err != nil {
-			return &ValidationError{Name: "api_token_encrypted", err: fmt.Errorf(`ent: validator failed for field "SourceState.api_token_encrypted": %w`, err)}
-		}
 	}
 	return nil
 }

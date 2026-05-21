@@ -1,9 +1,11 @@
 package skins
 
+import "context"
+
 type DeleteSavedSkin struct {
-	Deleter SavedSkinDeleter
+	Repository SavedSkinRepository
 }
 
-func (uc DeleteSavedSkin) Execute(params DeleteSavedSkinParams) error {
-	return uc.Deleter.DeleteSavedSkin(params)
+func (uc DeleteSavedSkin) Execute(ctx context.Context, params DeleteSavedSkinParams) error {
+	return uc.Repository.DeleteSavedSkin(ctx, params)
 }

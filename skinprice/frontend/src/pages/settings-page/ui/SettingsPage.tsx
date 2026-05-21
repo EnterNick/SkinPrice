@@ -245,7 +245,7 @@ export const SettingsPage: React.FC = () => {
   return (
     <div className="settings-page">
       <PageHeader sectionLabel={UI_TEXT.settingsEyebrow} title={UI_TEXT.settingsTitle} actions={<div className="toolbar-group"><button className="toolbar-button" type="button" onClick={() => navigate(ROUTES.home)}>{UI_TEXT.ctaToHome}</button></div>} />
-      {notice && <ToastAlert type={notice.type} text={notice.text} />}
+      {notice && <ToastAlert type={notice.type} text={notice.text} onClose={() => setNotice(null)} />}
       <LisSkinsTokenPanel
         visible
         configured={isTokenConfigured}

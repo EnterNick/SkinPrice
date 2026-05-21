@@ -2,6 +2,7 @@ package cstm
 
 import (
 	"SkinPrice/skinprice/internal/application/skins"
+	"context"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -25,7 +26,7 @@ func TestGetByMarketHashNameParsesPriceListAndRespectsCurrency(t *testing.T) {
 		CacheTTL:       time.Minute,
 	}
 
-	result, err := storage.GetByMarketHashName("AK-47 | Redline", "5")
+	result, err := storage.GetByMarketHashName(context.Background(), "AK-47 | Redline", "5")
 	if err != nil {
 		t.Fatalf("lookup price: %v", err)
 	}
@@ -59,7 +60,7 @@ func TestGetByMarketHashNameUsesCacheWithinTTL(t *testing.T) {
 	}
 
 	for i := 0; i < 2; i++ {
-		if _, err := storage.GetByMarketHashName("AK-47 | Redline", "5"); err != nil {
+		if _, err := storage.GetByMarketHashName(context.Background(), "AK-47 | Redline", "5"); err != nil {
 			t.Fatalf("lookup %d: %v", i, err)
 		}
 	}
@@ -81,7 +82,7 @@ func TestGetByMarketHashNameParsesWrappedObjectResponse(t *testing.T) {
 		CacheTTL:       time.Minute,
 	}
 
-	result, err := storage.GetByMarketHashName("AK-47 | Redline", "5")
+	result, err := storage.GetByMarketHashName(context.Background(), "AK-47 | Redline", "5")
 	if err != nil {
 		t.Fatalf("lookup wrapped response: %v", err)
 	}
@@ -103,7 +104,7 @@ func TestGetByMarketHashNameReturnsNotFoundForMissingSkin(t *testing.T) {
 		CacheTTL:       time.Minute,
 	}
 
-	_, err := storage.GetByMarketHashName("AK-47 | Redline", "5")
+	_, err := storage.GetByMarketHashName(context.Background(), "AK-47 | Redline", "5")
 	if !errors.Is(err, skins.ErrNewSkinsResponseUnsuccess) {
 		t.Fatalf("unexpected error: %v", err)
 	}

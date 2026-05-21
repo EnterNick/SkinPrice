@@ -44,11 +44,14 @@ type NewSkin struct {
 }
 
 type SaveSkinParams struct {
-	MarketHashName string
-	DisplayName    string
-	NameColor      string
-	IconURL        string
-	PageURL        string
+	MarketHashName  string
+	DisplayName     string
+	NameColor       string
+	IconURL         string
+	PageURL         string
+	SteamPageURL    string
+	LisSkinsPageURL string
+	CSTMPageURL     string
 }
 
 type SaveSkinResult struct {

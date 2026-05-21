@@ -1,0 +1,736 @@
+{
+  "schemaVersion": 1,
+  "id": "2c709d06-5d8b-4346-836b-fafedd9b4c4a",
+  "title": "SkinPrice Roadmap",
+  "description": "",
+  "goals": [
+    {
+      "id": "1e1384b7-4183-412d-9b01-450cdf17da41",
+      "title": "Фундамент данных и источников цен",
+      "description": "Подготовить базовую модель данных, чтобы приложение поддерживало любое количество площадок и не ломалось при добавлении новых интеграций.",
+      "order": 0,
+      "status": "todo",
+      "priority": "high",
+      "items": [
+        {
+          "id": "e400f6fb-e846-45ad-9fe4-35624b189afd",
+          "title": "Универсальная модель источников цен",
+          "description": "1. Ввести общий интерфейс PriceSource\n2. Перевести Steam и LisSkins на общий контракт\n3. Убрать жёсткую привязку UI к двум источникам",
+          "order": 0,
+          "status": "todo",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "27ab5a7e-6c7b-4f62-930b-4bcb833680cc",
+          "title": "Миграции локальной БД",
+          "description": "1. Подключить механизм миграций SQLite/ent\n2. Добавить таблицу schema_migrations\n3. Подготовить первые миграции для текущих сущностей",
+          "order": 1,
+          "status": "todo",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "50accc68-c134-4a21-956f-d544e36d1132",
+          "title": "Статусы источников данных",
+          "description": "1. Добавить SourceState\n2. Хранить последний успешный sync\n3. Хранить последнюю ошибку источника\n4. Отображать статус в UI",
+          "order": 2,
+          "status": "todo",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "68802afc-7ae6-42a8-9e78-f3c399c4b442",
+          "title": "Очередь обновления цен",
+          "description": "1. Добавить RefreshQueue\n2. Разделить ручное и автоматическое обновление\n3. Добавить приоритеты задач\n4. Добавить отмену задач при закрытии приложения",
+          "order": 3,
+          "status": "todo",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "bf2851ab-ab13-4c86-be5b-96576590bae5",
+          "title": "Диагностика и логи",
+          "description": "1. Настроить структурные логи\n2. Добавить экран/секцию диагностики\n3. Показывать версию приложения, путь до БД и последние ошибки",
+          "order": 4,
+          "status": "todo",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-05-21T12:00:00.000Z",
+      "updatedAt": "2026-05-21T12:00:00.000Z"
+    },
+    {
+      "id": "42a031cb-85c4-46a5-a34e-4b7c38bd1d0c",
+      "title": "Сохранение истории цен",
+      "description": "Начать сохранять price snapshots для последующей аналитики, графиков и расчёта min/max.",
+      "order": 1,
+      "status": "todo",
+      "priority": "high",
+      "items": [
+        {
+          "id": "b20df173-b511-429f-bc8a-9e4231bd963e",
+          "title": "Добавить модель PriceSnapshot",
+          "description": "1. Добавить ent-schema\n2. Добавить доменную модель\n3. Добавить поля source, price, currency, fetched_at, metadata",
+          "order": 0,
+          "status": "todo",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "ff0b2d04-faa4-4a95-b262-732f186365f6",
+          "title": "Сохранять snapshot после каждого обновления цены",
+          "description": "1. Сохранять результат Steam\n2. Сохранять результат LisSkins\n3. Не терять частичные данные при ошибке одного источника",
+          "order": 1,
+          "status": "todo",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "b65f9497-03e0-4a2b-82e8-35834467397a",
+          "title": "Добавить репозиторий истории цен",
+          "description": "1. Добавить методы create/list/latest\n2. Добавить выборку по skin_id/source/period\n3. Подготовить методы для аналитики",
+          "order": 2,
+          "status": "todo",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "8a37a9cf-bea6-4a05-b94e-78c5ac1f39ba",
+          "title": "Добавить политику хранения истории",
+          "description": "1. Определить срок хранения сырых snapshots\n2. Добавить очистку старых данных\n3. Подготовить основу для дневных агрегатов",
+          "order": 3,
+          "status": "todo",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-05-21T12:00:00.000Z",
+      "updatedAt": "2026-05-21T12:00:00.000Z"
+    },
+    {
+      "id": "50a67c6b-d0a4-4e7f-8fd0-8dcc5128749a",
+      "title": "Интеграция с CsTm",
+      "description": "Добавить market.csgo.com / CsTm как третий источник цен.",
+      "order": 2,
+      "status": "todo",
+      "priority": "high",
+      "items": [
+        {
+          "id": "66bf5a43-7b89-4a89-8968-4434779f2f42",
+          "title": "Реализовать CsTm adapter",
+          "description": "1. Добавить HTTP-клиент\n2. Реализовать получение цены по market_hash_name\n3. Нормализовать ответ к PriceQuote",
+          "order": 0,
+          "status": "done",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T11:40:21.000Z"
+        },
+        {
+          "id": "598c85de-e3f6-4448-a33e-27c79951f7b1",
+          "title": "Добавить обработку ошибок CsTm",
+          "description": "1. Обработать invalid token\n2. Обработать rate limit\n3. Обработать недоступность API\n4. Записывать ошибки в SourceState",
+          "order": 1,
+          "status": "todo",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "bb9bf044-2f13-4d80-9ca1-4a90fc84d3be",
+          "title": "Добавить тесты CsTm adapter",
+          "description": "1. Подготовить mock responses\n2. Проверить успешный ответ\n3. Проверить ошибки API\n4. Проверить нормализацию валюты и цены",
+          "order": 2,
+          "status": "done",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T11:40:21.000Z"
+        }
+      ],
+      "createdAt": "2026-05-21T12:00:00.000Z",
+      "updatedAt": "2026-05-21T11:40:21.000Z"
+    },
+    {
+      "id": "5e8ea31b-050a-4ba4-ad41-df54172c9267",
+      "title": "Главная страница с N источниками",
+      "description": "Переработать главную таблицу так, чтобы она поддерживала любое количество источников цен.",
+      "order": 3,
+      "status": "todo",
+      "priority": "high",
+      "items": [
+        {
+          "id": "f24228f2-4490-481f-858f-d8909a29a164",
+          "title": "Отображение N источников на главной",
+          "description": "1. Сделать динамические колонки источников\n2. Поддержать Steam, LisSkins и CsTm\n3. Корректно показывать отсутствие цены",
+          "order": 0,
+          "status": "todo",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "95f90e54-bde0-4563-a6d9-43ed15ad27ff",
+          "title": "Расчёт лучшей цены",
+          "description": "1. Определить best buy price\n2. Определить best sell price, если доступно\n3. Подсветить лучший источник в таблице",
+          "order": 1,
+          "status": "todo",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "66cdd39d-387f-48b5-ad51-ef0c103ce065",
+          "title": "Расчёт spread между площадками",
+          "description": "1. Добавить абсолютную разницу\n2. Добавить процентную разницу\n3. Добавить сортировку по spread",
+          "order": 2,
+          "status": "todo",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "4c016389-32dc-4bbf-a68f-fe50b598a215",
+          "title": "Улучшенные фильтры и сортировка",
+          "description": "1. Добавить фильтр по источнику\n2. Добавить фильтр по статусу данных\n3. Добавить сортировку по цене, spread и updated_at",
+          "order": 3,
+          "status": "todo",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-05-21T12:00:00.000Z",
+      "updatedAt": "2026-05-21T12:00:00.000Z"
+    },
+    {
+      "id": "20130e96-0b3c-447f-989f-d64ca9fc8407",
+      "title": "Карточка скина и аналитика",
+      "description": "Добавить детальный экран/модалку скина с историей цены и базовыми метриками.",
+      "order": 4,
+      "status": "todo",
+      "priority": "high",
+      "items": [
+        {
+          "id": "4eadc7da-93bc-4e4f-9d36-57bc7641a889",
+          "title": "Карточка скина",
+          "description": "1. Добавить переход из главной таблицы\n2. Показать основные параметры скина\n3. Показать текущие цены по источникам\n4. Показать ссылки на площадки",
+          "order": 0,
+          "status": "todo",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "2a3fb7e1-4f2d-4b7b-bb51-13e644dcd08f",
+          "title": "График истории цены",
+          "description": "1. Подготовить данные из PriceSnapshot\n2. Добавить выбор периода\n3. Отображать отдельные линии по источникам",
+          "order": 1,
+          "status": "todo",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "34e0b71f-621b-448e-8481-73a254211dea",
+          "title": "Аналитика min/max/avg",
+          "description": "1. Рассчитать min за 24h/7d/30d\n2. Рассчитать max за 24h/7d/30d\n3. Рассчитать avg за 7d/30d\n4. Показать метрики в карточке скина",
+          "order": 2,
+          "status": "todo",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "2aaa05f8-35bb-47a8-ae40-9e8fa1879d3b",
+          "title": "Локальный каталог найденных скинов",
+          "description": "1. Сохранять найденные через Steam скины локально\n2. Добавить metadata: weapon, wear, rarity, image_url\n3. Использовать локальный каталог для быстрого поиска",
+          "order": 3,
+          "status": "todo",
+          "priority": "high",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-05-21T12:00:00.000Z",
+      "updatedAt": "2026-05-21T12:00:00.000Z"
+    },
+    {
+      "id": "aaa36db6-0f5e-4afa-b936-5f02889e0ed2",
+      "title": "История покупок и продаж",
+      "description": "Добавить личную историю сделок пользователя для расчёта портфеля и PnL.",
+      "order": 5,
+      "status": "todo",
+      "priority": "medium",
+      "items": [
+        {
+          "id": "71c919de-939c-4449-9c3e-c6b21bc482b9",
+          "title": "История покупок",
+          "description": "1. Добавить модель Purchase\n2. Хранить skin_id, source, price, currency, fee, purchased_at\n3. Отображать покупки в карточке скина",
+          "order": 0,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "1278f4f8-a96b-44b2-b4d9-a74d84914c4a",
+          "title": "Ручное добавление покупки",
+          "description": "1. Добавить форму покупки\n2. Добавить выбор источника и валюты\n3. Добавить валидацию цены и даты",
+          "order": 1,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "51512a51-639b-4e45-bdb6-59bbd41aed33",
+          "title": "История продаж",
+          "description": "1. Добавить модель Sale\n2. Хранить skin_id, source, price, currency, fee, sold_at\n3. Связать продажу с покупкой, если возможно",
+          "order": 2,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "f9f4e275-96c5-4449-8e78-0448661dc15d",
+          "title": "Расчёт комиссий",
+          "description": "1. Добавить gross/net price\n2. Добавить fee amount и fee percent\n3. Учитывать комиссию в PnL",
+          "order": 3,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "747b161b-8689-48a4-87db-fe189a9d1ca5",
+          "title": "Расчёт PnL",
+          "description": "1. Рассчитать PnL по одному скину\n2. Рассчитать PnL по всем активам\n3. Показывать абсолютное и процентное значение",
+          "order": 4,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-05-21T12:00:00.000Z",
+      "updatedAt": "2026-05-21T12:00:00.000Z"
+    },
+    {
+      "id": "27a1da1f-e663-4def-bfb1-04506906602f",
+      "title": "Инвентарь и портфель пользователя",
+      "description": "Добавить синхронизацию инвентаря и портфельный раздел.",
+      "order": 6,
+      "status": "todo",
+      "priority": "medium",
+      "items": [
+        {
+          "id": "02dea316-c8d2-4544-8f00-71484a5bb43c",
+          "title": "Синхронизация инвентаря",
+          "description": "1. Получать инвентарь пользователя\n2. Маппить items по market_hash_name\n3. Сохранять asset_id/class_id/instance_id\n4. Обновлять synced_at",
+          "order": 0,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "0072d335-5488-447d-9f2f-f6ce0b41fbed",
+          "title": "Раздел портфеля пользователя",
+          "description": "1. Показать текущие активы\n2. Показать текущую стоимость\n3. Показать PnL\n4. Разделить inventory и watchlist",
+          "order": 1,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "3bf184b7-af9f-4516-bdca-dfea44303139",
+          "title": "Импорт инвентаря в отслеживаемые скины",
+          "description": "1. Добавить массовое добавление inventory items в watchlist\n2. Не создавать дубликаты\n3. Показывать результат импорта",
+          "order": 2,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "461e68f9-9c39-45c7-93b4-4f92e0cebb18",
+          "title": "Сопоставление инвентаря с покупками",
+          "description": "1. Связывать inventory item с purchase, если возможно\n2. Показывать неизвестную цену входа\n3. Разрешить ручное назначение покупки",
+          "order": 3,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-05-21T12:00:00.000Z",
+      "updatedAt": "2026-05-21T12:00:00.000Z"
+    },
+    {
+      "id": "361623f4-42bd-4619-9590-50b1bd442567",
+      "title": "Уведомления и alert rules",
+      "description": "Добавить пользовательские правила уведомлений по ценам, spread и состоянию источников.",
+      "order": 7,
+      "status": "todo",
+      "priority": "medium",
+      "items": [
+        {
+          "id": "b6f3a4ae-68c3-461e-8712-ab1e7d8c0d0f",
+          "title": "Уведомления по условиям",
+          "description": "1. Добавить локальные уведомления\n2. Показывать уведомления в приложении\n3. Добавить историю сработавших уведомлений",
+          "order": 0,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "2d54d4f4-15fc-4777-803d-5ce4e45e06de",
+          "title": "Alert rules для цен и spread",
+          "description": "1. Добавить модель AlertRule\n2. Поддержать условие цена ниже/выше X\n3. Поддержать условие spread больше N%\n4. Поддержать включение/выключение правила",
+          "order": 1,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "d84473a3-e11d-44b2-8ddc-416a8d1d2d81",
+          "title": "Уведомления о проблемах источников",
+          "description": "1. Уведомлять о rate limit\n2. Уведомлять о долгой недоступности источника\n3. Не спамить повторяющимися ошибками",
+          "order": 2,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-05-21T12:00:00.000Z",
+      "updatedAt": "2026-05-21T12:00:00.000Z"
+    },
+    {
+      "id": "90576bda-97cd-4649-9901-9eed8486bc5f",
+      "title": "WebSocket LisSkins",
+      "description": "Добавить realtime-канал LisSkins и fallback на REST-синхронизацию.",
+      "order": 8,
+      "status": "todo",
+      "priority": "medium",
+      "items": [
+        {
+          "id": "ed233b34-016d-4e07-9fd3-9621055c9043",
+          "title": "WebSocket LisSkins",
+          "description": "1. Реализовать подключение\n2. Реализовать reconnect\n3. Реализовать подписку на события\n4. Добавить настройку включения/выключения",
+          "order": 0,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "5fc71019-545c-4414-b356-23278c62552c",
+          "title": "Realtime-обновление цен",
+          "description": "1. Преобразовывать события в PriceEvent\n2. Сохранять новые данные как snapshots\n3. Обновлять UI через события приложения",
+          "order": 1,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "26e48399-5b4a-4525-a92a-5f085033f7d7",
+          "title": "Резервный REST-sync после WebSocket",
+          "description": "1. Проверять пропущенные события\n2. Делать периодический REST-refresh\n3. Использовать REST при отключенном WebSocket",
+          "order": 2,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-05-21T12:00:00.000Z",
+      "updatedAt": "2026-05-21T12:00:00.000Z"
+    },
+    {
+      "id": "9a72914d-745b-4de4-a71b-2bdbee295be2",
+      "title": "Безопасность настроек и бэкапы",
+      "description": "Добавить безопасное хранение секретов, резервное копирование и импорт/экспорт пользовательских данных.",
+      "order": 9,
+      "status": "todo",
+      "priority": "medium",
+      "items": [
+        {
+          "id": "4e9d278f-9ea4-4126-b6f3-be44b9871b5f",
+          "title": "Безопасное хранение API-ключей",
+          "description": "1. Не хранить ключи в plain text без предупреждения\n2. Использовать системное хранилище секретов, если возможно\n3. Не включать секреты в backup по умолчанию",
+          "order": 0,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "f2122199-a234-42b1-9dcb-7a3283b47f5f",
+          "title": "Реализация бэкапов настроек",
+          "description": "1. Экспортировать настройки приложения\n2. Версионировать schema backup-файла\n3. Добавить дату создания backup",
+          "order": 1,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "978dcd53-caa1-4a76-bd4c-c4e20287f47b",
+          "title": "Бэкап watchlist",
+          "description": "1. Экспортировать список отслеживаемых скинов\n2. Импортировать watchlist без дублей\n3. Показывать результат восстановления",
+          "order": 2,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "79d8034e-9d94-451c-b7bc-1cd81d28fdd6",
+          "title": "Бэкап истории покупок",
+          "description": "1. Экспортировать purchases\n2. Экспортировать sales\n3. Импортировать историю с проверкой дубликатов",
+          "order": 3,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "fdeea59f-96d4-4dfd-ac6a-843f016bd5ca",
+          "title": "Импорт из бэкапа",
+          "description": "1. Проверять schema_version\n2. Валидировать данные\n3. Показывать preview перед импортом\n4. Применять импорт транзакционно",
+          "order": 4,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "621a68e8-3196-411b-a7be-2f79b753b191",
+          "title": "Экспорт данных в CSV",
+          "description": "1. Экспортировать текущую таблицу цен\n2. Экспортировать историю покупок\n3. Экспортировать портфель",
+          "order": 5,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-05-21T12:00:00.000Z",
+      "updatedAt": "2026-05-21T12:00:00.000Z"
+    },
+    {
+      "id": "baaf61f9-df16-4b69-9b87-27a878f8052f",
+      "title": "Автообновление приложения",
+      "description": "Добавить механизм обновления самого desktop-приложения и rollback.",
+      "order": 10,
+      "status": "todo",
+      "priority": "medium",
+      "items": [
+        {
+          "id": "96147d86-66e2-4c9e-b73a-42c691848945",
+          "title": "Автообновление приложения",
+          "description": "1. Проверять актуальную версию\n2. Показывать пользователю доступное обновление\n3. Скачивать новую версию после подтверждения",
+          "order": 0,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "2c29b143-6823-4124-9e3e-11b2dab33d5c",
+          "title": "Версионированная установка приложения",
+          "description": "1. Разделить бинарники и пользовательские данные\n2. Хранить версии в отдельных директориях\n3. Обновлять current pointer",
+          "order": 1,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "45723912-6fcc-4f6d-bc9e-2cf3b0afe649",
+          "title": "Rollback при неудачном обновлении",
+          "description": "1. Проверять успешный запуск новой версии\n2. Возвращаться на предыдущую версию при ошибке\n3. Хранить минимум одну предыдущую версию",
+          "order": 2,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "84e3a92d-ce97-4de6-b390-a3daefeb5e8f",
+          "title": "Diagnostic report для пользователя",
+          "description": "1. Экспортировать app_version, os, db_version\n2. Экспортировать статусы источников\n3. Исключить токены и приватные данные",
+          "order": 3,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-05-21T12:00:00.000Z",
+      "updatedAt": "2026-05-21T12:00:00.000Z"
+    },
+    {
+      "id": "ec5c9e90-9809-4bae-bb16-b504fe53ca9d",
+      "title": "Тестирование",
+      "description": "Покрыть критичные расчёты, адаптеры, миграции и импорт/экспорт тестами.",
+      "order": 11,
+      "status": "todo",
+      "priority": "medium",
+      "items": [
+        {
+          "id": "ffb38022-c9a2-42ce-b3cc-875110e445ee",
+          "title": "Тесты расчётов цен",
+          "description": "1. Проверить spread\n2. Проверить min/max/avg\n3. Проверить PnL\n4. Проверить округления и комиссии",
+          "order": 0,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "cbde1bd3-3b81-4b12-a8a2-2468fdea9cec",
+          "title": "Тесты адаптеров источников",
+          "description": "1. Тестировать Steam adapter на mock responses\n2. Тестировать LisSkins adapter на mock responses\n3. Тестировать CsTm adapter на mock responses\n4. Проверить обработку ошибок",
+          "order": 1,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "b810f2fd-85a7-4f31-bafb-0fc954c6eec1",
+          "title": "Тесты миграций БД",
+          "description": "1. Проверять применение миграций на пустую БД\n2. Проверять миграции с существующими данными\n3. Проверять rollback/ошибочные сценарии, если поддерживается",
+          "order": 2,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "909df1cb-48af-4987-a17a-f2e2b7f8a66a",
+          "title": "Тесты backup/import/export",
+          "description": "1. Проверить экспорт backup\n2. Проверить импорт backup\n3. Проверить защиту от дублей\n4. Проверить несовместимую schema_version",
+          "order": 3,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-05-21T12:00:00.000Z",
+      "updatedAt": "2026-05-21T12:00:00.000Z"
+    },
+    {
+      "id": "bdf51a65-7ac7-4d68-a04d-e776aaaea658",
+      "title": "Trading Assistant",
+      "description": "Добавить безопасный помощник сделок без фоновой автопокупки и без автоматизации действий пользователя.",
+      "order": 12,
+      "status": "todo",
+      "priority": "low",
+      "items": [
+        {
+          "id": "7b46a5ed-efda-49ae-9994-49c341bcf881",
+          "title": "Trading Assistant",
+          "description": "1. Добавить отдельный модуль торгового помощника\n2. Отключить торговые функции по умолчанию\n3. Добавить предупреждения о рисках",
+          "order": 0,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "7929b7fb-3ab7-47b7-9afa-b509df738611",
+          "title": "Открытие страницы покупки/продажи",
+          "description": "1. Сформировать ссылку на площадку\n2. Открывать страницу во внешнем браузере\n3. Не выполнять сделку автоматически",
+          "order": 1,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "49b4b660-f778-464b-84da-436c784e28a8",
+          "title": "Предпросмотр сделки",
+          "description": "1. Показать предмет\n2. Показать источник\n3. Показать цену\n4. Показать комиссию и итоговую сумму",
+          "order": 2,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "fda96ae1-4ac3-4be1-b2ff-4031be032773",
+          "title": "Расчёт итоговой суммы с комиссией",
+          "description": "1. Рассчитать gross amount\n2. Рассчитать fee\n3. Рассчитать net amount\n4. Показать итог пользователю",
+          "order": 3,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "b2c45854-607f-4c9d-9e9d-f2c6907cd42a",
+          "title": "Журнал торговых действий",
+          "description": "1. Логировать открытие сделки\n2. Логировать подтверждённые пользователем действия\n3. Хранить дату, источник и предмет",
+          "order": 4,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "c36fb773-8def-40d4-9418-d78e0203e4bd",
+          "title": "Ручное подтверждение покупки/продажи",
+          "description": "1. Добавить обязательное подтверждение\n2. Запретить фоновое выполнение сделки\n3. Добавить отдельное подтверждение для крупных сумм",
+          "order": 5,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "627d53c7-35a2-483b-990b-62377993eee7",
+          "title": "Лимиты безопасности для сделок",
+          "description": "1. Добавить лимит суммы сделки\n2. Добавить лимит количества действий\n3. Добавить настройку блокировки торговых функций",
+          "order": 6,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        },
+        {
+          "id": "9714bba6-ee30-450f-9010-30a6a4a9c1c8",
+          "title": "Настройки торговых функций",
+          "description": "1. Добавить секцию Trading Assistant в настройки\n2. Дать возможность полностью отключить модуль\n3. Дать возможность сбросить лимиты",
+          "order": 7,
+          "status": "todo",
+          "priority": "medium",
+          "createdAt": "2026-05-21T12:00:00.000Z",
+          "updatedAt": "2026-05-21T12:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-05-21T12:00:00.000Z",
+      "updatedAt": "2026-05-21T12:00:00.000Z"
+    }
+  ],
+  "createdAt": "2026-05-21T11:32:30.450Z",
+  "updatedAt": "2026-05-21T11:40:21.000Z"
+}

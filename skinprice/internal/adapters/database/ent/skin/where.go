@@ -4,6 +4,7 @@ package skin
 
 import (
 	"SkinPrice/skinprice/internal/adapters/database/ent/predicate"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 )
@@ -63,6 +64,11 @@ func DisplayName(v string) predicate.Skin {
 	return predicate.Skin(sql.FieldEQ(FieldDisplayName, v))
 }
 
+// NameColor applies equality check predicate on the "name_color" field. It's identical to NameColorEQ.
+func NameColor(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldNameColor, v))
+}
+
 // IconURL applies equality check predicate on the "icon_url" field. It's identical to IconURLEQ.
 func IconURL(v string) predicate.Skin {
 	return predicate.Skin(sql.FieldEQ(FieldIconURL, v))
@@ -71,6 +77,66 @@ func IconURL(v string) predicate.Skin {
 // PageURL applies equality check predicate on the "page_url" field. It's identical to PageURLEQ.
 func PageURL(v string) predicate.Skin {
 	return predicate.Skin(sql.FieldEQ(FieldPageURL, v))
+}
+
+// PriceText applies equality check predicate on the "price_text" field. It's identical to PriceTextEQ.
+func PriceText(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldPriceText, v))
+}
+
+// SteamPageURL applies equality check predicate on the "steam_page_url" field. It's identical to SteamPageURLEQ.
+func SteamPageURL(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldSteamPageURL, v))
+}
+
+// SteamPriceText applies equality check predicate on the "steam_price_text" field. It's identical to SteamPriceTextEQ.
+func SteamPriceText(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldSteamPriceText, v))
+}
+
+// SteamUpdatedAt applies equality check predicate on the "steam_updated_at" field. It's identical to SteamUpdatedAtEQ.
+func SteamUpdatedAt(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldSteamUpdatedAt, v))
+}
+
+// LisskinsPageURL applies equality check predicate on the "lisskins_page_url" field. It's identical to LisskinsPageURLEQ.
+func LisskinsPageURL(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldLisskinsPageURL, v))
+}
+
+// LisskinsPriceText applies equality check predicate on the "lisskins_price_text" field. It's identical to LisskinsPriceTextEQ.
+func LisskinsPriceText(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldLisskinsPriceText, v))
+}
+
+// LisskinsUpdatedAt applies equality check predicate on the "lisskins_updated_at" field. It's identical to LisskinsUpdatedAtEQ.
+func LisskinsUpdatedAt(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldLisskinsUpdatedAt, v))
+}
+
+// CstmPageURL applies equality check predicate on the "cstm_page_url" field. It's identical to CstmPageURLEQ.
+func CstmPageURL(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldCstmPageURL, v))
+}
+
+// CstmPriceText applies equality check predicate on the "cstm_price_text" field. It's identical to CstmPriceTextEQ.
+func CstmPriceText(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldCstmPriceText, v))
+}
+
+// CstmUpdatedAt applies equality check predicate on the "cstm_updated_at" field. It's identical to CstmUpdatedAtEQ.
+func CstmUpdatedAt(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldCstmUpdatedAt, v))
+}
+
+// Currency applies equality check predicate on the "currency" field. It's identical to CurrencyEQ.
+func Currency(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldCurrency, v))
+}
+
+// UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
+func UpdatedAt(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
 // MarketHashNameEQ applies the EQ predicate on the "market_hash_name" field.
@@ -203,6 +269,71 @@ func DisplayNameContainsFold(v string) predicate.Skin {
 	return predicate.Skin(sql.FieldContainsFold(FieldDisplayName, v))
 }
 
+// NameColorEQ applies the EQ predicate on the "name_color" field.
+func NameColorEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldNameColor, v))
+}
+
+// NameColorNEQ applies the NEQ predicate on the "name_color" field.
+func NameColorNEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldNEQ(FieldNameColor, v))
+}
+
+// NameColorIn applies the In predicate on the "name_color" field.
+func NameColorIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldIn(FieldNameColor, vs...))
+}
+
+// NameColorNotIn applies the NotIn predicate on the "name_color" field.
+func NameColorNotIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldNotIn(FieldNameColor, vs...))
+}
+
+// NameColorGT applies the GT predicate on the "name_color" field.
+func NameColorGT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGT(FieldNameColor, v))
+}
+
+// NameColorGTE applies the GTE predicate on the "name_color" field.
+func NameColorGTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGTE(FieldNameColor, v))
+}
+
+// NameColorLT applies the LT predicate on the "name_color" field.
+func NameColorLT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLT(FieldNameColor, v))
+}
+
+// NameColorLTE applies the LTE predicate on the "name_color" field.
+func NameColorLTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLTE(FieldNameColor, v))
+}
+
+// NameColorContains applies the Contains predicate on the "name_color" field.
+func NameColorContains(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContains(FieldNameColor, v))
+}
+
+// NameColorHasPrefix applies the HasPrefix predicate on the "name_color" field.
+func NameColorHasPrefix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasPrefix(FieldNameColor, v))
+}
+
+// NameColorHasSuffix applies the HasSuffix predicate on the "name_color" field.
+func NameColorHasSuffix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasSuffix(FieldNameColor, v))
+}
+
+// NameColorEqualFold applies the EqualFold predicate on the "name_color" field.
+func NameColorEqualFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEqualFold(FieldNameColor, v))
+}
+
+// NameColorContainsFold applies the ContainsFold predicate on the "name_color" field.
+func NameColorContainsFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContainsFold(FieldNameColor, v))
+}
+
 // IconURLEQ applies the EQ predicate on the "icon_url" field.
 func IconURLEQ(v string) predicate.Skin {
 	return predicate.Skin(sql.FieldEQ(FieldIconURL, v))
@@ -256,16 +387,6 @@ func IconURLHasPrefix(v string) predicate.Skin {
 // IconURLHasSuffix applies the HasSuffix predicate on the "icon_url" field.
 func IconURLHasSuffix(v string) predicate.Skin {
 	return predicate.Skin(sql.FieldHasSuffix(FieldIconURL, v))
-}
-
-// IconURLIsNil applies the IsNil predicate on the "icon_url" field.
-func IconURLIsNil() predicate.Skin {
-	return predicate.Skin(sql.FieldIsNull(FieldIconURL))
-}
-
-// IconURLNotNil applies the NotNil predicate on the "icon_url" field.
-func IconURLNotNil() predicate.Skin {
-	return predicate.Skin(sql.FieldNotNull(FieldIconURL))
 }
 
 // IconURLEqualFold applies the EqualFold predicate on the "icon_url" field.
@@ -333,16 +454,6 @@ func PageURLHasSuffix(v string) predicate.Skin {
 	return predicate.Skin(sql.FieldHasSuffix(FieldPageURL, v))
 }
 
-// PageURLIsNil applies the IsNil predicate on the "page_url" field.
-func PageURLIsNil() predicate.Skin {
-	return predicate.Skin(sql.FieldIsNull(FieldPageURL))
-}
-
-// PageURLNotNil applies the NotNil predicate on the "page_url" field.
-func PageURLNotNil() predicate.Skin {
-	return predicate.Skin(sql.FieldNotNull(FieldPageURL))
-}
-
 // PageURLEqualFold applies the EqualFold predicate on the "page_url" field.
 func PageURLEqualFold(v string) predicate.Skin {
 	return predicate.Skin(sql.FieldEqualFold(FieldPageURL, v))
@@ -351,6 +462,726 @@ func PageURLEqualFold(v string) predicate.Skin {
 // PageURLContainsFold applies the ContainsFold predicate on the "page_url" field.
 func PageURLContainsFold(v string) predicate.Skin {
 	return predicate.Skin(sql.FieldContainsFold(FieldPageURL, v))
+}
+
+// PriceTextEQ applies the EQ predicate on the "price_text" field.
+func PriceTextEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldPriceText, v))
+}
+
+// PriceTextNEQ applies the NEQ predicate on the "price_text" field.
+func PriceTextNEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldNEQ(FieldPriceText, v))
+}
+
+// PriceTextIn applies the In predicate on the "price_text" field.
+func PriceTextIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldIn(FieldPriceText, vs...))
+}
+
+// PriceTextNotIn applies the NotIn predicate on the "price_text" field.
+func PriceTextNotIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldNotIn(FieldPriceText, vs...))
+}
+
+// PriceTextGT applies the GT predicate on the "price_text" field.
+func PriceTextGT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGT(FieldPriceText, v))
+}
+
+// PriceTextGTE applies the GTE predicate on the "price_text" field.
+func PriceTextGTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGTE(FieldPriceText, v))
+}
+
+// PriceTextLT applies the LT predicate on the "price_text" field.
+func PriceTextLT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLT(FieldPriceText, v))
+}
+
+// PriceTextLTE applies the LTE predicate on the "price_text" field.
+func PriceTextLTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLTE(FieldPriceText, v))
+}
+
+// PriceTextContains applies the Contains predicate on the "price_text" field.
+func PriceTextContains(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContains(FieldPriceText, v))
+}
+
+// PriceTextHasPrefix applies the HasPrefix predicate on the "price_text" field.
+func PriceTextHasPrefix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasPrefix(FieldPriceText, v))
+}
+
+// PriceTextHasSuffix applies the HasSuffix predicate on the "price_text" field.
+func PriceTextHasSuffix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasSuffix(FieldPriceText, v))
+}
+
+// PriceTextEqualFold applies the EqualFold predicate on the "price_text" field.
+func PriceTextEqualFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEqualFold(FieldPriceText, v))
+}
+
+// PriceTextContainsFold applies the ContainsFold predicate on the "price_text" field.
+func PriceTextContainsFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContainsFold(FieldPriceText, v))
+}
+
+// SteamPageURLEQ applies the EQ predicate on the "steam_page_url" field.
+func SteamPageURLEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldSteamPageURL, v))
+}
+
+// SteamPageURLNEQ applies the NEQ predicate on the "steam_page_url" field.
+func SteamPageURLNEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldNEQ(FieldSteamPageURL, v))
+}
+
+// SteamPageURLIn applies the In predicate on the "steam_page_url" field.
+func SteamPageURLIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldIn(FieldSteamPageURL, vs...))
+}
+
+// SteamPageURLNotIn applies the NotIn predicate on the "steam_page_url" field.
+func SteamPageURLNotIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldNotIn(FieldSteamPageURL, vs...))
+}
+
+// SteamPageURLGT applies the GT predicate on the "steam_page_url" field.
+func SteamPageURLGT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGT(FieldSteamPageURL, v))
+}
+
+// SteamPageURLGTE applies the GTE predicate on the "steam_page_url" field.
+func SteamPageURLGTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGTE(FieldSteamPageURL, v))
+}
+
+// SteamPageURLLT applies the LT predicate on the "steam_page_url" field.
+func SteamPageURLLT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLT(FieldSteamPageURL, v))
+}
+
+// SteamPageURLLTE applies the LTE predicate on the "steam_page_url" field.
+func SteamPageURLLTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLTE(FieldSteamPageURL, v))
+}
+
+// SteamPageURLContains applies the Contains predicate on the "steam_page_url" field.
+func SteamPageURLContains(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContains(FieldSteamPageURL, v))
+}
+
+// SteamPageURLHasPrefix applies the HasPrefix predicate on the "steam_page_url" field.
+func SteamPageURLHasPrefix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasPrefix(FieldSteamPageURL, v))
+}
+
+// SteamPageURLHasSuffix applies the HasSuffix predicate on the "steam_page_url" field.
+func SteamPageURLHasSuffix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasSuffix(FieldSteamPageURL, v))
+}
+
+// SteamPageURLEqualFold applies the EqualFold predicate on the "steam_page_url" field.
+func SteamPageURLEqualFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEqualFold(FieldSteamPageURL, v))
+}
+
+// SteamPageURLContainsFold applies the ContainsFold predicate on the "steam_page_url" field.
+func SteamPageURLContainsFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContainsFold(FieldSteamPageURL, v))
+}
+
+// SteamPriceTextEQ applies the EQ predicate on the "steam_price_text" field.
+func SteamPriceTextEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldSteamPriceText, v))
+}
+
+// SteamPriceTextNEQ applies the NEQ predicate on the "steam_price_text" field.
+func SteamPriceTextNEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldNEQ(FieldSteamPriceText, v))
+}
+
+// SteamPriceTextIn applies the In predicate on the "steam_price_text" field.
+func SteamPriceTextIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldIn(FieldSteamPriceText, vs...))
+}
+
+// SteamPriceTextNotIn applies the NotIn predicate on the "steam_price_text" field.
+func SteamPriceTextNotIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldNotIn(FieldSteamPriceText, vs...))
+}
+
+// SteamPriceTextGT applies the GT predicate on the "steam_price_text" field.
+func SteamPriceTextGT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGT(FieldSteamPriceText, v))
+}
+
+// SteamPriceTextGTE applies the GTE predicate on the "steam_price_text" field.
+func SteamPriceTextGTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGTE(FieldSteamPriceText, v))
+}
+
+// SteamPriceTextLT applies the LT predicate on the "steam_price_text" field.
+func SteamPriceTextLT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLT(FieldSteamPriceText, v))
+}
+
+// SteamPriceTextLTE applies the LTE predicate on the "steam_price_text" field.
+func SteamPriceTextLTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLTE(FieldSteamPriceText, v))
+}
+
+// SteamPriceTextContains applies the Contains predicate on the "steam_price_text" field.
+func SteamPriceTextContains(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContains(FieldSteamPriceText, v))
+}
+
+// SteamPriceTextHasPrefix applies the HasPrefix predicate on the "steam_price_text" field.
+func SteamPriceTextHasPrefix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasPrefix(FieldSteamPriceText, v))
+}
+
+// SteamPriceTextHasSuffix applies the HasSuffix predicate on the "steam_price_text" field.
+func SteamPriceTextHasSuffix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasSuffix(FieldSteamPriceText, v))
+}
+
+// SteamPriceTextEqualFold applies the EqualFold predicate on the "steam_price_text" field.
+func SteamPriceTextEqualFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEqualFold(FieldSteamPriceText, v))
+}
+
+// SteamPriceTextContainsFold applies the ContainsFold predicate on the "steam_price_text" field.
+func SteamPriceTextContainsFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContainsFold(FieldSteamPriceText, v))
+}
+
+// SteamUpdatedAtEQ applies the EQ predicate on the "steam_updated_at" field.
+func SteamUpdatedAtEQ(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldSteamUpdatedAt, v))
+}
+
+// SteamUpdatedAtNEQ applies the NEQ predicate on the "steam_updated_at" field.
+func SteamUpdatedAtNEQ(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldNEQ(FieldSteamUpdatedAt, v))
+}
+
+// SteamUpdatedAtIn applies the In predicate on the "steam_updated_at" field.
+func SteamUpdatedAtIn(vs ...time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldIn(FieldSteamUpdatedAt, vs...))
+}
+
+// SteamUpdatedAtNotIn applies the NotIn predicate on the "steam_updated_at" field.
+func SteamUpdatedAtNotIn(vs ...time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldNotIn(FieldSteamUpdatedAt, vs...))
+}
+
+// SteamUpdatedAtGT applies the GT predicate on the "steam_updated_at" field.
+func SteamUpdatedAtGT(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldGT(FieldSteamUpdatedAt, v))
+}
+
+// SteamUpdatedAtGTE applies the GTE predicate on the "steam_updated_at" field.
+func SteamUpdatedAtGTE(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldGTE(FieldSteamUpdatedAt, v))
+}
+
+// SteamUpdatedAtLT applies the LT predicate on the "steam_updated_at" field.
+func SteamUpdatedAtLT(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldLT(FieldSteamUpdatedAt, v))
+}
+
+// SteamUpdatedAtLTE applies the LTE predicate on the "steam_updated_at" field.
+func SteamUpdatedAtLTE(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldLTE(FieldSteamUpdatedAt, v))
+}
+
+// SteamUpdatedAtIsNil applies the IsNil predicate on the "steam_updated_at" field.
+func SteamUpdatedAtIsNil() predicate.Skin {
+	return predicate.Skin(sql.FieldIsNull(FieldSteamUpdatedAt))
+}
+
+// SteamUpdatedAtNotNil applies the NotNil predicate on the "steam_updated_at" field.
+func SteamUpdatedAtNotNil() predicate.Skin {
+	return predicate.Skin(sql.FieldNotNull(FieldSteamUpdatedAt))
+}
+
+// LisskinsPageURLEQ applies the EQ predicate on the "lisskins_page_url" field.
+func LisskinsPageURLEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldLisskinsPageURL, v))
+}
+
+// LisskinsPageURLNEQ applies the NEQ predicate on the "lisskins_page_url" field.
+func LisskinsPageURLNEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldNEQ(FieldLisskinsPageURL, v))
+}
+
+// LisskinsPageURLIn applies the In predicate on the "lisskins_page_url" field.
+func LisskinsPageURLIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldIn(FieldLisskinsPageURL, vs...))
+}
+
+// LisskinsPageURLNotIn applies the NotIn predicate on the "lisskins_page_url" field.
+func LisskinsPageURLNotIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldNotIn(FieldLisskinsPageURL, vs...))
+}
+
+// LisskinsPageURLGT applies the GT predicate on the "lisskins_page_url" field.
+func LisskinsPageURLGT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGT(FieldLisskinsPageURL, v))
+}
+
+// LisskinsPageURLGTE applies the GTE predicate on the "lisskins_page_url" field.
+func LisskinsPageURLGTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGTE(FieldLisskinsPageURL, v))
+}
+
+// LisskinsPageURLLT applies the LT predicate on the "lisskins_page_url" field.
+func LisskinsPageURLLT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLT(FieldLisskinsPageURL, v))
+}
+
+// LisskinsPageURLLTE applies the LTE predicate on the "lisskins_page_url" field.
+func LisskinsPageURLLTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLTE(FieldLisskinsPageURL, v))
+}
+
+// LisskinsPageURLContains applies the Contains predicate on the "lisskins_page_url" field.
+func LisskinsPageURLContains(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContains(FieldLisskinsPageURL, v))
+}
+
+// LisskinsPageURLHasPrefix applies the HasPrefix predicate on the "lisskins_page_url" field.
+func LisskinsPageURLHasPrefix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasPrefix(FieldLisskinsPageURL, v))
+}
+
+// LisskinsPageURLHasSuffix applies the HasSuffix predicate on the "lisskins_page_url" field.
+func LisskinsPageURLHasSuffix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasSuffix(FieldLisskinsPageURL, v))
+}
+
+// LisskinsPageURLEqualFold applies the EqualFold predicate on the "lisskins_page_url" field.
+func LisskinsPageURLEqualFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEqualFold(FieldLisskinsPageURL, v))
+}
+
+// LisskinsPageURLContainsFold applies the ContainsFold predicate on the "lisskins_page_url" field.
+func LisskinsPageURLContainsFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContainsFold(FieldLisskinsPageURL, v))
+}
+
+// LisskinsPriceTextEQ applies the EQ predicate on the "lisskins_price_text" field.
+func LisskinsPriceTextEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldLisskinsPriceText, v))
+}
+
+// LisskinsPriceTextNEQ applies the NEQ predicate on the "lisskins_price_text" field.
+func LisskinsPriceTextNEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldNEQ(FieldLisskinsPriceText, v))
+}
+
+// LisskinsPriceTextIn applies the In predicate on the "lisskins_price_text" field.
+func LisskinsPriceTextIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldIn(FieldLisskinsPriceText, vs...))
+}
+
+// LisskinsPriceTextNotIn applies the NotIn predicate on the "lisskins_price_text" field.
+func LisskinsPriceTextNotIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldNotIn(FieldLisskinsPriceText, vs...))
+}
+
+// LisskinsPriceTextGT applies the GT predicate on the "lisskins_price_text" field.
+func LisskinsPriceTextGT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGT(FieldLisskinsPriceText, v))
+}
+
+// LisskinsPriceTextGTE applies the GTE predicate on the "lisskins_price_text" field.
+func LisskinsPriceTextGTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGTE(FieldLisskinsPriceText, v))
+}
+
+// LisskinsPriceTextLT applies the LT predicate on the "lisskins_price_text" field.
+func LisskinsPriceTextLT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLT(FieldLisskinsPriceText, v))
+}
+
+// LisskinsPriceTextLTE applies the LTE predicate on the "lisskins_price_text" field.
+func LisskinsPriceTextLTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLTE(FieldLisskinsPriceText, v))
+}
+
+// LisskinsPriceTextContains applies the Contains predicate on the "lisskins_price_text" field.
+func LisskinsPriceTextContains(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContains(FieldLisskinsPriceText, v))
+}
+
+// LisskinsPriceTextHasPrefix applies the HasPrefix predicate on the "lisskins_price_text" field.
+func LisskinsPriceTextHasPrefix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasPrefix(FieldLisskinsPriceText, v))
+}
+
+// LisskinsPriceTextHasSuffix applies the HasSuffix predicate on the "lisskins_price_text" field.
+func LisskinsPriceTextHasSuffix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasSuffix(FieldLisskinsPriceText, v))
+}
+
+// LisskinsPriceTextEqualFold applies the EqualFold predicate on the "lisskins_price_text" field.
+func LisskinsPriceTextEqualFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEqualFold(FieldLisskinsPriceText, v))
+}
+
+// LisskinsPriceTextContainsFold applies the ContainsFold predicate on the "lisskins_price_text" field.
+func LisskinsPriceTextContainsFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContainsFold(FieldLisskinsPriceText, v))
+}
+
+// LisskinsUpdatedAtEQ applies the EQ predicate on the "lisskins_updated_at" field.
+func LisskinsUpdatedAtEQ(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldLisskinsUpdatedAt, v))
+}
+
+// LisskinsUpdatedAtNEQ applies the NEQ predicate on the "lisskins_updated_at" field.
+func LisskinsUpdatedAtNEQ(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldNEQ(FieldLisskinsUpdatedAt, v))
+}
+
+// LisskinsUpdatedAtIn applies the In predicate on the "lisskins_updated_at" field.
+func LisskinsUpdatedAtIn(vs ...time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldIn(FieldLisskinsUpdatedAt, vs...))
+}
+
+// LisskinsUpdatedAtNotIn applies the NotIn predicate on the "lisskins_updated_at" field.
+func LisskinsUpdatedAtNotIn(vs ...time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldNotIn(FieldLisskinsUpdatedAt, vs...))
+}
+
+// LisskinsUpdatedAtGT applies the GT predicate on the "lisskins_updated_at" field.
+func LisskinsUpdatedAtGT(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldGT(FieldLisskinsUpdatedAt, v))
+}
+
+// LisskinsUpdatedAtGTE applies the GTE predicate on the "lisskins_updated_at" field.
+func LisskinsUpdatedAtGTE(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldGTE(FieldLisskinsUpdatedAt, v))
+}
+
+// LisskinsUpdatedAtLT applies the LT predicate on the "lisskins_updated_at" field.
+func LisskinsUpdatedAtLT(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldLT(FieldLisskinsUpdatedAt, v))
+}
+
+// LisskinsUpdatedAtLTE applies the LTE predicate on the "lisskins_updated_at" field.
+func LisskinsUpdatedAtLTE(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldLTE(FieldLisskinsUpdatedAt, v))
+}
+
+// LisskinsUpdatedAtIsNil applies the IsNil predicate on the "lisskins_updated_at" field.
+func LisskinsUpdatedAtIsNil() predicate.Skin {
+	return predicate.Skin(sql.FieldIsNull(FieldLisskinsUpdatedAt))
+}
+
+// LisskinsUpdatedAtNotNil applies the NotNil predicate on the "lisskins_updated_at" field.
+func LisskinsUpdatedAtNotNil() predicate.Skin {
+	return predicate.Skin(sql.FieldNotNull(FieldLisskinsUpdatedAt))
+}
+
+// CstmPageURLEQ applies the EQ predicate on the "cstm_page_url" field.
+func CstmPageURLEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldCstmPageURL, v))
+}
+
+// CstmPageURLNEQ applies the NEQ predicate on the "cstm_page_url" field.
+func CstmPageURLNEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldNEQ(FieldCstmPageURL, v))
+}
+
+// CstmPageURLIn applies the In predicate on the "cstm_page_url" field.
+func CstmPageURLIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldIn(FieldCstmPageURL, vs...))
+}
+
+// CstmPageURLNotIn applies the NotIn predicate on the "cstm_page_url" field.
+func CstmPageURLNotIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldNotIn(FieldCstmPageURL, vs...))
+}
+
+// CstmPageURLGT applies the GT predicate on the "cstm_page_url" field.
+func CstmPageURLGT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGT(FieldCstmPageURL, v))
+}
+
+// CstmPageURLGTE applies the GTE predicate on the "cstm_page_url" field.
+func CstmPageURLGTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGTE(FieldCstmPageURL, v))
+}
+
+// CstmPageURLLT applies the LT predicate on the "cstm_page_url" field.
+func CstmPageURLLT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLT(FieldCstmPageURL, v))
+}
+
+// CstmPageURLLTE applies the LTE predicate on the "cstm_page_url" field.
+func CstmPageURLLTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLTE(FieldCstmPageURL, v))
+}
+
+// CstmPageURLContains applies the Contains predicate on the "cstm_page_url" field.
+func CstmPageURLContains(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContains(FieldCstmPageURL, v))
+}
+
+// CstmPageURLHasPrefix applies the HasPrefix predicate on the "cstm_page_url" field.
+func CstmPageURLHasPrefix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasPrefix(FieldCstmPageURL, v))
+}
+
+// CstmPageURLHasSuffix applies the HasSuffix predicate on the "cstm_page_url" field.
+func CstmPageURLHasSuffix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasSuffix(FieldCstmPageURL, v))
+}
+
+// CstmPageURLEqualFold applies the EqualFold predicate on the "cstm_page_url" field.
+func CstmPageURLEqualFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEqualFold(FieldCstmPageURL, v))
+}
+
+// CstmPageURLContainsFold applies the ContainsFold predicate on the "cstm_page_url" field.
+func CstmPageURLContainsFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContainsFold(FieldCstmPageURL, v))
+}
+
+// CstmPriceTextEQ applies the EQ predicate on the "cstm_price_text" field.
+func CstmPriceTextEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldCstmPriceText, v))
+}
+
+// CstmPriceTextNEQ applies the NEQ predicate on the "cstm_price_text" field.
+func CstmPriceTextNEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldNEQ(FieldCstmPriceText, v))
+}
+
+// CstmPriceTextIn applies the In predicate on the "cstm_price_text" field.
+func CstmPriceTextIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldIn(FieldCstmPriceText, vs...))
+}
+
+// CstmPriceTextNotIn applies the NotIn predicate on the "cstm_price_text" field.
+func CstmPriceTextNotIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldNotIn(FieldCstmPriceText, vs...))
+}
+
+// CstmPriceTextGT applies the GT predicate on the "cstm_price_text" field.
+func CstmPriceTextGT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGT(FieldCstmPriceText, v))
+}
+
+// CstmPriceTextGTE applies the GTE predicate on the "cstm_price_text" field.
+func CstmPriceTextGTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGTE(FieldCstmPriceText, v))
+}
+
+// CstmPriceTextLT applies the LT predicate on the "cstm_price_text" field.
+func CstmPriceTextLT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLT(FieldCstmPriceText, v))
+}
+
+// CstmPriceTextLTE applies the LTE predicate on the "cstm_price_text" field.
+func CstmPriceTextLTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLTE(FieldCstmPriceText, v))
+}
+
+// CstmPriceTextContains applies the Contains predicate on the "cstm_price_text" field.
+func CstmPriceTextContains(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContains(FieldCstmPriceText, v))
+}
+
+// CstmPriceTextHasPrefix applies the HasPrefix predicate on the "cstm_price_text" field.
+func CstmPriceTextHasPrefix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasPrefix(FieldCstmPriceText, v))
+}
+
+// CstmPriceTextHasSuffix applies the HasSuffix predicate on the "cstm_price_text" field.
+func CstmPriceTextHasSuffix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasSuffix(FieldCstmPriceText, v))
+}
+
+// CstmPriceTextEqualFold applies the EqualFold predicate on the "cstm_price_text" field.
+func CstmPriceTextEqualFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEqualFold(FieldCstmPriceText, v))
+}
+
+// CstmPriceTextContainsFold applies the ContainsFold predicate on the "cstm_price_text" field.
+func CstmPriceTextContainsFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContainsFold(FieldCstmPriceText, v))
+}
+
+// CstmUpdatedAtEQ applies the EQ predicate on the "cstm_updated_at" field.
+func CstmUpdatedAtEQ(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldCstmUpdatedAt, v))
+}
+
+// CstmUpdatedAtNEQ applies the NEQ predicate on the "cstm_updated_at" field.
+func CstmUpdatedAtNEQ(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldNEQ(FieldCstmUpdatedAt, v))
+}
+
+// CstmUpdatedAtIn applies the In predicate on the "cstm_updated_at" field.
+func CstmUpdatedAtIn(vs ...time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldIn(FieldCstmUpdatedAt, vs...))
+}
+
+// CstmUpdatedAtNotIn applies the NotIn predicate on the "cstm_updated_at" field.
+func CstmUpdatedAtNotIn(vs ...time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldNotIn(FieldCstmUpdatedAt, vs...))
+}
+
+// CstmUpdatedAtGT applies the GT predicate on the "cstm_updated_at" field.
+func CstmUpdatedAtGT(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldGT(FieldCstmUpdatedAt, v))
+}
+
+// CstmUpdatedAtGTE applies the GTE predicate on the "cstm_updated_at" field.
+func CstmUpdatedAtGTE(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldGTE(FieldCstmUpdatedAt, v))
+}
+
+// CstmUpdatedAtLT applies the LT predicate on the "cstm_updated_at" field.
+func CstmUpdatedAtLT(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldLT(FieldCstmUpdatedAt, v))
+}
+
+// CstmUpdatedAtLTE applies the LTE predicate on the "cstm_updated_at" field.
+func CstmUpdatedAtLTE(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldLTE(FieldCstmUpdatedAt, v))
+}
+
+// CstmUpdatedAtIsNil applies the IsNil predicate on the "cstm_updated_at" field.
+func CstmUpdatedAtIsNil() predicate.Skin {
+	return predicate.Skin(sql.FieldIsNull(FieldCstmUpdatedAt))
+}
+
+// CstmUpdatedAtNotNil applies the NotNil predicate on the "cstm_updated_at" field.
+func CstmUpdatedAtNotNil() predicate.Skin {
+	return predicate.Skin(sql.FieldNotNull(FieldCstmUpdatedAt))
+}
+
+// CurrencyEQ applies the EQ predicate on the "currency" field.
+func CurrencyEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldCurrency, v))
+}
+
+// CurrencyNEQ applies the NEQ predicate on the "currency" field.
+func CurrencyNEQ(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldNEQ(FieldCurrency, v))
+}
+
+// CurrencyIn applies the In predicate on the "currency" field.
+func CurrencyIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldIn(FieldCurrency, vs...))
+}
+
+// CurrencyNotIn applies the NotIn predicate on the "currency" field.
+func CurrencyNotIn(vs ...string) predicate.Skin {
+	return predicate.Skin(sql.FieldNotIn(FieldCurrency, vs...))
+}
+
+// CurrencyGT applies the GT predicate on the "currency" field.
+func CurrencyGT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGT(FieldCurrency, v))
+}
+
+// CurrencyGTE applies the GTE predicate on the "currency" field.
+func CurrencyGTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldGTE(FieldCurrency, v))
+}
+
+// CurrencyLT applies the LT predicate on the "currency" field.
+func CurrencyLT(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLT(FieldCurrency, v))
+}
+
+// CurrencyLTE applies the LTE predicate on the "currency" field.
+func CurrencyLTE(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldLTE(FieldCurrency, v))
+}
+
+// CurrencyContains applies the Contains predicate on the "currency" field.
+func CurrencyContains(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContains(FieldCurrency, v))
+}
+
+// CurrencyHasPrefix applies the HasPrefix predicate on the "currency" field.
+func CurrencyHasPrefix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasPrefix(FieldCurrency, v))
+}
+
+// CurrencyHasSuffix applies the HasSuffix predicate on the "currency" field.
+func CurrencyHasSuffix(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldHasSuffix(FieldCurrency, v))
+}
+
+// CurrencyEqualFold applies the EqualFold predicate on the "currency" field.
+func CurrencyEqualFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldEqualFold(FieldCurrency, v))
+}
+
+// CurrencyContainsFold applies the ContainsFold predicate on the "currency" field.
+func CurrencyContainsFold(v string) predicate.Skin {
+	return predicate.Skin(sql.FieldContainsFold(FieldCurrency, v))
+}
+
+// UpdatedAtEQ applies the EQ predicate on the "updated_at" field.
+func UpdatedAtEQ(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtNEQ applies the NEQ predicate on the "updated_at" field.
+func UpdatedAtNEQ(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldNEQ(FieldUpdatedAt, v))
+}
+
+// UpdatedAtIn applies the In predicate on the "updated_at" field.
+func UpdatedAtIn(vs ...time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtNotIn applies the NotIn predicate on the "updated_at" field.
+func UpdatedAtNotIn(vs ...time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldNotIn(FieldUpdatedAt, vs...))
+}
+
+// UpdatedAtGT applies the GT predicate on the "updated_at" field.
+func UpdatedAtGT(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldGT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtGTE applies the GTE predicate on the "updated_at" field.
+func UpdatedAtGTE(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldGTE(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLT applies the LT predicate on the "updated_at" field.
+func UpdatedAtLT(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldLT(FieldUpdatedAt, v))
+}
+
+// UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
+func UpdatedAtLTE(v time.Time) predicate.Skin {
+	return predicate.Skin(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// UpdatedAtIsNil applies the IsNil predicate on the "updated_at" field.
+func UpdatedAtIsNil() predicate.Skin {
+	return predicate.Skin(sql.FieldIsNull(FieldUpdatedAt))
+}
+
+// UpdatedAtNotNil applies the NotNil predicate on the "updated_at" field.
+func UpdatedAtNotNil() predicate.Skin {
+	return predicate.Skin(sql.FieldNotNull(FieldUpdatedAt))
 }
 
 // And groups predicates with the AND operator between them.

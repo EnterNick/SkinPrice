@@ -1,6 +1,8 @@
 package settings
 
+import "context"
+
 type Storage interface {
-	GetAppSettings() (AppSettings, error)
-	SaveAppSettings(settings AppSettings) error
+	GetAppSettings(ctx context.Context) (AppSettings, error)
+	SaveAppSettings(ctx context.Context, settings AppSettings) error
 }

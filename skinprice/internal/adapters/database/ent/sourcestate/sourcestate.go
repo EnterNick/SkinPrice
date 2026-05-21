@@ -42,10 +42,12 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// DefaultSource holds the default value on creation for the "source" field.
+	DefaultSource string
 	// SourceValidator is a validator for the "source" field. It is called by the builders before save.
 	SourceValidator func(string) error
-	// APITokenEncryptedValidator is a validator for the "api_token_encrypted" field. It is called by the builders before save.
-	APITokenEncryptedValidator func(string) error
+	// DefaultAPITokenEncrypted holds the default value on creation for the "api_token_encrypted" field.
+	DefaultAPITokenEncrypted string
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
 	DefaultUpdatedAt func() time.Time
 )
