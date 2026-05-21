@@ -4,6 +4,7 @@ import (
 	adapterdbappsettings "SkinPrice/skinprice/internal/adapters/database/appsettings"
 	adapterdbskins "SkinPrice/skinprice/internal/adapters/database/skins"
 	adapterdbsourcestate "SkinPrice/skinprice/internal/adapters/database/sourcestate"
+	adaptercstm "SkinPrice/skinprice/internal/adapters/http/cstm"
 	adapterlisskins "SkinPrice/skinprice/internal/adapters/http/lisskins"
 	adaptersteam "SkinPrice/skinprice/internal/adapters/http/steam"
 	appsettings "SkinPrice/skinprice/internal/application/settings"
@@ -24,6 +25,13 @@ func (a *App) registerRoutes() {
 	}
 	steamStorage := &adaptersteam.Storage{Client: adaptersteam.NewSteamClient(cfg), BaseURL: cfg.SteamBaseURL, Logger: a.logger}
 	lisSkinsStorage := &adapterlisskins.Storage{Client: adapterlisskins.NewLisSkinsClient(cfg), BaseURL: cfg.LisSkinsBaseURL, Logger: a.logger}
+	cstmStorage := &adaptercstm.Storage{
+		Client:         adaptercstm.NewClient(cfg),
+		BaseURL:        cfg.CSTMBaseURL,
+		RequestTimeout: cfg.CSTMRequestTimeout,
+		Logger:         a.logger,
+		CacheTTL:       cfg.CacheTTL,
+	}
 	searchNewSkinsUC := skins.SearchNewSkins{
 		Storage: steamStorage,
 	}
@@ -31,6 +39,8 @@ func (a *App) registerRoutes() {
 		Conn:             a.backend.Factory.DBConnection(),
 		SteamStorage:     steamStorage,
 		LisSkinsStorage:  lisSkinsStorage,
+		CSTMStorage:      cstmStorage,
+		CSTMBaseURL:      cfg.CSTMBaseURL,
 		BatchUpdateDelay: cfg.BulkPriceUpdateDelay,
 		Logger:           a.logger,
 	}

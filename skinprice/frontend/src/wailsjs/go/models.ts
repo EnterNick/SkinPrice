@@ -207,6 +207,10 @@ export namespace skins {
 	    lisskins_price_text: string;
 	    // Go type: time
 	    lisskins_updated_at: any;
+	    cstm_page_url: string;
+	    cstm_price_text: string;
+	    // Go type: time
+	    cstm_updated_at: any;
 	    currency: string;
 	
 	    static createFrom(source: any = {}) {
@@ -225,6 +229,9 @@ export namespace skins {
 	        this.lisskins_page_url = source["lisskins_page_url"];
 	        this.lisskins_price_text = source["lisskins_price_text"];
 	        this.lisskins_updated_at = this.convertValues(source["lisskins_updated_at"], null);
+	        this.cstm_page_url = source["cstm_page_url"];
+	        this.cstm_price_text = source["cstm_price_text"];
+	        this.cstm_updated_at = this.convertValues(source["cstm_updated_at"], null);
 	        this.currency = source["currency"];
 	    }
 	
@@ -423,6 +430,10 @@ export namespace skins {
 	    lisskins_price_text: string;
 	    // Go type: time
 	    lisskins_updated_at: any;
+	    cstm_page_url: string;
+	    cstm_price_text: string;
+	    // Go type: time
+	    cstm_updated_at: any;
 	    currency: string;
 	
 	    static createFrom(source: any = {}) {
@@ -438,6 +449,9 @@ export namespace skins {
 	        this.lisskins_page_url = source["lisskins_page_url"];
 	        this.lisskins_price_text = source["lisskins_price_text"];
 	        this.lisskins_updated_at = this.convertValues(source["lisskins_updated_at"], null);
+	        this.cstm_page_url = source["cstm_page_url"];
+	        this.cstm_price_text = source["cstm_price_text"];
+	        this.cstm_updated_at = this.convertValues(source["cstm_updated_at"], null);
 	        this.currency = source["currency"];
 	    }
 	

@@ -54,8 +54,10 @@ export const SavedSkinsPage: React.FC = () => {
         result = a.title.localeCompare(b.title, "ru");
       } else if (sortState.column === "steamPrice") {
         result = parsePriceValue(a.steamPriceText) - parsePriceValue(b.steamPriceText);
-      } else {
+      } else if (sortState.column === "lisSkinsPrice") {
         result = parsePriceValue(a.lisSkinsPriceText) - parsePriceValue(b.lisSkinsPriceText);
+      } else {
+        result = parsePriceValue(a.csTmPriceText) - parsePriceValue(b.csTmPriceText);
       }
 
       if (result === 0) {
@@ -220,7 +222,8 @@ export const SavedSkinsPage: React.FC = () => {
   const getSortOptionLabel = useCallback((column: SavedSkinsSortColumn) => {
     if (column === "title") return UI_TEXT.savedSkinsSortTitle;
     if (column === "steamPrice") return UI_TEXT.savedSkinsSortSteam;
-    return UI_TEXT.savedSkinsSortLisSkins;
+    if (column === "lisSkinsPrice") return UI_TEXT.savedSkinsSortLisSkins;
+    return UI_TEXT.savedSkinsSortCSTM;
   }, []);
 
   const getSortButtonLabel = useCallback(() => {
@@ -331,6 +334,10 @@ export const SavedSkinsPage: React.FC = () => {
                     <button className="saved-skins-sort-item" type="button" role="menuitem" onClick={() => applySortOption("lisSkinsPrice")}>
                       {getSortOptionLabel("lisSkinsPrice")}
                       {sortState?.column === "lisSkinsPrice" ? <span className="saved-skins-sort-state">{sortState.direction === "desc" ? "↓" : "↑"}</span> : null}
+                    </button>
+                    <button className="saved-skins-sort-item" type="button" role="menuitem" onClick={() => applySortOption("csTmPrice")}>
+                      {getSortOptionLabel("csTmPrice")}
+                      {sortState?.column === "csTmPrice" ? <span className="saved-skins-sort-state">{sortState.direction === "desc" ? "↓" : "↑"}</span> : null}
                     </button>
                     <button className="saved-skins-sort-item" type="button" role="menuitem" onClick={() => { setSortState(null); setIsSortMenuOpen(false); }}>
                       {UI_TEXT.savedSkinsSortReset}

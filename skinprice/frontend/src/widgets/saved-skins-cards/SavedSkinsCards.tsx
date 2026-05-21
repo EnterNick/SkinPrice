@@ -105,6 +105,17 @@ export const SavedSkinsCards: React.FC<SavedSkinsCardsProps> = ({
                 <span className="saved-skin-price-value">{skin.lisSkinsPriceText || "-"}</span>
                 <span className="saved-skin-price-updated">{formatUpdatedAt(skin.lisSkinsUpdatedAt)}</span>
               </button>
+              <button
+                className="saved-skin-price-card"
+                type="button"
+                disabled={!skin.csTmPageUrl}
+                title={buildPriceTooltip(UI_TEXT.sourceCSTMShort, skin.csTmUpdatedAt)}
+                onClick={() => openExternal(skin.csTmPageUrl)}
+              >
+                <span className="saved-skin-price-source">{UI_TEXT.csTmPriceLabel}</span>
+                <span className="saved-skin-price-value">{skin.csTmPriceText || "-"}</span>
+                <span className="saved-skin-price-updated">{formatUpdatedAt(skin.csTmUpdatedAt)}</span>
+              </button>
             </div>
 
             <div className="saved-skin-card-actions">

@@ -28,6 +28,7 @@ export const UI_TEXT = {
   priceLabel: "Цена",
   steamPriceLabel: "Steam",
   lisSkinsPriceLabel: "LisSkins",
+  csTmPriceLabel: "CS TM",
   listingsLabel: "Лотов",
   updatedLabel: "Обновлено",
   updateOnePendingCompact: "Обновляем...",
@@ -58,6 +59,7 @@ export const UI_TEXT = {
   settingsTitle: "Параметры приложения",
   sourceSteamShort: "Steam",
   sourceLisSkinsShort: "LisSkins",
+  sourceCSTMShort: "CS TM",
   notUpdatedYet: "ещё не обновлялось",
   lisSkinsTokenTitle: "Доступ к LisSkins",
   lisSkinsTokenRequired: "Для поиска в LisSkins сначала сохраните API-токен.",
@@ -100,5 +102,6 @@ export const UI_TEXT = {
   savedSkinsSortTitle: "Сортировать по названию",
   savedSkinsSortSteam: "Сортировать по Steam",
   savedSkinsSortLisSkins: "Сортировать по LisSkins",
+  savedSkinsSortCSTM: "Сортировать по CS TM",
   savedSkinsSortReset: "Сбросить сортировку",
 } as const;

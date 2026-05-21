@@ -76,6 +76,9 @@ type SavedSkinItem struct {
 	LisSkinsPageURL   string    `json:"lisskins_page_url"`
 	LisSkinsPriceText string    `json:"lisskins_price_text"`
 	LisSkinsUpdatedAt time.Time `json:"lisskins_updated_at"`
+	CSTMPageURL       string    `json:"cstm_page_url"`
+	CSTMPriceText     string    `json:"cstm_price_text"`
+	CSTMUpdatedAt     time.Time `json:"cstm_updated_at"`
 	Currency          string    `json:"currency"`
 }
 
@@ -92,6 +95,9 @@ type UpdateSavedSkinPriceResponse struct {
 	LisSkinsPageURL   string    `json:"lisskins_page_url"`
 	LisSkinsPriceText string    `json:"lisskins_price_text"`
 	LisSkinsUpdatedAt time.Time `json:"lisskins_updated_at"`
+	CSTMPageURL       string    `json:"cstm_page_url"`
+	CSTMPriceText     string    `json:"cstm_price_text"`
+	CSTMUpdatedAt     time.Time `json:"cstm_updated_at"`
 	Currency          string    `json:"currency"`
 }
 

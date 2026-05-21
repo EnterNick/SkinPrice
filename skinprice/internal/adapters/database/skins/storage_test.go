@@ -43,7 +43,7 @@ func priceCentsPtr(value int64, ok bool) *int64 {
 	return &value
 }
 
-func newTestStorage(t *testing.T, steamReader marketPriceReader, lisSkinsReader marketPriceReader) *Storage {
+func newTestStorage(t *testing.T, steamReader marketPriceReader, lisSkinsReader marketPriceReader, cstmReader marketPriceReader) *Storage {
 	t.Helper()
 
 	connection, err := database.New(&database.Config{
@@ -65,6 +65,7 @@ func newTestStorage(t *testing.T, steamReader marketPriceReader, lisSkinsReader 
 		Conn:            connection,
 		SteamStorage:    steamReader,
 		LisSkinsStorage: lisSkinsReader,
+		CSTMStorage:     cstmReader,
 	}
 }
 
@@ -83,7 +84,7 @@ func saveFixtureSkin(t *testing.T, storage *Storage, hash string) {
 }
 
 func TestSaveSkinIgnoresDuplicates(t *testing.T) {
-	storage := newTestStorage(t, fakeMarketStorage{}, fakeMarketStorage{})
+	storage := newTestStorage(t, fakeMarketStorage{}, fakeMarketStorage{}, fakeMarketStorage{})
 
 	first, err := storage.Save(appskins.SaveSkinParams{
 		MarketHashName: "AK-47 | Redline",
@@ -115,7 +116,7 @@ func TestSaveSkinIgnoresDuplicates(t *testing.T) {
 }
 
 func TestGetSavedListReturnsSavedItems(t *testing.T) {
-	storage := newTestStorage(t, fakeMarketStorage{}, fakeMarketStorage{})
+	storage := newTestStorage(t, fakeMarketStorage{}, fakeMarketStorage{}, fakeMarketStorage{})
 	saveFixtureSkin(t, storage, "AK-47 | Redline")
 
 	list, err := storage.GetSavedList(&application.Pagination{Limit: 20, Offset: 0})
@@ -152,6 +153,9 @@ func TestUpdateSavedSkinPriceUpdatesStoredValue(t *testing.T) {
 	}, fakeMarketStorage{
 		prices:   map[string]string{"AK-47 | Redline": "$11.90"},
 		pageURLs: map[string]string{"AK-47 | Redline": "lis-page"},
+	}, fakeMarketStorage{
+		prices:   map[string]string{"AK-47 | Redline": "125.25 ₽"},
+		pageURLs: map[string]string{"AK-47 | Redline": "cstm-page"},
 	})
 	saveFixtureSkin(t, storage, "AK-47 | Redline")
 
@@ -167,6 +171,9 @@ func TestUpdateSavedSkinPriceUpdatesStoredValue(t *testing.T) {
 	}
 	if result.LisSkinsPriceText != "$11.90" {
 		t.Fatalf("expected updated lis price, got %q", result.LisSkinsPriceText)
+	}
+	if result.CSTMPriceText != "125.25 ₽" {
+		t.Fatalf("expected updated cstm price, got %q", result.CSTMPriceText)
 	}
 	if result.Currency != "1" {
 		t.Fatalf("expected canonical currency code, got %q", result.Currency)
@@ -185,11 +192,17 @@ func TestUpdateSavedSkinPriceUpdatesStoredValue(t *testing.T) {
 	if list.Items[0].LisSkinsPriceText != "$11.90" {
 		t.Fatalf("expected saved lis price text to be updated, got %q", list.Items[0].LisSkinsPriceText)
 	}
+	if list.Items[0].CSTMPriceText != "125.25 ₽" {
+		t.Fatalf("expected saved cstm price text to be updated, got %q", list.Items[0].CSTMPriceText)
+	}
 	if list.Items[0].SteamUpdatedAt.IsZero() {
 		t.Fatalf("expected steam updated_at to be set")
 	}
 	if list.Items[0].LisSkinsUpdatedAt.IsZero() {
 		t.Fatalf("expected lisskins updated_at to be set")
+	}
+	if list.Items[0].CSTMUpdatedAt.IsZero() {
+		t.Fatalf("expected cstm updated_at to be set")
 	}
 	if list.Items[0].Currency != "1" {
 		t.Fatalf("expected saved canonical currency, got %q", list.Items[0].Currency)
@@ -214,6 +227,11 @@ func TestUpdateSavedSkinPriceFormatsPriceBySelectedCurrency(t *testing.T) {
 		prices:     map[string]string{"M4A4 | Asiimov": "$8.88"},
 		priceCents: map[string]int64{"M4A4 | Asiimov": 888},
 		currencies: lisCurrencies,
+	}, fakeMarketStorage{
+		priceCents: map[string]int64{
+			"AK-47 | Redline": 1250,
+			"M4A4 | Asiimov":  999,
+		},
 	})
 	saveFixtureSkin(t, storage, "AK-47 | Redline")
 	saveFixtureSkin(t, storage, "M4A4 | Asiimov")
@@ -242,6 +260,9 @@ func TestUpdateSavedSkinPriceFormatsPriceBySelectedCurrency(t *testing.T) {
 	if eurResult.LisSkinsPriceText != "$8.88" {
 		t.Fatalf("expected lisskins price to stay in USD, got %q", eurResult.LisSkinsPriceText)
 	}
+	if eurResult.CSTMPriceText != "€9.99" {
+		t.Fatalf("expected cstm price to follow selected currency, got %q", eurResult.CSTMPriceText)
+	}
 	if lisCurrencies["M4A4 | Asiimov"] != "1" {
 		t.Fatalf("expected lisskins updater to always receive USD currency, got %q", lisCurrencies["M4A4 | Asiimov"])
 	}
@@ -255,6 +276,9 @@ func TestUpdateAllSavedSkinsPricesReturnsPartialSuccess(t *testing.T) {
 		currencies: currencies,
 	}, fakeMarketStorage{
 		prices: map[string]string{"AK-47 | Redline": "$11.90"},
+		errors: map[string]error{"M4A4 | Asiimov": appskins.ErrNewSkinsRequestFailed},
+	}, fakeMarketStorage{
+		prices: map[string]string{"AK-47 | Redline": "125.25 ₽"},
 		errors: map[string]error{"M4A4 | Asiimov": appskins.ErrNewSkinsRequestFailed},
 	})
 	saveFixtureSkin(t, storage, "AK-47 | Redline")
@@ -281,6 +305,9 @@ func TestUpdateAllSavedSkinsPricesReturnsPartialSuccess(t *testing.T) {
 	if list.Items[1].LisSkinsPriceText != "$11.90" {
 		t.Fatalf("expected lisskins price to update during bulk refresh, got %q", list.Items[1].LisSkinsPriceText)
 	}
+	if list.Items[1].CSTMPriceText != "125.25 ₽" {
+		t.Fatalf("expected cstm price to update during bulk refresh, got %q", list.Items[1].CSTMPriceText)
+	}
 }
 
 func TestUpdateSavedSkinPricePreservesSuccessfulSourceOnPartialFailure(t *testing.T) {
@@ -289,7 +316,7 @@ func TestUpdateSavedSkinPricePreservesSuccessfulSourceOnPartialFailure(t *testin
 		pageURLs: map[string]string{"AK-47 | Redline": "steam-page"},
 	}, fakeMarketStorage{
 		errors: map[string]error{"AK-47 | Redline": appskins.ErrNewSkinsRequestFailed},
-	})
+	}, fakeMarketStorage{})
 	saveFixtureSkin(t, storage, "AK-47 | Redline")
 
 	result, err := storage.UpdateSavedSkinPrice(appskins.UpdateSavedSkinPriceParams{
@@ -305,20 +332,23 @@ func TestUpdateSavedSkinPricePreservesSuccessfulSourceOnPartialFailure(t *testin
 	if result.LisSkinsPriceText != "" {
 		t.Fatalf("expected failed lisskins update to keep empty price, got %q", result.LisSkinsPriceText)
 	}
+	if result.CSTMPriceText != "" {
+		t.Fatalf("expected untouched cstm price to stay empty, got %q", result.CSTMPriceText)
+	}
 }
 
 func TestUpdateSavedSkinPriceFetchesSourcesConcurrently(t *testing.T) {
 	var mu sync.Mutex
 	started := 0
 	release := make(chan struct{})
-	bothStarted := make(chan struct{})
+	allStarted := make(chan struct{})
 
 	markStarted := func() {
 		mu.Lock()
 		defer mu.Unlock()
 		started++
-		if started == 2 {
-			close(bothStarted)
+		if started == 3 {
+			close(allStarted)
 		}
 	}
 
@@ -330,7 +360,7 @@ func TestUpdateSavedSkinPriceFetchesSourcesConcurrently(t *testing.T) {
 		},
 	}
 
-	storage := newTestStorage(t, blockingStorage, blockingStorage)
+	storage := newTestStorage(t, blockingStorage, blockingStorage, blockingStorage)
 	saveFixtureSkin(t, storage, "AK-47 | Redline")
 
 	done := make(chan struct{})
@@ -342,13 +372,13 @@ func TestUpdateSavedSkinPriceFetchesSourcesConcurrently(t *testing.T) {
 		})
 	}()
 
-	<-bothStarted
+	<-allStarted
 	close(release)
 	<-done
 }
 
 func TestGetSavedListNormalizesLegacyCurrencyValues(t *testing.T) {
-	storage := newTestStorage(t, fakeMarketStorage{}, fakeMarketStorage{})
+	storage := newTestStorage(t, fakeMarketStorage{}, fakeMarketStorage{}, fakeMarketStorage{})
 	saveFixtureSkin(t, storage, "AK-47 | Redline")
 
 	if _, err := storage.Conn.DB().ExecContext(context.Background(), `UPDATE skins SET currency = 'USD' WHERE market_hash_name = ?`, "AK-47 | Redline"); err != nil {
@@ -365,7 +395,7 @@ func TestGetSavedListNormalizesLegacyCurrencyValues(t *testing.T) {
 }
 
 func TestDeleteSavedSkinRemovesRecord(t *testing.T) {
-	storage := newTestStorage(t, fakeMarketStorage{}, fakeMarketStorage{})
+	storage := newTestStorage(t, fakeMarketStorage{}, fakeMarketStorage{}, fakeMarketStorage{})
 	saveFixtureSkin(t, storage, "AK-47 | Redline")
 
 	if err := storage.DeleteSavedSkin(appskins.DeleteSavedSkinParams{MarketHashName: "AK-47 | Redline"}); err != nil {

@@ -1,6 +1,6 @@
 export type SavedSkinCurrency = "1" | "3" | "5";
 export type SavedSkinsViewMode = "table" | "cards";
-export type SavedSkinsSortColumn = "title" | "steamPrice" | "lisSkinsPrice";
+export type SavedSkinsSortColumn = "title" | "steamPrice" | "lisSkinsPrice" | "csTmPrice";
 export type SavedSkinsSortDirection = "desc" | "asc";
 export type SavedSkinsSortState = {
   column: SavedSkinsSortColumn;
@@ -44,15 +44,18 @@ export type Skin = {
   imageUrl: string;
   steamPageUrl: string;
   lisSkinsPageUrl: string;
+  csTmPageUrl: string;
   priceText: string;
   steamPriceText?: string;
   lisSkinsPriceText?: string;
+  csTmPriceText?: string;
   priceCents?: number;
   currency?: SavedSkinCurrency;
   sellListings?: number;
   updatedAt?: string;
   steamUpdatedAt?: string;
   lisSkinsUpdatedAt?: string;
+  csTmUpdatedAt?: string;
 };
 
 export type SavedSkin = Skin;
@@ -66,6 +69,9 @@ export type PriceUpdateResult = {
   lisSkinsPageUrl?: string;
   lisSkinsPriceText?: string;
   lisSkinsUpdatedAt?: string;
+  csTmPageUrl?: string;
+  csTmPriceText?: string;
+  csTmUpdatedAt?: string;
   currency?: SavedSkinCurrency;
   updated: number;
 };

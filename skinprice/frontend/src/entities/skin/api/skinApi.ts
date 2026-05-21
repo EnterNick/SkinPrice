@@ -37,6 +37,7 @@ const normalizeImageUrl = (imageUrl?: string, pageUrl?: string): string => {
 const mapSavedSkin = (item: skins.SavedSkinItem): SavedSkin => {
   const steamPageUrl = item.steam_page_url;
   const lisSkinsPageUrl = item.lisskins_page_url;
+  const csTmPageUrl = item.cstm_page_url;
 
   return {
     id: item.market_hash_name,
@@ -46,6 +47,7 @@ const mapSavedSkin = (item: skins.SavedSkinItem): SavedSkin => {
     imageUrl: normalizeImageUrl(item.icon_url, steamPageUrl),
     steamPageUrl,
     lisSkinsPageUrl,
+    csTmPageUrl,
     priceText: item.steam_price_text,
     currency: normalizeCurrency(item.currency),
     updatedAt: item.steam_updated_at,
@@ -53,6 +55,8 @@ const mapSavedSkin = (item: skins.SavedSkinItem): SavedSkin => {
     steamUpdatedAt: item.steam_updated_at,
     lisSkinsPriceText: item.lisskins_price_text,
     lisSkinsUpdatedAt: item.lisskins_updated_at,
+    csTmPriceText: item.cstm_price_text,
+    csTmUpdatedAt: item.cstm_updated_at,
   };
 };
 
@@ -64,6 +68,7 @@ const mapNewSkin = (item: skins.NewSkinItem): NewSkin => ({
   imageUrl: normalizeImageUrl(item.icon_url, item.page_url),
   steamPageUrl: item.page_url,
   lisSkinsPageUrl: "",
+  csTmPageUrl: "",
   priceText: item.price_text,
   priceCents: item.price_cents,
   sellListings: item.sell_listings,
@@ -193,6 +198,9 @@ export const updateSkinPrice = async (skinId: string, currency: SavedSkinCurrenc
       lisSkinsPageUrl: response.lisskins_page_url,
       lisSkinsPriceText: response.lisskins_price_text,
       lisSkinsUpdatedAt: response.lisskins_updated_at,
+      csTmPageUrl: response.cstm_page_url,
+      csTmPriceText: response.cstm_price_text,
+      csTmUpdatedAt: response.cstm_updated_at,
       currency: normalizeCurrency(response.currency),
     };
   } catch (err) {

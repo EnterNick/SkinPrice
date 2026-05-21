@@ -151,6 +151,12 @@ export const SavedSkinsTable: React.FC<SavedSkinsTableProps> = ({
                   {sortState?.column === "lisSkinsPrice" ? <span className="table-sort-arrow">{getSortArrow(sortState.direction)}</span> : null}
                 </button>
               </th>
+              <th>
+                <button className="table-sort-button" type="button" onClick={() => onSortChange("csTmPrice")}>
+                  <span>{UI_TEXT.csTmPriceLabel}</span>
+                  {sortState?.column === "csTmPrice" ? <span className="table-sort-arrow">{getSortArrow(sortState.direction)}</span> : null}
+                </button>
+              </th>
               <th className="actions-menu-column" aria-label="Действия" />
             </tr>
           </thead>
@@ -195,6 +201,17 @@ export const SavedSkinsTable: React.FC<SavedSkinsTableProps> = ({
                       title={buildPriceTooltip(UI_TEXT.sourceLisSkinsShort, skin.lisSkinsUpdatedAt)}
                     >
                       <span className="price-cell-value">{skin.lisSkinsPriceText || "-"}</span>
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      className="price-cell-button"
+                      type="button"
+                      disabled={!skin.csTmPageUrl}
+                      onClick={() => openExternal(skin.csTmPageUrl)}
+                      title={buildPriceTooltip(UI_TEXT.sourceCSTMShort, skin.csTmUpdatedAt)}
+                    >
+                      <span className="price-cell-value">{skin.csTmPriceText || "-"}</span>
                     </button>
                   </td>
                   <td className="actions-menu-column">

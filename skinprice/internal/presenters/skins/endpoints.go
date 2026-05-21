@@ -142,6 +142,9 @@ func (e *Endpoints) GetSavedSkins(filter GetSavedSkinsFilter) (SavedSkinsRespons
 			LisSkinsPageURL:   item.LisSkinsPageURL,
 			LisSkinsPriceText: item.LisSkinsPriceText,
 			LisSkinsUpdatedAt: item.LisSkinsUpdatedAt,
+			CSTMPageURL:       item.CSTMPageURL,
+			CSTMPriceText:     item.CSTMPriceText,
+			CSTMUpdatedAt:     item.CSTMUpdatedAt,
 			Currency:          item.Currency,
 		})
 	}
@@ -162,6 +165,9 @@ func (e *Endpoints) UpdateSavedSkinPrice(payload UpdateSavedSkinPriceRequest) (U
 		LisSkinsPageURL:   result.LisSkinsPageURL,
 		LisSkinsPriceText: result.LisSkinsPriceText,
 		LisSkinsUpdatedAt: result.LisSkinsUpdatedAt,
+		CSTMPageURL:       result.CSTMPageURL,
+		CSTMPriceText:     result.CSTMPriceText,
+		CSTMUpdatedAt:     result.CSTMUpdatedAt,
 		Currency:          result.Currency,
 	}, nil
 }

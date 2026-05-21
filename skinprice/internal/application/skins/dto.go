@@ -73,6 +73,9 @@ type SavedSkin struct {
 	LisSkinsPageURL   string
 	LisSkinsPriceText string
 	LisSkinsUpdatedAt time.Time
+	CSTMPageURL       string
+	CSTMPriceText     string
+	CSTMUpdatedAt     time.Time
 	Currency          string
 }
 
@@ -89,6 +92,9 @@ type UpdateSavedSkinPriceResult struct {
 	LisSkinsPageURL   string
 	LisSkinsPriceText string
 	LisSkinsUpdatedAt time.Time
+	CSTMPageURL       string
+	CSTMPriceText     string
+	CSTMUpdatedAt     time.Time
 	Currency          string
 }
 
