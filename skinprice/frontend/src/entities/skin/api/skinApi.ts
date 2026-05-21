@@ -1,11 +1,20 @@
 import { ClearLisSkinsToken, DeleteSavedSkin, GetAppSettings, GetSavedSkins, HasLisSkinsToken, SaveAppSettings, SaveSkin, SearchNewSkins, SetLisSkinsToken, UpdateAllSavedSkinsPrices, UpdateSavedSkinPrice } from "../../../wailsjs/go/main/App";
 import type { skins } from "../../../wailsjs/go/models";
 import { toApiError } from "../../../shared/api/errors";
-import { normalizeAutoRefreshIntervalSeconds, normalizeCurrency, normalizeSavedSkinsViewMode } from "../../../shared/config/settings";
+import {
+  normalizeAutoRefreshEnabled,
+  normalizeAutoRefreshIntervalSeconds,
+  normalizeCurrency,
+  normalizeFontFamily,
+  normalizeFontSizePx,
+  normalizeSavedSkinsViewMode,
+} from "../../../shared/config/settings";
 import { logClientEvent } from "../../../shared/lib/logging/logger";
+import { applyTypographySettings } from "../../../shared/lib/settings/appTypography";
 import { toSkinNameColor } from "../../../shared/lib/skinNameColor";
 import type {
   BulkPriceUpdateResult,
+  FontFamilyOptionValue,
   NewSkin,
   NewSkinsSearchParams,
   PaginatedResult,
@@ -307,18 +316,26 @@ export const clearLisSkinsToken = async (): Promise<void> => {
 
 export type AppSettings = {
   currency: SavedSkinCurrency;
+  autoRefreshEnabled: boolean;
   autoRefreshIntervalSeconds: number;
   savedSkinsViewMode: SavedSkinsViewMode;
+  fontFamily: FontFamilyOptionValue;
+  fontSizePx: number;
 };
 
 export const getAppSettings = async (): Promise<AppSettings> => {
   try {
     const response = await GetAppSettings();
-    return {
+    const settings = {
       currency: normalizeCurrency(response.currency),
+      autoRefreshEnabled: normalizeAutoRefreshEnabled(response.auto_refresh_enabled),
       autoRefreshIntervalSeconds: normalizeAutoRefreshIntervalSeconds(response.auto_refresh_interval_seconds),
       savedSkinsViewMode: normalizeSavedSkinsViewMode(response.saved_skins_view_mode),
+      fontFamily: normalizeFontFamily(response.font_family),
+      fontSizePx: normalizeFontSizePx(response.font_size_px),
     };
+    applyTypographySettings(settings);
+    return settings;
   } catch (err) {
     logClientEvent("error", "getAppSettings failed", "skinApi", {
       operation: "getAppSettings",
@@ -332,14 +349,21 @@ export const saveAppSettings = async (settings: AppSettings): Promise<AppSetting
   try {
     const normalized = {
       currency: normalizeCurrency(settings.currency),
+      autoRefreshEnabled: normalizeAutoRefreshEnabled(settings.autoRefreshEnabled),
       autoRefreshIntervalSeconds: normalizeAutoRefreshIntervalSeconds(settings.autoRefreshIntervalSeconds),
       savedSkinsViewMode: normalizeSavedSkinsViewMode(settings.savedSkinsViewMode),
+      fontFamily: normalizeFontFamily(settings.fontFamily),
+      fontSizePx: normalizeFontSizePx(settings.fontSizePx),
     };
     await SaveAppSettings({
       currency: normalized.currency,
+      auto_refresh_enabled: normalized.autoRefreshEnabled,
       auto_refresh_interval_seconds: normalized.autoRefreshIntervalSeconds,
       saved_skins_view_mode: normalized.savedSkinsViewMode,
+      font_family: normalized.fontFamily,
+      font_size_px: normalized.fontSizePx,
     });
+    applyTypographySettings(normalized);
     return normalized;
   } catch (err) {
     logClientEvent("error", "saveAppSettings failed", "skinApi", {

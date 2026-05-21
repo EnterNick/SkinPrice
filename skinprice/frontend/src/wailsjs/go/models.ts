@@ -25,8 +25,11 @@ export namespace settings {
 	
 	export class AppSettingsResponse {
 	    currency: string;
+	    auto_refresh_enabled: boolean;
 	    auto_refresh_interval_seconds: number;
 	    saved_skins_view_mode: string;
+	    font_family: string;
+	    font_size_px: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new AppSettingsResponse(source);
@@ -35,14 +38,20 @@ export namespace settings {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.currency = source["currency"];
+	        this.auto_refresh_enabled = source["auto_refresh_enabled"];
 	        this.auto_refresh_interval_seconds = source["auto_refresh_interval_seconds"];
 	        this.saved_skins_view_mode = source["saved_skins_view_mode"];
+	        this.font_family = source["font_family"];
+	        this.font_size_px = source["font_size_px"];
 	    }
 	}
 	export class SaveAppSettingsRequest {
 	    currency: string;
+	    auto_refresh_enabled: boolean;
 	    auto_refresh_interval_seconds: number;
 	    saved_skins_view_mode: string;
+	    font_family: string;
+	    font_size_px: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new SaveAppSettingsRequest(source);
@@ -51,8 +60,11 @@ export namespace settings {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.currency = source["currency"];
+	        this.auto_refresh_enabled = source["auto_refresh_enabled"];
 	        this.auto_refresh_interval_seconds = source["auto_refresh_interval_seconds"];
 	        this.saved_skins_view_mode = source["saved_skins_view_mode"];
+	        this.font_family = source["font_family"];
+	        this.font_size_px = source["font_size_px"];
 	    }
 	}
 

@@ -2,9 +2,14 @@ package settings
 
 const (
 	DefaultCurrency                   = "1"
+	DefaultAutoRefreshEnabled         = true
 	DefaultAutoRefreshIntervalSeconds = 30
 	MinAutoRefreshIntervalSeconds     = 5
 	DefaultSavedSkinsViewMode         = "table"
+	DefaultFontFamily                 = "nunito"
+	DefaultFontSizePx                 = 14
+	MinFontSizePx                     = 10
+	MaxFontSizePx                     = 28
 )
 
 type GetAppSettings struct {
@@ -17,8 +22,11 @@ func (uc GetAppSettings) Execute() (AppSettings, error) {
 		return AppSettings{}, err
 	}
 	settings.Currency = normalizeCurrency(settings.Currency)
+	settings.AutoRefreshEnabled = normalizeAutoRefreshEnabled(settings.AutoRefreshEnabled)
 	settings.AutoRefreshIntervalSeconds = normalizeAutoRefreshIntervalSeconds(settings.AutoRefreshIntervalSeconds)
 	settings.SavedSkinsViewMode = normalizeSavedSkinsViewMode(settings.SavedSkinsViewMode)
+	settings.FontFamily = normalizeFontFamily(settings.FontFamily)
+	settings.FontSizePx = normalizeFontSizePx(settings.FontSizePx)
 	return settings, nil
 }
 
@@ -28,8 +36,11 @@ type SaveAppSettings struct {
 
 func (uc SaveAppSettings) Execute(settings AppSettings) error {
 	settings.Currency = normalizeCurrency(settings.Currency)
+	settings.AutoRefreshEnabled = normalizeAutoRefreshEnabled(settings.AutoRefreshEnabled)
 	settings.AutoRefreshIntervalSeconds = normalizeAutoRefreshIntervalSeconds(settings.AutoRefreshIntervalSeconds)
 	settings.SavedSkinsViewMode = normalizeSavedSkinsViewMode(settings.SavedSkinsViewMode)
+	settings.FontFamily = normalizeFontFamily(settings.FontFamily)
+	settings.FontSizePx = normalizeFontSizePx(settings.FontSizePx)
 	return uc.Storage.SaveAppSettings(settings)
 }
 
@@ -53,6 +64,10 @@ func normalizeAutoRefreshIntervalSeconds(value int) int {
 	return value
 }
 
+func normalizeAutoRefreshEnabled(value bool) bool {
+	return value
+}
+
 func normalizeSavedSkinsViewMode(value string) string {
 	switch value {
 	case "table", "cards":
@@ -60,4 +75,20 @@ func normalizeSavedSkinsViewMode(value string) string {
 	default:
 		return DefaultSavedSkinsViewMode
 	}
+}
+
+func normalizeFontFamily(value string) string {
+	switch value {
+	case "inter", "system", "nunito", "roboto", "ibm-plex-sans", "manrope", "monocraft":
+		return value
+	default:
+		return DefaultFontFamily
+	}
+}
+
+func normalizeFontSizePx(value int) int {
+	if value < MinFontSizePx || value > MaxFontSizePx {
+		return DefaultFontSizePx
+	}
+	return value
 }

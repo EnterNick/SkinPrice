@@ -145,7 +145,9 @@ func (s *Storage) fetchPriceList(currencyCode string) (map[string]priceListItem,
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", skins.ErrNewSkinsRequestFailed, err)
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("%w: %d", skins.ErrNewSkinsRequestBadStatus, resp.StatusCode)

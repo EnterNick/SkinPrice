@@ -1,5 +1,6 @@
 export type SavedSkinCurrency = "1" | "3" | "5";
 export type SavedSkinsViewMode = "table" | "cards";
+export type FontFamilyOptionValue = "inter" | "system" | "nunito" | "roboto" | "ibm-plex-sans" | "manrope" | "monocraft";
 export type SavedSkinsSortColumn = "title" | "steamPrice" | "lisSkinsPrice" | "csTmPrice";
 export type SavedSkinsSortDirection = "desc" | "asc";
 export type SavedSkinsSortState = {
@@ -10,6 +11,11 @@ export type SavedSkinsSortState = {
 export type CurrencyOption = {
   value: SavedSkinCurrency;
   label: "USD" | "EUR" | "RUB";
+};
+
+export type FontFamilyOption = {
+  value: FontFamilyOptionValue;
+  label: "Inter" | "System" | "Nunito" | "Roboto" | "IBM Plex Sans" | "Manrope" | "Monocraft";
 };
 
 export type NewSkinsSearchSortColumn = "popular" | "price" | "name" | "quantity";
